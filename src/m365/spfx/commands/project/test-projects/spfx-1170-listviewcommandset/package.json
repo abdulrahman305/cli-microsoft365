@@ -16,7 +16,7 @@
     "@microsoft/sp-core-library": "1.17.0",
     "@microsoft/decorators": "1.17.0",
     "@microsoft/sp-listview-extensibility": "1.17.0",
-    "@microsoft/sp-dialog": "1.17.0"
+    "@microsoft/sp-dialog": "1.18.0"
   },
   "devDependencies": {
     "@microsoft/rush-stack-compiler-4.5": "0.4.0",
