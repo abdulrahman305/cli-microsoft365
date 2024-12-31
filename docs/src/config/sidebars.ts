@@ -628,6 +628,25 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          roledefinition: [
+            {
+              type: 'doc',
+              label: 'roledefinition get',
+              id: 'cmd/entra/roledefinition/roledefinition-get'
+            },
+            {
+              type: 'doc',
+              label: 'roledefinition list',
+              id: 'cmd/entra/roledefinition/roledefinition-list'
+            },
+            {
+              type: 'doc',
+              label: 'roledefinition remove',
+              id: 'cmd/entra/roledefinition/roledefinition-remove'
+            }
+          ]
+        },
+        {
           siteclassification: [
             {
               type: 'doc',
@@ -906,6 +925,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'people profilecardproperty set',
               id: 'cmd/tenant/people/people-profilecardproperty-set'
+            },
+            {
+              type: 'doc',
+              label: 'people pronouns get',
+              id: 'cmd/tenant/people/people-pronouns-get'
             }
           ]
         },
@@ -1653,21 +1677,21 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
-          chatbot: [
+          copilot: [
             {
               type: 'doc',
-              label: 'chatbot get',
-              id: 'cmd/pp/chatbot/chatbot-get'
+              label: 'copilot get',
+              id: 'cmd/pp/copilot/copilot-get'
             },
             {
               type: 'doc',
-              label: 'chatbot list',
-              id: 'cmd/pp/chatbot/chatbot-list'
+              label: 'copliot list',
+              id: 'cmd/pp/copilot/copilot-list'
             },
             {
               type: 'doc',
-              label: 'chatbot remove',
-              id: 'cmd/pp/chatbot/chatbot-remove'
+              label: 'copilot remove',
+              id: 'cmd/pp/copilot/copilot-remove'
             }
           ]
         },
@@ -1961,11 +1985,30 @@ const sidebars: SidebarsConfig = {
     {
       'SharePoint Embedded (spe)': [
         {
+          container: [
+            {
+              type: 'doc',
+              label: 'container get',
+              id: 'cmd/spe/container/container-get'
+            },
+            {
+              type: 'doc',
+              label: 'container list',
+              id: 'cmd/spe/container/container-list'
+            }
+          ]
+        },
+        {
           containertype: [
             {
               type: 'doc',
               label: 'containertype add',
               id: 'cmd/spe/containertype/containertype-add'
+            },
+            {
+              type: 'doc',
+              label: 'containertype get',
+              id: 'cmd/spe/containertype/containertype-get'
             },
             {
               type: 'doc',
@@ -3725,6 +3768,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'tenant homesite list',
+              id: 'cmd/spo/tenant/tenant-homesite-list'
+            },
+            {
+              type: 'doc',
               label: 'tenant recyclebinitem list',
               id: 'cmd/spo/tenant/tenant-recyclebinitem-list'
             },
@@ -3977,8 +4025,18 @@ const sidebars: SidebarsConfig = {
           model: [
             {
               type: 'doc',
+              label: 'model get',
+              id: 'cmd/spp/model/model-get'
+            },
+            {
+              type: 'doc',
               label: 'model list',
               id: 'cmd/spp/model/model-list'
+            },
+            {
+              type: 'doc',
+              label: 'model remove',
+              id: 'cmd/spp/model/model-remove'
             }
           ]
         }
@@ -4503,6 +4561,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'engage community list',
               id: 'cmd/viva/engage/engage-community-list'
+            },
+            {
+              type: 'doc',
+              label: 'engage community set',
+              id: 'cmd/viva/engage/engage-community-set'
             },
             {
               type: 'doc',

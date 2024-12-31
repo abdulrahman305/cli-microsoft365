@@ -1,10 +1,19 @@
 import request, { CliRequestOptions } from '../request.js';
 
+export interface SppModel {
+  ConfidenceScore?: string;
+  Explanations?: string;
+  Schemas?: string;
+  UniqueId: string;
+  Publications?: any[];
+  ModelSettings?: string;
+}
+
 export const spp = {
   /**
-   * Asserts whether the specified site is a content center.
-   * @param siteUrl The URL of the site to check.
-   * @throws Error when the site is not a content center.
+   * Asserts whether the specified site is a content center
+   * @param siteUrl The URL of the site to check
+   * @throws error when site is not a content center.
    */
   async assertSiteIsContentCenter(siteUrl: string): Promise<void> {
     const requestOptions: CliRequestOptions = {

@@ -88,6 +88,37 @@ const copyJobInfo = {
   ]
 };
 
+const containerTypedata = [{
+  "_ObjectType_": "Microsoft.Online.SharePoint.TenantAdministration.SPContainerTypeProperties",
+  "ApplicationRedirectUrl": null,
+  "AzureSubscriptionId": "/Guid(00000000-0000-0000-0000-000000000000)/",
+  "ContainerTypeId": "/Guid(073269af-f1d2-042d-2ef5-5bdd6ac83115)/",
+  "CreationDate": null,
+  "DisplayName": "test1",
+  "ExpiryDate": null,
+  "IsBillingProfileRequired": true,
+  "OwningAppId": "/Guid(df4085cc-9a38-4255-badc-5c5225610475)/",
+  "OwningTenantId": "/Guid(00000000-0000-0000-0000-000000000000)/",
+  "Region": null,
+  "ResourceGroup": null,
+  "SPContainerTypeBillingClassification": 0
+},
+{
+  "_ObjectType_": "Microsoft.Online.SharePoint.TenantAdministration.SPContainerTypeProperties",
+  "ApplicationRedirectUrl": null,
+  "AzureSubscriptionId": "/Guid(00000000-0000-0000-0000-000000000000)/",
+  "ContainerTypeId": "/Guid(880ab3bd-5b68-01d4-3744-01a7656cf2ba)/",
+  "CreationDate": null,
+  "DisplayName": "test1",
+  "ExpiryDate": null,
+  "IsBillingProfileRequired": true,
+  "OwningAppId": "/Guid(50785fde-3082-47ac-a36d-06282ac5c7da)/",
+  "OwningTenantId": "/Guid(00000000-0000-0000-0000-000000000000)/",
+  "Region": null,
+  "ResourceGroup": null,
+  "SPContainerTypeBillingClassification": 0
+}];
+
 describe('utils/spo', () => {
   let logger: Logger;
   let log: string[];
@@ -2999,6 +3030,86 @@ describe('utils/spo', () => {
     );
   });
 
+  it('correctly re-polls when JobFinishedObjectInfo not present when using getCopyJobResult', async () => {
+    const postStub = sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/sales/_api/Site/GetCopyJobProgress') {
+        if (postStub.callCount < 5) {
+          return {
+            JobState: 4,
+            Logs: []
+          };
+        }
+
+        if (postStub.callCount === 5) {
+          return {
+            JobState: 4,
+            Logs: [
+              JSON.stringify({
+                Event: 'JobStart',
+                JobId: 'fb4cc143-383c-4da0-bd91-02d2acbb01c7',
+                Time: '08/10/2024 16:30:39.004',
+                SiteId: '53dec431-9d4f-415b-b12b-010259d5b4e1',
+                WebId: 'af102f32-b389-49dc-89bf-d116a17e0aa6',
+                DBId: '5a926054-85d7-4cf6-85f0-c38fa01c4d39',
+                FarmId: '823af112-cd95-49a2-adf5-eccb09c8ba5d',
+                ServerId: 'a6145d7e-1b85-4124-895e-b1e618bfe5ae',
+                SubscriptionId: '18c58817-3bc9-489d-ac63-f7264fb357e5',
+                TotalRetryCount: '0',
+                MigrationType: 'Copy',
+                MigrationDirection: 'Import',
+                CorrelationId: 'd8f444a1-10a8-9000-862c-0bad6eff1006'
+              })
+            ]
+          };
+        }
+
+        if (postStub.callCount === 6) {
+          return {
+            JobState: 0,
+            Logs: []
+          };
+        }
+
+        return {
+          JobState: 0,
+          Logs: [
+            JSON.stringify({
+              Event: 'JobEnd',
+              JobId: 'fb4cc143-383c-4da0-bd91-02d2acbb01c7',
+              Time: '08/10/2024 16:30:39.008',
+              TotalRetryCount: '0',
+              MigrationType: 'Copy',
+              MigrationDirection: 'Import',
+              CorrelationId: 'd8f444a1-10a8-9000-862c-0bad6eff1006'
+            }),
+            JSON.stringify({
+              Event: 'JobFinishedObjectInfo',
+              JobId: '6d1eda82-0d1c-41eb-ab05-1d9cd4afe786',
+              Time: '08/10/2024 18:59:40.145',
+              SourceObjectFullUrl: 'https://contoso.sharepoint.com/sites/marketing/Shared Documents/Icons/Company.png',
+              TargetServerUrl: 'https://contoso.sharepoint.com',
+              TargetSiteId: '794dada8-4389-45ce-9559-0de74bf3554a',
+              TargetWebId: '8de9b4d3-3c30-4fd0-a9d7-2452bd065555',
+              TargetListId: '44b336a5-e397-4e22-a270-c39e9069b123',
+              TargetObjectUniqueId: '15488d89-b82b-40be-958a-922b2ed79383',
+              TargetObjectSiteRelativeUrl: 'Shared Documents/Icons/Company.png',
+              CorrelationId: '5efd44a1-c034-9000-9692-4e1a1b3ca33b'
+            })
+          ]
+        };
+      }
+
+      throw 'Invalid request: ' + opts.url;
+    });
+
+    await spo.getCopyJobResult('https://contoso.sharepoint.com/sites/sales', copyJobInfo);
+
+    const postRequests = postStub.getCalls();
+    postRequests.forEach((request) =>
+      assert.deepStrictEqual(request.args[0].data, { copyJobInfo: copyJobInfo })
+    );
+  });
+
   it('correctly returns result when using getCopyJobResult', async () => {
     sinon.stub(request, 'post').callsFake(async (opts) => {
       if (opts.url === 'https://contoso.sharepoint.com/sites/sales/_api/Site/GetCopyJobProgress') {
@@ -3156,5 +3267,58 @@ describe('utils/spo', () => {
     await spo.getSiteAdminPropertiesByUrl('https://contoso.sharepoint.com/sites/sales', true, logger, true);
 
     assert.deepStrictEqual(postStub.firstCall.args[0].data, { url: 'https://contoso.sharepoint.com/sites/sales', includeDetail: true });
+  });
+
+  it('retrieves list of Container Type', async () => {
+    sinon.stub(spo, 'getSpoAdminUrl').resolves('https://contoso-admin.sharepoint.com');
+    sinon.stub(spo, 'ensureFormDigest').resolves({ FormDigestValue: 'abc', FormDigestTimeoutSeconds: 1800, FormDigestExpiresAt: new Date(), WebFullUrl: 'https://contoso.sharepoint.com' });
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if ((opts.url as string).indexOf(`/_vti_bin/client.svc/ProcessQuery`) > -1) {
+        if (opts.headers &&
+          opts.headers['X-RequestDigest'] &&
+          opts.headers['X-RequestDigest'] === 'abc' &&
+          opts.data === `<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="16.0.0.0" ApplicationName="${config.applicationName}" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009"><Actions><ObjectPath Id="46" ObjectPathId="45" /><Method Name="GetSPOContainerTypes" Id="47" ObjectPathId="45"><Parameters><Parameter Type="Enum">1</Parameter></Parameters></Method></Actions><ObjectPaths><Constructor Id="45" TypeId="{268004ae-ef6b-4e9b-8425-127220d84719}" /></ObjectPaths></Request>`) {
+          return JSON.stringify([
+            {
+              "SchemaVersion": "15.0.0.0", "LibraryVersion": "16.0.24817.12005", "ErrorInfo": null, "TraceCorrelationId": "2d63d39f-3016-0000-a532-30514e76ae73"
+            }, 46, {
+              "IsNull": false
+            }, 47, containerTypedata
+          ]);
+        }
+      }
+
+      throw 'Invalid request';
+    });
+
+    const containerTypeList = await spo.getAllContainerTypes('https://contoso-admin.sharepoint.com', logger, true);
+    assert.deepEqual(containerTypeList, containerTypedata);
+  });
+
+  it('correctly throws error when retrieving container types', async () => {
+    sinon.stub(spo, 'getSpoAdminUrl').resolves('https://contoso-admin.sharepoint.com');
+    sinon.stub(spo, 'ensureFormDigest').resolves({ FormDigestValue: 'abc', FormDigestTimeoutSeconds: 1800, FormDigestExpiresAt: new Date(), WebFullUrl: 'https://contoso.sharepoint.com' });
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if ((opts.url as string).indexOf(`/_vti_bin/client.svc/ProcessQuery`) > -1) {
+        if (opts.headers &&
+          opts.headers['X-RequestDigest'] &&
+          opts.headers['X-RequestDigest'] === 'abc') {
+
+          return JSON.stringify([
+            {
+              "SchemaVersion": "15.0.0.0", "LibraryVersion": "16.0.7324.1200", "ErrorInfo": {
+                "ErrorMessage": "An error has occurred", "ErrorValue": null, "TraceCorrelationId": "e13c489e-2026-5000-8242-7ec96d02ba1d", "ErrorCode": -1, "ErrorTypeName": "SPException"
+              }, "TraceCorrelationId": "e13c489e-2026-5000-8242-7ec96d02ba1d"
+            }
+          ]);
+        }
+      }
+
+      throw 'Invalid request';
+    });
+
+    await assert.rejects(spo.getAllContainerTypes('https://contoso-admin.sharepoint.com', logger, true), 'An error occured');
   });
 });
