@@ -608,6 +608,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'pim role assignment remove',
+              id: 'cmd/entra/pim/pim-role-assignment-remove'
+            },
+            {
+              type: 'doc',
               label: 'pim role assignment eligibility list',
               id: 'cmd/entra/pim/pim-role-assignment-eligibility-list'
             },
@@ -761,6 +766,19 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'user signin list',
               id: 'cmd/entra/user/user-signin-list'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      'Exchange Online (exo)': [
+        {
+          'approleassignment': [
+            {
+              type: 'doc',
+              label: 'approleassignment add',
+              id: 'cmd/exo/approleassignment/approleassignment-add'
             }
           ]
         }
@@ -1823,6 +1841,15 @@ const sidebars: SidebarsConfig = {
               id: 'cmd/pp/tenant/tenant-settings-set'
             }
           ]
+        },
+        {
+          website: [
+            {
+              type: 'doc',
+              label: 'website get',
+              id: 'cmd/pp/website/website-get'
+            }
+          ]
         }
       ]
     },
@@ -2870,6 +2897,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'list contenttype default set',
               id: 'cmd/spo/list/list-contenttype-default-set'
+            },
+            {
+              type: 'doc',
+              label: 'list defaultvalue list',
+              id: 'cmd/spo/list/list-defaultvalue-list'
             },
             {
               type: 'doc',
