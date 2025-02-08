@@ -633,7 +633,21 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          resourcenamespace: [
+            {
+              type: 'doc',
+              label: 'resourcenamespace list',
+              id: 'cmd/entra/resourcenamespace/resourcenamespace-list'
+            }
+          ]
+        },
+        {
           roledefinition: [
+            {
+              type: 'doc',
+              label: 'roledefinition add',
+              id: 'cmd/entra/roledefinition/roledefinition-add'
+            },
             {
               type: 'doc',
               label: 'roledefinition get',
@@ -648,6 +662,20 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'roledefinition remove',
               id: 'cmd/entra/roledefinition/roledefinition-remove'
+            },
+            {
+              type: 'doc',
+              label: 'roledefinition set',
+              id: 'cmd/entra/roledefinition/roledefinition-set'
+            }
+          ]
+        },
+        {
+          rolepermission: [
+            {
+              type: 'doc',
+              label: 'rolepermission list',
+              id: 'cmd/entra/rolepermission/rolepermission-list'
             }
           ]
         },
@@ -761,6 +789,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'user registrationdetails list',
               id: 'cmd/entra/user/user-registrationdetails-list'
+            },
+            {
+              type: 'doc',
+              label: 'user session revoke',
+              id: 'cmd/entra/user/user-session-revoke'
             },
             {
               type: 'doc',
@@ -948,6 +981,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'people pronouns get',
               id: 'cmd/tenant/people/people-pronouns-get'
+            },
+            {
+              type: 'doc',
+              label: 'people pronouns set',
+              id: 'cmd/tenant/people/people-pronouns-set'
             }
           ]
         },
@@ -982,6 +1020,16 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'report servicesusercounts',
               id: 'cmd/tenant/report/report-servicesusercounts'
+            },
+            {
+              type: 'doc',
+              label: 'report settings get',
+              id: 'cmd/tenant/report/report-settings-get'
+            },
+            {
+              type: 'doc',
+              label: 'report settings set',
+              id: 'cmd/tenant/report/report-settings-set'
             }
           ]
         },
@@ -1164,6 +1212,20 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'mail send',
               id: 'cmd/outlook/mail/mail-send'
+            }
+          ]
+        },
+        {
+          mailbox: [
+            {
+              type: 'doc',
+              label: 'mailbox settings get',
+              id: 'cmd/outlook/mailbox/mailbox-settings-get'
+            },
+            {
+              type: 'doc',
+              label: 'mailbox settings set',
+              id: 'cmd/outlook/mailbox/mailbox-settings-set'
             }
           ]
         },
@@ -2013,6 +2075,11 @@ const sidebars: SidebarsConfig = {
       'SharePoint Embedded (spe)': [
         {
           container: [
+            {
+              type: 'doc',
+              label: 'container activate',
+              id: 'cmd/spe/container/container-activate'
+            },
             {
               type: 'doc',
               label: 'container get',
@@ -2900,8 +2967,23 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'list defaultvalue clear',
+              id: 'cmd/spo/list/list-defaultvalue-clear'
+            },
+            {
+              type: 'doc',
               label: 'list defaultvalue list',
               id: 'cmd/spo/list/list-defaultvalue-list'
+            },
+            {
+              type: 'doc',
+              label: 'list defaultvalue remove',
+              id: 'cmd/spo/list/list-defaultvalue-remove'
+            },
+            {
+              type: 'doc',
+              label: 'list defaultvalue set',
+              id: 'cmd/spo/list/list-defaultvalue-set'
             },
             {
               type: 'doc',
