@@ -496,7 +496,7 @@ describe(commands.APP_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     sinon.stub(accessToken, 'assertDelegatedAccessToken').resolves();
@@ -540,10 +540,6 @@ describe(commands.APP_GET, () => {
 
   it('has a description', () => {
     assert.notStrictEqual(command.description, null);
-  });
-
-  it('defines correct properties for the default output', () => {
-    assert.deepStrictEqual(command.defaultProperties(), ['name', 'displayName', 'description', 'appVersion', 'owner']);
   });
 
   it('fails validation if name or displayName not specified', async () => {

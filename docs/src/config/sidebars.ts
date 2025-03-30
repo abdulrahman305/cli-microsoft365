@@ -1090,6 +1090,25 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          directoryextension: [
+            {
+              type: 'doc',
+              label: 'directoryextension add',
+              id: 'cmd/graph/directoryextension/directoryextension-add'
+            },
+            {
+              type: 'doc',
+              label: 'directoryextension get',
+              id: 'cmd/graph/directoryextension/directoryextension-get'
+            },
+            {
+              type: 'doc',
+              label: 'directoryextension remove',
+              id: 'cmd/graph/directoryextension/directoryextension-remove'
+            }
+          ]
+        },
+        {
           schemaextension: [
             {
               type: 'doc',
@@ -2830,8 +2849,18 @@ const sidebars: SidebarsConfig = {
           homesite: [
             {
               type: 'doc',
+              label: 'homesite add',
+              id: 'cmd/spo/homesite/homesite-add'
+            },
+            {
+              type: 'doc',
               label: 'homesite get',
               id: 'cmd/spo/homesite/homesite-get'
+            },
+            {
+              type: 'doc',
+              label: 'homesite list',
+              id: 'cmd/spo/homesite/homesite-list'
             },
             {
               type: 'doc',
@@ -3386,6 +3415,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'page section remove',
+              id: 'cmd/spo/page/page-section-remove'
+            },
+            {
+              type: 'doc',
               label: 'page template list',
               id: 'cmd/spo/page/page-template-list'
             },
@@ -3879,11 +3913,6 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'tenant commandset set',
               id: 'cmd/spo/tenant/tenant-commandset-set'
-            },
-            {
-              type: 'doc',
-              label: 'tenant homesite list',
-              id: 'cmd/spo/tenant/tenant-homesite-list'
             },
             {
               type: 'doc',
@@ -4683,8 +4712,18 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'engage community user add',
+              id: 'cmd/viva/engage/engage-community-user-add'
+            },
+            {
+              type: 'doc',
               label: 'engage community user list',
               id: 'cmd/viva/engage/engage-community-user-list'
+            },
+            {
+              type: 'doc',
+              label: 'engage community user remove',
+              id: 'cmd/viva/engage/engage-community-user-remove'
             },
             {
               type: 'doc',

@@ -21,7 +21,7 @@ describe(commands.SITEDESIGN_RUN_STATUS_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -61,10 +61,6 @@ describe(commands.SITEDESIGN_RUN_STATUS_GET, () => {
 
   it('has a description', () => {
     assert.notStrictEqual(command.description, null);
-  });
-
-  it('defines correct properties for the default output', () => {
-    assert.deepStrictEqual(command.defaultProperties(), ['ActionTitle', 'SiteScriptTitle', 'OutcomeText']);
   });
 
   it('gets information about site designs applied to the specified site', async () => {

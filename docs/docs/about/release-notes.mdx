@@ -4,7 +4,40 @@ sidebar_position: 4
 
 # Release notes
 
-## v10.4.0 (Beta)
+## 10.5.0 (Beta)
+
+### New commands
+
+**Microsoft Graph:**
+
+- [graph directoryextension add](../cmd/graph/directoryextension/directoryextension-add.mdx) - creates a new directory extension [#6316](https://github.com/pnp/cli-microsoft365/issues/6316)
+- [graph directoryextension get](../cmd/graph/directoryextension/directoryextension-get.mdx) - retrieves a directory extension [#6613](https://github.com/pnp/cli-microsoft365/issues/6613)
+- [graph directoryextension remove](../cmd/graph/directoryextension/directoryextension-remove.mdx) - removes a directory extension [#6614](https://github.com/pnp/cli-microsoft365/issues/6614)
+
+**SharePoint:**
+
+- [spo homesite add](../cmd/spo/homesite/homesite-add.mdx) - Adds a home site [#6488](https://github.com/pnp/cli-microsoft365/issues/6488)
+- [spo page section remove](../cmd/spo/page/page-section-remove.mdx) - removes a section from a modern page [#6541](https://github.com/pnp/cli-microsoft365/issues/6541)
+
+**Viva:**
+
+- [viva engage community user add](../cmd/viva/engage/engage-community-user-add.mdx) - adds users to a specified Microsoft 365 Viva Engage community [#6293](https://github.com/pnp/cli-microsoft365/issues/6293)
+- [viva engage community user remove](../cmd/viva/engage/engage-community-user-remove.mdx) - removes a user from a specified Microsoft 365 Viva Engage community [#6296](https://github.com/pnp/cli-microsoft365/issues/6296)
+
+### Changes
+
+- removed double slashes on API requests [#6618](https://github.com/pnp/cli-microsoft365/issues/6618)
+- added [guide for using the CLI with Azure Functions](../user-guide/automation/azure-function-powershell.mdx) [#5943](https://github.com/pnp/cli-microsoft365/issues/5943)
+- added new [sample script](../sample-scripts/entra/read-role-permissions/index.mdx) to check role permissions for a user [#6600](https://github.com/pnp/cli-microsoft365/issues/6600)
+- added new [sample script](../sample-scripts/spo/remove-page-header/index.mdx) to remove a page header [#6629](https://github.com/pnp/cli-microsoft365/issues/6629)
+- fixed link for sample scripts in readme [#6589](https://github.com/pnp/cli-microsoft365/issues/6589)
+- fixed [spo page header set](../cmd/spo/page/page-header-set.mdx) for customizable headers [#6542](https://github.com/pnp/cli-microsoft365/issues/6542)
+- extended connections to support using the same user with different app or tenant [#6644](https://github.com/pnp/cli-microsoft365/issues/6644)
+- fixed collecting telemetry behind a proxy [#6643](https://github.com/pnp/cli-microsoft365/pull/6643)
+- added support for authenticating using federated identity in GitHub Actions [#6610](https://github.com/pnp/cli-microsoft365/issues/6610)
+- removed defaultProperties method from various commands [#6432](https://github.com/pnp/cli-microsoft365/issues/6432)
+
+## [v10.4.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.4.0)
 
 ### New commands
 
@@ -31,8 +64,25 @@ sidebar_position: 4
 - added internalName option for spo field commands [#6249](https://github.com/pnp/cli-microsoft365/issues/6249)
 - added 'groupName' option and deprecated 'groupDisplayName' on 'entra group member' commands [#6546](https://github.com/pnp/cli-microsoft365/issues/6546)
 - fixed spo pages commands [#6462](https://github.com/pnp/cli-microsoft365/issues/6462)
-- fixed m365 setup permissions error [#6592](https://github.com/pnp/cli-microsoft365/issues/6592)
+- fixed 'page clientsidewebpart add' for vertical sections [#6265](https://github.com/pnp/cli-microsoft365/issues/6265)
+- fixed 'project upgrade guidance' order for v1.20 [#6602](https://github.com/pnp/cli-microsoft365/issues/6602)
+- renamed 'spo tenant homesite list' command [#6597](https://github.com/pnp/cli-microsoft365/issues/6597)
+- removed scope for deprecated Azure AD Graph API [#6594](https://github.com/pnp/cli-microsoft365/issues/6594)
+- fixed collecting telemetry
+- switched to Node@22 [#6604](https://github.com/pnp/cli-microsoft365/issues/6604)
 
+## [v10.3.2](https://github.com/pnp/cli-microsoft365/releases/tag/v10.3.2)
+
+### Changes
+
+- reverted logging telemetry fix due to unexpected behavior on Windows machines
+
+## [v10.3.1](https://github.com/pnp/cli-microsoft365/releases/tag/v10.3.1)
+
+### Changes
+
+- fixed m365 setup permissions error [#6592](https://github.com/pnp/cli-microsoft365/issues/6592)
+- fixed logging telemetry
 
 ## [v10.3.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.3.0)
 
@@ -99,7 +149,7 @@ sidebar_position: 4
 
 **SharePoint:**
 
-- [spo tenant homesite list](../cmd/spo/tenant/tenant-homesite-list.mdx) - lists all home sites [#6492](https://github.com/pnp/cli-microsoft365/issues/6492)
+- [spo tenant homesite list](../cmd/spo/homesite/homesite-list.mdx) - lists all home sites [#6492](https://github.com/pnp/cli-microsoft365/issues/6492)
 
 **SharePoint Embedded:**
 
