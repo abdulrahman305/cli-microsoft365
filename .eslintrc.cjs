@@ -80,6 +80,7 @@ const dictionary = [
   'oauth2',
   'office365',
   'one',
+  'open',
   'ops',
   'org',
   'owner',
@@ -218,7 +219,8 @@ module.exports = {
           "Query.*",
           "app_displayname",
           "access_token",
-          "expires_on"
+          "expires_on",
+          "extension_*"
         ]
       }
     ],
