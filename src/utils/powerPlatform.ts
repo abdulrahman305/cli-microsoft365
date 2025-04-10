@@ -1,5 +1,4 @@
 import { cli } from "../cli/cli.js";
-import { Logger } from "../cli/Logger.js";
 import request, { CliRequestOptions } from "../request.js";
 import { formatting } from "./formatting.js";
 import { odata } from "./odata.js";
@@ -117,11 +116,7 @@ export const powerPlatform = {
    * @param logger The logger object
    * @param verbose Set for verbose logging
    */
-  async getCardByName(dynamicsApiUrl: string, name: string, logger?: Logger, verbose?: boolean): Promise<any> {
-    if (verbose && logger) {
-      await logger.logToStderr(`Retrieving the card with name ${name}`);
-    }
-
+  async getCardByName(dynamicsApiUrl: string, name: string): Promise<any> {
     const requestOptions: CliRequestOptions = {
       url: `${dynamicsApiUrl}/api/data/v9.1/cards?$filter=name eq '${name}'`,
       headers: {
@@ -139,6 +134,35 @@ export const powerPlatform = {
     if (result.value.length > 1) {
       const resultAsKeyValuePair = formatting.convertArrayToHashTable('cardid', result.value);
       return cli.handleMultipleResultsFound(`Multiple cards with name '${name}' found.`, resultAsKeyValuePair);
+    }
+
+    return result.value[0];
+  },
+
+  /**
+ * Get a solution by name
+ * Returns the solution object
+ * @param dynamicsApiUrl The dynamics api url of the environment
+ * @param name The name of the solution
+ */
+  async getSolutionByName(dynamicsApiUrl: string, name: string): Promise<any> {
+    const requestOptions: CliRequestOptions = {
+      url: `${dynamicsApiUrl}/api/data/v9.0/solutions?$filter=isvisible eq true and uniquename eq \'${name}\'&$expand=publisherid($select=friendlyname)&$select=solutionid,uniquename,version,publisherid,installedon,solutionpackageversion,friendlyname,versionnumber&api-version=9.1`,
+      headers: {
+        accept: 'application/json;odata.metadata=none'
+      },
+      responseType: 'json'
+    };
+
+    const result = await request.get<{ value: any[] }>(requestOptions);
+
+    if (result.value.length === 0) {
+      throw Error(`The specified solution '${name}' does not exist.`);
+    }
+
+    if (result.value.length > 1) {
+      const resultAsKeyValuePair = formatting.convertArrayToHashTable('solutionid', result.value);
+      return cli.handleMultipleResultsFound(`Multiple solutions with name '${name}' found.`, resultAsKeyValuePair);
     }
 
     return result.value[0];
