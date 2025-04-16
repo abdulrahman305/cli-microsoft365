@@ -38,7 +38,7 @@
     "@types/webpack-env": "~1.15.2",
     "ajv": "^6.12.5",
     "eslint": "8.7.0",
-    "gulp": "4.0.2",
+    "gulp": "5.0.0",
     "typescript": "4.5.5",
     "@microsoft/sp-module-interfaces": "1.17.4",
     "@fluentui/react": "^7.199.1"
