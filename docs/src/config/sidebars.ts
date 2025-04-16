@@ -1114,6 +1114,21 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'openextension add',
               id: 'cmd/graph/openextension/openextension-add'
+            },
+            {
+              type: 'doc',
+              label: 'openextension get',
+              id: 'cmd/graph/openextension/openextension-get'
+            },
+            {
+              type: 'doc',
+              label: 'openextension list',
+              id: 'cmd/graph/openextension/openextension-list'
+            },
+            {
+              type: 'doc',
+              label: 'openextension remove',
+              id: 'cmd/graph/openextension/openextension-remove'
             }
           ]
         },
