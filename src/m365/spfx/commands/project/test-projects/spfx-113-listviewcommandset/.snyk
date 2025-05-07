@@ -1,0 +1,38 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:debug:20170905':
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > debug':
+        patched: '2025-05-07T07:01:07.947Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > body-parser > debug':
+        patched: '2025-05-07T07:01:07.947Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > body-parser > debug
+  'npm:minimatch:20160620':
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob > minimatch':
+        patched: '2025-05-07T07:01:07.947Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob >
+          minimatch
+  'npm:ms:20170412':
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > debug > ms':
+        patched: '2025-05-07T07:01:07.947Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > body-parser > debug > ms':
+        patched: '2025-05-07T07:01:07.947Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > body-parser > debug > ms
