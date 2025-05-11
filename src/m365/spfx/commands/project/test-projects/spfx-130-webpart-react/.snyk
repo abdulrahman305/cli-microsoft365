@@ -23,6 +23,12 @@ patch:
         path: >-
           @microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob >
           minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob > minimatch':
+        patched: '2025-05-11T04:53:08.813Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob >
+          minimatch
   'npm:ms:20170412':
     - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > debug > ms':
         patched: '2025-05-08T04:28:07.414Z'
@@ -32,6 +38,18 @@ patch:
           gulp-connect > tiny-lr > debug > ms
     - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > body-parser > debug > ms':
         patched: '2025-05-08T04:28:07.414Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > body-parser > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > debug > ms':
+        patched: '2025-05-11T04:53:08.813Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > body-parser > debug > ms':
+        patched: '2025-05-11T04:53:08.813Z'
         id: 'npm:ms:20170412'
         path: >-
           @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
