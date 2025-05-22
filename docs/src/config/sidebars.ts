@@ -600,6 +600,15 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          organization: [
+            {
+              type: 'doc',
+              label: 'organization list',
+              id: 'cmd/entra/organization/organization-list'
+            }
+          ]
+        },
+        {
           pim: [
             {
               type: 'doc',
@@ -1134,6 +1143,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'openextension remove',
               id: 'cmd/graph/openextension/openextension-remove'
+            },
+            {
+              type: 'doc',
+              label: 'openextension set',
+              id: 'cmd/graph/openextension/openextension-set'
             }
           ]
         },
