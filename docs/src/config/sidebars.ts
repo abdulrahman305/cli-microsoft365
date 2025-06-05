@@ -72,6 +72,15 @@ const sidebars: SidebarsConfig = {
           id: 'cmd/cli/cli-issue'
         },
         {
+          app: [
+            {
+              type: 'doc',
+              label: 'app reconsent',
+              id: 'cmd/cli/app/app-reconsent'
+            }
+          ]
+        },
+        {
           completion: [
             {
               type: 'doc',
@@ -1117,6 +1126,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'directoryextension list',
+              id: 'cmd/graph/directoryextension/directoryextension-list'
+            },
+            {
+              type: 'doc',
               label: 'directoryextension remove',
               id: 'cmd/graph/directoryextension/directoryextension-remove'
             }
@@ -2144,6 +2158,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'container add',
+              id: 'cmd/spe/container/container-add'
+            },
+            {
+              type: 'doc',
               label: 'container get',
               id: 'cmd/spe/container/container-get'
             },
@@ -2154,8 +2173,18 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'container remove',
+              id: 'cmd/spe/container/container-remove'
+            },
+            {
+              type: 'doc',
               label: 'container permission list',
               id: 'cmd/spe/container/container-permission-list'
+            },
+            {
+              type: 'doc',
+              label: 'container recyclebinitem list',
+              id: 'cmd/spe/container/container-recyclebinitem-list'
             }
           ]
         },
@@ -2175,6 +2204,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'containertype list',
               id: 'cmd/spe/containertype/containertype-list'
+            },
+            {
+              type: 'doc',
+              label: 'containertype remove',
+              id: 'cmd/spe/containertype/containertype-remove'
             }
           ]
         }
@@ -4214,6 +4248,11 @@ const sidebars: SidebarsConfig = {
         },
         {
           model: [
+            {
+              type: 'doc',
+              label: 'model apply',
+              id: 'cmd/spp/model/model-apply'
+            },
             {
               type: 'doc',
               label: 'model get',
