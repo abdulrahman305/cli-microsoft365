@@ -13,8 +13,8 @@
     "snyk-protect": "snyk-protect"
   },
   "dependencies": {
-    "react": "15.6.2",
-    "react-dom": "15.6.2",
+    "react": "16.5.0",
+    "react-dom": "16.5.0",
     "@types/react": "15.6.6",
     "@types/react-dom": "15.5.6",
     "@microsoft/sp-core-library": "~1.4.0",
@@ -24,13 +24,13 @@
     "@snyk/protect": "latest"
   },
   "devDependencies": {
-    "@microsoft/sp-build-web": "~1.4.0",
-    "@microsoft/sp-module-interfaces": "~1.4.0",
-    "@microsoft/sp-webpart-workbench": "~1.4.0",
-    "gulp": "~3.9.1",
+    "@microsoft/sp-build-web": "~1.21.0",
+    "@microsoft/sp-module-interfaces": "~1.13.0",
+    "@microsoft/sp-webpart-workbench": "~1.12.1",
+    "gulp": "~5.0.0",
     "@types/chai": ">=3.4.34 <3.6.0",
     "@types/mocha": ">=2.2.33 <2.6.0",
-    "ajv": "~5.2.2"
+    "ajv": "~6.12.3"
   },
   "snyk": true
 }
