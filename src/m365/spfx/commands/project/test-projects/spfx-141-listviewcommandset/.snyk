@@ -183,6 +183,12 @@ patch:
         path: >-
           @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
           @microsoft/gulp-core-build-karma > mocha > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > debug':
+        patched: '2025-07-10T16:45:17.751Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > debug
   'npm:hoek:20180212':
     - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > azure-storage > request > hawk > hoek':
         patched: '2025-05-07T06:44:27.649Z'
@@ -241,6 +247,12 @@ patch:
         path: >-
           @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
           serve-static > send > mime
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > mime':
+        patched: '2025-07-10T16:45:17.751Z'
+        id: 'npm:mime:20170907'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > mime
   'npm:minimatch:20160620':
     - gulp > vinyl-fs > glob-stream > minimatch:
         patched: '2025-05-07T06:44:27.649Z'
@@ -371,6 +383,18 @@ patch:
         path: >-
           @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
           gulp-connect > tiny-lr > body-parser > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > ms':
+        patched: '2025-07-10T16:45:17.751Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > debug > ms':
+        patched: '2025-07-10T16:45:17.751Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > debug > ms
   'npm:negotiator:20160616':
     - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > compression > accepts > negotiator':
         patched: '2025-05-07T06:44:27.649Z'
