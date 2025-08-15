@@ -6,8 +6,8 @@ import commands from "../../commands.js";
 import request, { CliRequestOptions } from "../../../../request.js";
 import { Logger } from "../../../../cli/Logger.js";
 import { validation } from "../../../../utils/validation.js";
-import { formatting } from "../../../../utils/formatting.js";
-import { cli } from "../../../../cli/cli.js";
+import { entraApp } from "../../../../utils/entraApp.js";
+import { entraServicePrincipal } from "../../../../utils/entraServicePrincipal.js";
 
 interface CommandArgs {
   options: Options;
@@ -101,37 +101,40 @@ class EntraAppPermissionAddCommand extends GraphCommand {
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
     try {
-      const appObject = await this.getAppObject(args.options);
+      const entraApp = await this.getEntraApp(args.options, logger);
       const servicePrincipals = await this.getServicePrincipals();
       const appPermissions: AppPermission[] = [];
 
       if (args.options.delegatedPermissions) {
         const delegatedPermissions = await this.getRequiredResourceAccessForApis(servicePrincipals, args.options.delegatedPermissions, ScopeType.Scope, appPermissions, logger);
-        this.addPermissionsToResourceArray(delegatedPermissions, appObject.requiredResourceAccess!);
+        this.addPermissionsToResourceArray(delegatedPermissions, entraApp.requiredResourceAccess!);
       }
 
       if (args.options.applicationPermissions) {
         const applicationPermissions = await this.getRequiredResourceAccessForApis(servicePrincipals, args.options.applicationPermissions, ScopeType.Role, appPermissions, logger);
-        this.addPermissionsToResourceArray(applicationPermissions, appObject.requiredResourceAccess!);
+        this.addPermissionsToResourceArray(applicationPermissions, entraApp.requiredResourceAccess!);
       }
 
       const addPermissionsRequestOptions: CliRequestOptions = {
-        url: `${this.resource}/v1.0/applications/${appObject.id}`,
+        url: `${this.resource}/v1.0/applications/${entraApp.id}`,
         headers: {
           accept: 'application/json;odata.metadata=none'
         },
         responseType: 'json',
         data: {
-          requiredResourceAccess: appObject.requiredResourceAccess
+          requiredResourceAccess: entraApp.requiredResourceAccess
         }
       };
 
       await request.patch(addPermissionsRequestOptions);
 
       if (args.options.grantAdminConsent) {
-        let appServicePrincipal = servicePrincipals.find(sp => sp.appId === appObject.appId);
+        let appServicePrincipal = servicePrincipals.find(sp => sp.appId === entraApp.appId);
         if (!appServicePrincipal) {
-          appServicePrincipal = await this.createServicePrincipal(appObject.appId!, logger);
+          if (this.verbose) {
+            await logger.logToStderr(`Creating service principal for app ${entraApp.appId!}...`);
+          }
+          appServicePrincipal = await entraServicePrincipal.createServicePrincipal(entraApp.appId!);
         }
 
         await this.grantAdminConsent(appServicePrincipal, appPermissions, logger);
@@ -142,54 +145,22 @@ class EntraAppPermissionAddCommand extends GraphCommand {
     }
   }
 
-  private async createServicePrincipal(appId: string, logger: Logger): Promise<ServicePrincipal> {
+  private async getEntraApp(options: Options, logger: Logger): Promise<Application> {
+    const { appObjectId, appId, appName } = options;
+
     if (this.verbose) {
-      await logger.logToStderr(`Creating service principal for app ${appId}...`);
+      await logger.logToStderr(`Retrieving information about Microsoft Entra app ${appObjectId ? appObjectId : (appId ? appId : appName)}...`);
     }
 
-    const requestOptions: CliRequestOptions = {
-      url: `${this.resource}/v1.0/servicePrincipals`,
-      headers: {
-        accept: 'application/json;odata.metadata=none',
-        'content-type': 'application/json;odata=nometadata'
-      },
-      data: {
-        appId
-      },
-      responseType: 'json'
-    };
-
-    return await request.post<ServicePrincipal>(requestOptions);
-  }
-
-  private async getAppObject(options: Options): Promise<Application> {
-    let appNotFoundMessage = '';
-    let apps: Application[] = [];
-
-    if (options.appId) {
-      apps = await odata.getAllItems<Application>(`${this.resource}/v1.0/applications?$filter=appId eq '${options.appId}'&$select=id,appId,requiredResourceAccess`);
-      appNotFoundMessage = `client id ${options.appId}`;
+    if (appObjectId) {
+      return await entraApp.getAppRegistrationByObjectId(appObjectId, ['id', 'appId', 'requiredResourceAccess']);
     }
-    else if (options.appName) {
-      apps = await odata.getAllItems<Application>(`${this.resource}/v1.0/applications?$filter=displayName eq '${formatting.encodeQueryParameter(options.appName)}'&$select=id,appId,requiredResourceAccess`);
-      appNotFoundMessage = `name ${options.appName}`;
-
-      if (apps.length > 1) {
-        const resultAsKeyValuePair = formatting.convertArrayToHashTable('id', apps);
-        const result = await cli.handleMultipleResultsFound<Application>(`Multiple Entra application registrations with name '${options.appName}' found.`, resultAsKeyValuePair);
-        return result;
-      }
+    else if (appId) {
+      return await entraApp.getAppRegistrationByAppId(appId, ['id', 'appId', 'requiredResourceAccess']);
     }
-    else if (options.appObjectId) {
-      apps = await odata.getAllItems<Application>(`${this.resource}/v1.0/applications?$filter=id eq '${options.appObjectId}'&$select=id,appId,requiredResourceAccess`);
-      appNotFoundMessage = `object id ${options.appObjectId}`;
+    else {
+      return await entraApp.getAppRegistrationByAppName(appName!, ['id', 'appId', 'requiredResourceAccess']);
     }
-
-    if (apps.length === 0) {
-      throw `App with ${appNotFoundMessage} not found in Microsoft Entra ID`;
-    }
-
-    return apps[0];
   }
 
   private async getServicePrincipals(): Promise<ServicePrincipal[]> {
