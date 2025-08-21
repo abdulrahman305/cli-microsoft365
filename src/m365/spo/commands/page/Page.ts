@@ -35,7 +35,7 @@ export class Page {
     return ClientSidePage.fromHtml(res.ListItemAllFields.CanvasContent1);
   }
 
-  public static async checkout(name: string, webUrl: string, logger: Logger, debug: boolean, verbose: boolean): Promise<ClientSidePageProperties> {
+  public static async checkout(name: string, webUrl: string, logger: Logger, verbose: boolean): Promise<ClientSidePageProperties> {
     if (verbose) {
       await logger.log(`Checking out ${name} page...`);
     }
@@ -95,10 +95,34 @@ export class Page {
   }
 
   public static getSectionInformation(section: CanvasSection, isJSONOutput: boolean): any {
-    return {
-      order: section.order,
-      columns: section.columns.map(column => this.getColumnsInformation(column, isJSONOutput))
+    const sectionOutput: any = {
+      order: section.order
     };
+
+    if (this.isVerticalSection(section)) {
+      sectionOutput.isVertical = true;
+    }
+
+    sectionOutput.columns = section.columns.map(column => this.getColumnsInformation(column, isJSONOutput));
+
+    return sectionOutput;
+  }
+
+  /**
+   * Publish a modern page in SharePoint Online
+   * @param webUrl Absolute URL of the SharePoint site where the page is located
+   * @param pageName List relative url of the page to publish
+   */
+  public static async publishPage(webUrl: string, pageName: string): Promise<void> {
+    const filePath = `${urlUtil.getServerRelativeSiteUrl(webUrl)}/SitePages/${pageName}`;
+    const requestOptions: CliRequestOptions = {
+      url: `${webUrl}/_api/web/GetFileByServerRelativePath(DecodedUrl='${formatting.encodeQueryParameter(filePath)}')/Publish()`,
+      headers: {
+        accept: 'application/json;odata=nometadata'
+      }
+    };
+
+    await request.post(requestOptions);
   }
 
   private static getPageNameWithExtension(name: string): string {
@@ -108,5 +132,9 @@ export class Page {
     }
 
     return pageName;
+  }
+
+  private static isVerticalSection(section: CanvasSection): boolean {
+    return section.layoutIndex === 2 && section?.controlData?.position?.sectionFactor === 12;
   }
 }
