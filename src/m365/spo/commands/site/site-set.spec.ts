@@ -12,10 +12,9 @@ import { pid } from '../../../../utils/pid.js';
 import { session } from '../../../../utils/session.js';
 import { sinonUtil } from '../../../../utils/sinonUtil.js';
 import { spo } from '../../../../utils/spo.js';
-import aadM365GroupSetCommand from '../../../entra/commands/m365group/m365group-set.js';
 import commands from '../../commands.js';
-import spoSiteDesignApplyCommand from '../sitedesign/sitedesign-apply.js';
 import command from './site-set.js';
+import { entraGroup } from '../../../../utils/entraGroup.js';
 
 describe(commands.SITE_SET, () => {
   let log: string[];
@@ -23,7 +22,6 @@ describe(commands.SITE_SET, () => {
   let loggerLogSpy: sinon.SinonSpy;
   let commandInfo: CommandInfo;
   let loggerLogToStderrSpy: sinon.SinonSpy;
-  let executeCommandSpy: sinon.SinonSpy;
   let waitUntilFinishedStub: sinon.SinonStub;
 
   before(() => {
@@ -66,9 +64,10 @@ describe(commands.SITE_SET, () => {
     sinonUtil.restore([
       request.post,
       request.get,
-      cli.executeCommand,
       spo.getSpoAdminUrl,
-      spo.waitUntilFinished
+      spo.waitUntilFinished,
+      spo.applySiteDesign,
+      entraGroup.setGroup
     ]);
   });
 
@@ -645,7 +644,7 @@ describe(commands.SITE_SET, () => {
 
       throw 'Invalid request';
     });
-    executeCommandSpy = sinon.stub(cli, 'executeCommand').resolves();
+    const executeSetGroupSpy = await sinon.stub(entraGroup, 'setGroup').resolves();
     sinon.stub(request, 'patch').callsFake(async (opts) => {
       if (opts.url === 'https://graph.microsoft.com/v1.0/groups/e10a459e-60c8-4000-8240-a68d6a12d39e') {
         return;
@@ -653,16 +652,8 @@ describe(commands.SITE_SET, () => {
 
       throw 'Invalid request';
     });
-
     await command.action(logger, { options: { isPublic: true, description: 'Some description', url: 'https://contoso.sharepoint.com/sites/Sales' } } as any);
-    const options = {
-      id: 'e10a459e-60c8-4000-8240-a68d6a12d39e',
-      isPrivate: false,
-      debug: false,
-      verbose: false,
-      _: []
-    };
-    assert(executeCommandSpy.calledWith(aadM365GroupSetCommand, { options: options }));
+    assert(executeSetGroupSpy.called);
   });
 
   it('updates site lockState. doesn\'t wait for completion', async () => {
@@ -2128,7 +2119,7 @@ describe(commands.SITE_SET, () => {
 
       throw 'Invalid request';
     });
-    executeCommandSpy = sinon.stub(cli, 'executeCommand').rejects(new CommandError('An error has occurred'));
+    sinon.stub(entraGroup, 'setGroup').rejects(new Error('An error has occurred'));
 
     await assert.rejects(command.action(logger, { options: { isPublic: true, url: 'https://contoso.sharepoint.com/sites/Sales' } } as any),
       new CommandError('An error has occurred'));
@@ -2196,18 +2187,11 @@ describe(commands.SITE_SET, () => {
 
       throw 'Invalid request';
     });
-    executeCommandSpy = sinon.stub(cli, 'executeCommand').resolves();
+    const executeApplySiteDesignSpy = await sinon.stub(spo, 'applySiteDesign').resolves();
 
     await command.action(logger, { options: { siteDesignId: 'eb2f31da-9461-4fbf-9ea1-9959b134b89e', url: 'https://contoso.sharepoint.com/sites/Sales' } });
-    const options = {
-      webUrl: 'https://contoso.sharepoint.com/sites/Sales',
-      id: 'eb2f31da-9461-4fbf-9ea1-9959b134b89e',
-      asTask: false,
-      debug: false,
-      verbose: false,
-      _: []
-    };
-    assert(executeCommandSpy.calledWith(spoSiteDesignApplyCommand, { options: options }));
+
+    assert(executeApplySiteDesignSpy.called);
   });
 
   it('applies site design to the specified groupified site', async () => {
@@ -2221,18 +2205,12 @@ describe(commands.SITE_SET, () => {
 
       throw 'Invalid request';
     });
-    executeCommandSpy = sinon.stub(cli, 'executeCommand').resolves();
+
+    const executeApplySiteDesignSpy = sinon.stub(spo, 'applySiteDesign').resolves();
 
     await command.action(logger, { options: { siteDesignId: 'eb2f31da-9461-4fbf-9ea1-9959b134b89e', url: 'https://contoso.sharepoint.com/sites/Sales' } });
-    const options = {
-      webUrl: 'https://contoso.sharepoint.com/sites/Sales',
-      id: 'eb2f31da-9461-4fbf-9ea1-9959b134b89e',
-      asTask: false,
-      debug: false,
-      verbose: false,
-      _: []
-    };
-    assert(executeCommandSpy.calledWith(spoSiteDesignApplyCommand, { options: options }));
+
+    assert(executeApplySiteDesignSpy.called);
   });
 
   it('applies site relative logo url to the specified site', async () => {
@@ -2262,6 +2240,33 @@ describe(commands.SITE_SET, () => {
     assert.strictEqual(data.relativeLogoUrl, "/sites/logo/SiteAssets/parker-ms-1200.png");
   });
 
+  it('applies site relative logo url from another site to the specified site', async () => {
+    let data: any = {};
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/site?$select=GroupId,Id') {
+        return {
+          Id: '255a50b2-527f-4413-8485-57f4c17a24d1',
+          GroupId: 'e10a459e-60c8-4000-8240-a68d6a12d39e'
+        };
+      }
+
+      throw 'Invalid request';
+    });
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/siteiconmanager/setsitelogo') {
+        data = opts.data;
+        return;
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, { options: { url: 'https://contoso.sharepoint.com/sites/logo', siteLogoUrl: "/sites/another_site/SiteAssets/parker-ms-1200.png" } });
+    assert.strictEqual(data.relativeLogoUrl, "/sites/another_site/SiteAssets/parker-ms-1200.png");
+  });
+
   it('applies site absolute logo url to the specified site', async () => {
     let data: any = {};
 
@@ -2287,6 +2292,33 @@ describe(commands.SITE_SET, () => {
 
     await command.action(logger, { options: { url: 'https://contoso.sharepoint.com/sites/logo', siteLogoUrl: "https://contoso.sharepoint.com/sites/logo/SiteAssets/parker-ms-1200.png" } });
     assert.strictEqual(data.relativeLogoUrl, "/sites/logo/SiteAssets/parker-ms-1200.png");
+  });
+
+  it('applies site absolute logo url from another site to the specified site', async () => {
+    let data: any = {};
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/site?$select=GroupId,Id') {
+        return {
+          Id: '255a50b2-527f-4413-8485-57f4c17a24d1',
+          GroupId: 'e10a459e-60c8-4000-8240-a68d6a12d39e'
+        };
+      }
+
+      throw 'Invalid request';
+    });
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/siteiconmanager/setsitelogo') {
+        data = opts.data;
+        return;
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, { options: { url: 'https://contoso.sharepoint.com/sites/logo', siteLogoUrl: "https://contoso.sharepoint.com/sites/another_site/SiteAssets/parker-ms-1200.png" } });
+    assert.strictEqual(data.relativeLogoUrl, "/sites/another_site/SiteAssets/parker-ms-1200.png");
   });
 
   it('correctly handles unsetting the logo from the specified site', async () => {
@@ -2343,6 +2375,33 @@ describe(commands.SITE_SET, () => {
     assert.strictEqual(data.relativeLogoUrl, "/sites/logo/SiteAssets/parker-ms-1200.png");
   });
 
+  it('applies site relative thumbnail url from another site to the specified site', async () => {
+    let data: any = {};
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/site?$select=GroupId,Id') {
+        return {
+          Id: '255a50b2-527f-4413-8485-57f4c17a24d1',
+          GroupId: 'e10a459e-60c8-4000-8240-a68d6a12d39e'
+        };
+      }
+
+      throw 'Invalid request';
+    });
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/siteiconmanager/setsitelogo') {
+        data = opts.data;
+        return;
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, { options: { url: 'https://contoso.sharepoint.com/sites/logo', siteThumbnailUrl: "/sites/another_site/SiteAssets/parker-ms-1200.png" } });
+    assert.strictEqual(data.relativeLogoUrl, "/sites/another_site/SiteAssets/parker-ms-1200.png");
+  });
+
   it('applies site absolute thumbnail url to the specified site', async () => {
     let data: any = {};
 
@@ -2368,6 +2427,33 @@ describe(commands.SITE_SET, () => {
 
     await command.action(logger, { options: { url: 'https://contoso.sharepoint.com/sites/logo', siteThumbnailUrl: "https://contoso.sharepoint.com/sites/logo/SiteAssets/parker-ms-1200.png" } });
     assert.strictEqual(data.relativeLogoUrl, "/sites/logo/SiteAssets/parker-ms-1200.png");
+  });
+
+  it('applies site absolute thumbnail url from another site to the specified site', async () => {
+    let data: any = {};
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/site?$select=GroupId,Id') {
+        return {
+          Id: '255a50b2-527f-4413-8485-57f4c17a24d1',
+          GroupId: 'e10a459e-60c8-4000-8240-a68d6a12d39e'
+        };
+      }
+
+      throw 'Invalid request';
+    });
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/logo/_api/siteiconmanager/setsitelogo') {
+        data = opts.data;
+        return;
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, { options: { url: 'https://contoso.sharepoint.com/sites/logo', siteThumbnailUrl: "https://contoso.sharepoint.com/sites/another_site/SiteAssets/parker-ms-1200.png" } });
+    assert.strictEqual(data.relativeLogoUrl, "/sites/another_site/SiteAssets/parker-ms-1200.png");
   });
 
   it('correctly handles unsetting the thumbnail from the specified site', async () => {
@@ -2409,7 +2495,8 @@ describe(commands.SITE_SET, () => {
 
       throw 'Invalid request';
     });
-    executeCommandSpy = sinon.stub(cli, 'executeCommand').rejects(new CommandError('An error has occurred'));
+
+    sinon.stub(spo, 'applySiteDesign').rejects(new Error('An error has occurred'));
 
     await assert.rejects(command.action(logger, { options: { siteDesignId: 'eb2f31da-9461-4fbf-9ea1-9959b134b89e', url: 'https://contoso.sharepoint.com/sites/Sales' } } as any),
       new CommandError('An error has occurred'));

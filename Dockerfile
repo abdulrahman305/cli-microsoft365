@@ -1,4 +1,4 @@
-FROM waldekm/powershell:alpine-3.18
+FROM mcr.microsoft.com/powershell:alpine-3.20
 
 ARG CLI_VERSION=latest
 
@@ -11,8 +11,8 @@ LABEL name="m365pnp/cli-microsoft365:${CLI_VERSION}" \
   Arjun Menon <arjun.umenon@gmail.com>, \
   Adam Wojcik <adam.wojcik.it@gmail.com>, \
   Martin Lingstuyl <mlingstuyl@live.com>, \
-  Jasey Waegebaert <jaseyw@gmigroup.be>, \
-  Milan Holemans <Milan.Holemans@vanroey.be>" \
+  Jasey Waegebaert <38426621+Jwaegebaert@users.noreply.github.com>, \
+  Milan Holemans <11723921+milanholemans@users.noreply.github.com>" \
   com.azure.dev.pipelines.agent.handler.node.path="/usr/bin/node"
 
 RUN apk add --no-cache \
@@ -39,8 +39,8 @@ ENV 0="/bin/bash" \
 
 RUN bash -c 'echo "export PATH=$PATH:/home/cli-microsoft365/.npm-global/bin:/home/.local/bin" >> ~/.bash_profile' \
   && bash -c 'echo "export CLIMICROSOFT365_ENV=\"docker\"" >> ~/.bash_profile' \
-  && bash -c 'npm i -g @pnp/cli-microsoft365@${CLI_VERSION} --production --quiet --no-progress' \ 
-  && bash -c 'echo "source /etc/profile.d/bash_completion.sh" >> ~/.bash_profile' \
+  && bash -c 'npm i -g @pnp/cli-microsoft365@${CLI_VERSION} --omit=dev --quiet --no-progress' \ 
+  && bash -c 'echo "source /etc/bash/bash_completion.sh" >> ~/.bash_profile' \
   && bash -c 'echo "alias \"m365?\"=\"m365_chili\"" >> ~/.bash_profile' \
   && bash -c 'echo ". .bashrc" >> ~/.bash_profile' \
   && bash -c 'npm cache clean --force' \

@@ -1,8 +1,8 @@
-import { ClientSideControlPosition, ZoneGroupMetadata } from "./clientsidepages";
+import { ClientSideControlPosition, ZoneGroupMetadata, ZoneReflowStrategy } from "./clientsidepages";
 
 export interface Control {
   controlType?: number;
-  displayMode: number;
+  displayMode?: number;
   emphasis?: { zoneEmphasis?: number };
   id?: string;
   position: ClientSideControlPosition;
@@ -11,6 +11,8 @@ export interface Control {
   webPartData?: any;
   webPartId?: string;
   zoneGroupMetadata?: ZoneGroupMetadata;
+  zoneReflowStrategy?: ZoneReflowStrategy;
+  zoneHeight?: number;
 }
 
 export interface BackgroundControl {
