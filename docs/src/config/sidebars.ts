@@ -75,6 +75,11 @@ const sidebars: SidebarsConfig = {
           app: [
             {
               type: 'doc',
+              label: 'app add',
+              id: 'cmd/cli/app/app-add'
+            },
+            {
+              type: 'doc',
               label: 'app reconsent',
               id: 'cmd/cli/app/app-reconsent'
             }
@@ -614,6 +619,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'organization list',
               id: 'cmd/entra/organization/organization-list'
+            },
+            {
+              type: 'doc',
+              label: 'organization set',
+              id: 'cmd/entra/organization/organization-set'
             }
           ]
         },
@@ -2185,6 +2195,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'container recyclebinitem list',
               id: 'cmd/spe/container/container-recyclebinitem-list'
+            },
+            {
+              type: 'doc',
+              label: 'container recyclebinitem restore',
+              id: 'cmd/spe/container/container-recyclebinitem-restore'
             }
           ]
         },
@@ -3472,6 +3487,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'page control remove',
+              id: 'cmd/spo/page/page-control-remove'
+            },
+            {
+              type: 'doc',
               label: 'page control set',
               id: 'cmd/spo/page/page-control-set'
             },
@@ -4318,6 +4338,15 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          callrecord: [
+            {
+              type: 'doc',
+              label: 'callrecord list',
+              id: 'cmd/teams/callrecord/callrecord-list'
+            }
+          ]
+        },
+        {
           channel: [
             {
               type: 'doc',
@@ -4982,10 +5011,15 @@ const sidebars: SidebarsConfig = {
         },
         {
           type: 'doc',
-          label: 'Help page',
+          label: 'Docs page',
           id: 'contribute/new-command/writing-the-docs'
         }
       ]
+    },
+    {
+      type: 'doc',
+      label: 'Documenting minimal permissions',
+      id: 'contribute/document-minimal-permissions'
     },
     {
       type: 'doc',

@@ -6,6 +6,7 @@ patch:
   'npm:minimatch:20160620':
     - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob > minimatch':
         patched: '2025-07-10T16:42:17.450Z'
+        patched: '2025-07-10T16:42:34.495Z'
         id: 'npm:minimatch:20160620'
         path: >-
           @microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob >
@@ -13,12 +14,14 @@ patch:
   'npm:ms:20170412':
     - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > debug > ms':
         patched: '2025-07-10T16:42:17.450Z'
+        patched: '2025-07-10T16:42:34.495Z'
         id: 'npm:ms:20170412'
         path: >-
           @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
           gulp-connect > tiny-lr > debug > ms
     - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > body-parser > debug > ms':
         patched: '2025-07-10T16:42:17.450Z'
+        patched: '2025-07-10T16:42:34.495Z'
         id: 'npm:ms:20170412'
         path: >-
           @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
