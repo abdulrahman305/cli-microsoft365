@@ -2,6 +2,7 @@ import { ServicePrincipal } from '@microsoft/microsoft-graph-types';
 import { odata } from './odata.js';
 import { formatting } from './formatting.js';
 import { cli } from '../cli/cli.js';
+import request, { CliRequestOptions } from '../request.js';
 
 export const entraServicePrincipal = {
   /**
@@ -52,5 +53,42 @@ export const entraServicePrincipal = {
     }
 
     return apps[0];
+  },
+
+  /**
+   * Get all available service principals.
+   * @param properties Comma-separated list of properties to include in the response.
+   */
+  async getServicePrincipals(properties?: string): Promise<ServicePrincipal[]> {
+    let url = `https://graph.microsoft.com/v1.0/servicePrincipals`;
+
+    if (properties) {
+      url += `?$select=${properties}`;
+    }
+
+    return odata.getAllItems<ServicePrincipal>(url);
+  },
+
+  /**
+   * Create a new service principal for the specified application.
+   * @param appId Application ID of the application for which to create a service principal.
+   * @returns The created service principal.
+   */
+  async createServicePrincipal(appId: string): Promise<ServicePrincipal> {
+    const url = `https://graph.microsoft.com/v1.0/servicePrincipals`;
+
+    const requestOptions: CliRequestOptions = {
+      url: url,
+      headers: {
+        accept: 'application/json;odata.metadata=none',
+        'content-type': 'application/json;odata=nometadata'
+      },
+      data: {
+        appId
+      },
+      responseType: 'json'
+    };
+
+    return await request.post<ServicePrincipal>(requestOptions);
   }
 };

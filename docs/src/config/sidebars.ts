@@ -72,6 +72,20 @@ const sidebars: SidebarsConfig = {
           id: 'cmd/cli/cli-issue'
         },
         {
+          app: [
+            {
+              type: 'doc',
+              label: 'app add',
+              id: 'cmd/cli/app/app-add'
+            },
+            {
+              type: 'doc',
+              label: 'app reconsent',
+              id: 'cmd/cli/app/app-reconsent'
+            }
+          ]
+        },
+        {
           completion: [
             {
               type: 'doc',
@@ -600,6 +614,20 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          organization: [
+            {
+              type: 'doc',
+              label: 'organization list',
+              id: 'cmd/entra/organization/organization-list'
+            },
+            {
+              type: 'doc',
+              label: 'organization set',
+              id: 'cmd/entra/organization/organization-set'
+            }
+          ]
+        },
+        {
           pim: [
             {
               type: 'doc',
@@ -1108,6 +1136,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'directoryextension list',
+              id: 'cmd/graph/directoryextension/directoryextension-list'
+            },
+            {
+              type: 'doc',
               label: 'directoryextension remove',
               id: 'cmd/graph/directoryextension/directoryextension-remove'
             }
@@ -1134,6 +1167,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'openextension remove',
               id: 'cmd/graph/openextension/openextension-remove'
+            },
+            {
+              type: 'doc',
+              label: 'openextension set',
+              id: 'cmd/graph/openextension/openextension-set'
             }
           ]
         },
@@ -2130,6 +2168,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'container add',
+              id: 'cmd/spe/container/container-add'
+            },
+            {
+              type: 'doc',
               label: 'container get',
               id: 'cmd/spe/container/container-get'
             },
@@ -2137,6 +2180,26 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'container list',
               id: 'cmd/spe/container/container-list'
+            },
+            {
+              type: 'doc',
+              label: 'container remove',
+              id: 'cmd/spe/container/container-remove'
+            },
+            {
+              type: 'doc',
+              label: 'container permission list',
+              id: 'cmd/spe/container/container-permission-list'
+            },
+            {
+              type: 'doc',
+              label: 'container recyclebinitem list',
+              id: 'cmd/spe/container/container-recyclebinitem-list'
+            },
+            {
+              type: 'doc',
+              label: 'container recyclebinitem restore',
+              id: 'cmd/spe/container/container-recyclebinitem-restore'
             }
           ]
         },
@@ -2156,6 +2219,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'containertype list',
               id: 'cmd/spe/containertype/containertype-list'
+            },
+            {
+              type: 'doc',
+              label: 'containertype remove',
+              id: 'cmd/spe/containertype/containertype-remove'
             }
           ]
         }
@@ -3419,6 +3487,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'page control remove',
+              id: 'cmd/spo/page/page-control-remove'
+            },
+            {
+              type: 'doc',
               label: 'page control set',
               id: 'cmd/spo/page/page-control-set'
             },
@@ -4197,6 +4270,11 @@ const sidebars: SidebarsConfig = {
           model: [
             {
               type: 'doc',
+              label: 'model apply',
+              id: 'cmd/spp/model/model-apply'
+            },
+            {
+              type: 'doc',
               label: 'model get',
               id: 'cmd/spp/model/model-get'
             },
@@ -4256,6 +4334,15 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'cache remove',
               id: 'cmd/teams/cache/cache-remove'
+            }
+          ]
+        },
+        {
+          callrecord: [
+            {
+              type: 'doc',
+              label: 'callrecord list',
+              id: 'cmd/teams/callrecord/callrecord-list'
             }
           ]
         },
@@ -4736,6 +4823,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'engage community remove',
+              id: 'cmd/viva/engage/engage-community-remove'
+            },
+            {
+              type: 'doc',
               label: 'engage community set',
               id: 'cmd/viva/engage/engage-community-set'
             },
@@ -4919,10 +5011,15 @@ const sidebars: SidebarsConfig = {
         },
         {
           type: 'doc',
-          label: 'Help page',
+          label: 'Docs page',
           id: 'contribute/new-command/writing-the-docs'
         }
       ]
+    },
+    {
+      type: 'doc',
+      label: 'Documenting minimal permissions',
+      id: 'contribute/document-minimal-permissions'
     },
     {
       type: 'doc',
