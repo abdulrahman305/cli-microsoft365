@@ -84,10 +84,10 @@ describe(commands.COPILOT_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
     commandInfo = cli.getCommandInfo(command);
     sinon.stub(cli, 'getSettingWithDefaultValue').callsFake((settingName: string, defaultValue: any) => {
@@ -140,10 +140,6 @@ describe(commands.COPILOT_GET, () => {
   it('defines correct alias', () => {
     const alias = command.alias();
     assert.deepStrictEqual(alias, [commands.CHATBOT_GET]);
-  });
-
-  it('defines correct properties for the default output', () => {
-    assert.deepStrictEqual(command.defaultProperties(), ['name', 'botid', 'publishedon', 'createdon', 'modifiedon']);
   });
 
   it('fails validation if id is not a valid guid.', async () => {

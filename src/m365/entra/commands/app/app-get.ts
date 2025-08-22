@@ -2,13 +2,11 @@ import { Application } from '@microsoft/microsoft-graph-types';
 import fs from 'fs';
 import { Logger } from '../../../../cli/Logger.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
-import request, { CliRequestOptions } from '../../../../request.js';
-import { formatting } from '../../../../utils/formatting.js';
 import { validation } from '../../../../utils/validation.js';
 import GraphCommand from '../../../base/GraphCommand.js';
 import { M365RcJson } from '../../../base/M365RcJson.js';
 import commands from '../../commands.js';
-import { cli } from '../../../../cli/cli.js';
+import { entraApp } from '../../../../utils/entraApp.js';
 
 interface CommandArgs {
   options: Options;
@@ -83,8 +81,7 @@ class EntraAppGetCommand extends GraphCommand {
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
     try {
-      const appObjectId = await this.getAppObjectId(args);
-      const appInfo = await this.getAppInfo(appObjectId, args.options.properties);
+      const appInfo = await this.getAppInfo(args, logger);
       const res = await this.saveAppInfo(args, appInfo, logger);
       await logger.log(res);
     }
@@ -93,66 +90,23 @@ class EntraAppGetCommand extends GraphCommand {
     }
   }
 
-  private async getAppObjectId(args: CommandArgs): Promise<string> {
-    if (args.options.objectId) {
-      return args.options.objectId;
+  private async getAppInfo(args: CommandArgs, logger: Logger): Promise<Application> {
+    const { objectId, appId, name } = args.options;
+    const properties = args.options.properties?.split(',');
+
+    if (this.verbose) {
+      await logger.logToStderr(`Retrieving information about Microsoft Entra app ${objectId ? objectId : (appId ? appId : name)}...`);
     }
 
-    const { appId, name } = args.options;
-
-    const filter: string = appId ?
-      `appId eq '${formatting.encodeQueryParameter(appId)}'` :
-      `displayName eq '${formatting.encodeQueryParameter(name as string)}'`;
-
-    const requestOptions: CliRequestOptions = {
-      url: `${this.resource}/v1.0/myorganization/applications?$filter=${filter}&$select=id`,
-      headers: {
-        accept: 'application/json;odata.metadata=none'
-      },
-      responseType: 'json'
-    };
-
-    const res = await request.get<{ value: { id: string }[] }>(requestOptions);
-
-    if (res.value.length === 1) {
-      return res.value[0].id;
+    if (objectId) {
+      return await entraApp.getAppRegistrationByObjectId(objectId, properties);
     }
-
-    if (res.value.length === 0) {
-      const applicationIdentifier = appId ? `ID ${appId}` : `name ${name}`;
-      throw `No Microsoft Entra application registration with ${applicationIdentifier} found`;
+    else if (appId) {
+      return await entraApp.getAppRegistrationByAppId(appId, properties);
     }
-
-    const resultAsKeyValuePair = formatting.convertArrayToHashTable('id', res.value);
-    const result = await cli.handleMultipleResultsFound<{ id: string }>(`Multiple Microsoft Entra application registrations with name '${name}' found.`, resultAsKeyValuePair);
-    return result.id;
-  }
-
-  private async getAppInfo(appObjectId: string, properties?: string): Promise<Application> {
-    const queryParameters: string[] = [];
-
-    if (properties) {
-      const allProperties = properties.split(',');
-      const selectProperties = allProperties.filter(prop => !prop.includes('/'));
-
-      if (selectProperties.length > 0) {
-        queryParameters.push(`$select=${selectProperties}`);
-      }
+    else {
+      return await entraApp.getAppRegistrationByAppName(name as string, properties);
     }
-
-    const queryString = queryParameters.length > 0
-      ? `?${queryParameters.join('&')}`
-      : '';
-
-    const requestOptions: CliRequestOptions = {
-      url: `${this.resource}/v1.0/myorganization/applications/${appObjectId}${queryString}`,
-      headers: {
-        accept: 'application/json;odata.metadata=none'
-      },
-      responseType: 'json'
-    };
-
-    return request.get<Application>(requestOptions);
   }
 
   private async saveAppInfo(args: CommandArgs, appInfo: Application, logger: Logger): Promise<Application> {

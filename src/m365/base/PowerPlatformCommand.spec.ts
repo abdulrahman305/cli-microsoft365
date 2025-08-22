@@ -28,7 +28,7 @@ describe('PowerPlatformCommand', () => {
   const cloudError = new CommandError(`Power Platform commands only support the public cloud at the moment. We'll add support for other clouds in the future. Sorry for the inconvenience.`);
 
   before(() => {
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(accessToken, 'isAppOnlyAccessToken').returns(false);
     auth.connection.active = true;
     auth.connection.accessTokens[auth.defaultResource] = {
@@ -90,6 +90,6 @@ describe('PowerPlatformCommand', () => {
     sinonUtil.restore(accessToken.isAppOnlyAccessToken);
     sinon.stub(accessToken, 'isAppOnlyAccessToken').returns(true);
     auth.connection.cloudType = CloudType.Public;
-    await assert.rejects(() => (cmd as any).initAction({ options: {} }, {}), new CommandError('This command does not support application-only permissions.'));
+    await assert.rejects(() => (cmd as any).initAction({ options: {} }, {}), new CommandError('This command requires delegated permissions.'));
   });
 });

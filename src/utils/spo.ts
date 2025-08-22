@@ -258,21 +258,6 @@ interface TenantSiteProperties {
   WebsCount: number;
 }
 
-export interface ContainerTypeProperties {
-  _ObjectType_?: string;
-  AzureSubscriptionId: string;
-  ContainerTypeId: string;
-  CreationDate: string;
-  DisplayName: string;
-  ExpiryDate: string;
-  IsBillingProfileRequired: boolean;
-  OwningAppId: string;
-  OwningTenantId: string;
-  Region?: string;
-  ResourceGroup?: string;
-  SPContainerTypeBillingClassification: string;
-}
-
 export const spo = {
   async getRequestDigest(siteUrl: string): Promise<FormDigestInfo> {
     const requestOptions: CliRequestOptions = {
@@ -305,29 +290,6 @@ export const spo = {
       WebFullUrl: res.WebFullUrl
     };
     return context;
-  },
-
-  async getAllContainerTypes(spoAdminUrl: string, logger: Logger, verbose: boolean): Promise<ContainerTypeProperties[]> {
-    const formDigestInfo: FormDigestInfo = await spo.ensureFormDigest(spoAdminUrl, logger, undefined, verbose);
-
-    const requestOptions: CliRequestOptions = {
-      url: `${spoAdminUrl}/_vti_bin/client.svc/ProcessQuery`,
-      headers: {
-        'X-RequestDigest': formDigestInfo.FormDigestValue
-      },
-      data: `<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="16.0.0.0" ApplicationName="${config.applicationName}" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009"><Actions><ObjectPath Id="46" ObjectPathId="45" /><Method Name="GetSPOContainerTypes" Id="47" ObjectPathId="45"><Parameters><Parameter Type="Enum">1</Parameter></Parameters></Method></Actions><ObjectPaths><Constructor Id="45" TypeId="{268004ae-ef6b-4e9b-8425-127220d84719}" /></ObjectPaths></Request>`
-    };
-
-    const res: string = await request.post(requestOptions);
-    const json: ClientSvcResponse = JSON.parse(res);
-    const response: ClientSvcResponseContents = json[0];
-
-    if (response.ErrorInfo) {
-      throw new Error(response.ErrorInfo.ErrorMessage);
-    }
-
-    const containerTypes: ContainerTypeProperties[] = json[json.length - 1];
-    return containerTypes;
   },
 
   async waitUntilFinished({ operationId, siteUrl, logger, currentContext, debug, verbose }: { operationId: string, siteUrl: string, logger: Logger, currentContext: FormDigestInfo, debug: boolean, verbose: boolean }): Promise<void> {
@@ -860,15 +822,17 @@ export const spo = {
 
   /**
  * Retrieves the spo user by email.
+ * Returns a user object
  * @param webUrl Web url
  * @param email The email of the user
  * @param logger the Logger object
- * @param verbose set for verbose logging
+ * @param verbose Set for verbose logging
  */
   async getUserByEmail(webUrl: string, email: string, logger?: Logger, verbose?: boolean): Promise<any> {
     if (verbose && logger) {
       await logger.logToStderr(`Retrieving the spo user by email ${email}`);
     }
+
     const requestUrl = `${webUrl}/_api/web/siteusers/GetByEmail('${formatting.encodeQueryParameter(email)}')`;
 
     const requestOptions: CliRequestOptions = {
@@ -944,15 +908,18 @@ export const spo = {
 
   /**
   * Retrieves the spo group by name.
+  * Returns a group object
   * @param webUrl Web url
   * @param name The name of the group
   * @param logger the Logger object
-  * @param verbose set for verbose logging
+  * @param verbose Set for verbose logging
   */
   async getGroupByName(webUrl: string, name: string, logger?: Logger, verbose?: boolean): Promise<any> {
     if (verbose && logger) {
       await logger.logToStderr(`Retrieving the group by name ${name}`);
     }
+
+
     const requestUrl = `${webUrl}/_api/web/sitegroups/GetByName('${formatting.encodeQueryParameter(name)}')`;
 
     const requestOptions: CliRequestOptions = {
@@ -970,10 +937,13 @@ export const spo = {
 
   /**
   * Retrieves the role definition by name.
+  * Returns a RoleDefinition object
+  * Returns a RoleDefinition object
   * @param webUrl Web url
   * @param name the name of the role definition
   * @param logger the Logger object
-  * @param verbose set for verbose logging
+  * @param verbose Set for verbose logging
+  * @param verbose Set for verbose logging
   */
   async getRoleDefinitionByName(webUrl: string, name: string, logger?: Logger, verbose?: boolean): Promise<RoleDefinition> {
     if (verbose && logger) {
@@ -1422,7 +1392,7 @@ export const spo = {
         }
 
         if (typeof isPublic !== 'undefined') {
-          promises.push(entraGroup.setGroup(groupId as string, (isPublic === false), logger, verbose));
+          promises.push(entraGroup.setGroup(groupId as string, (isPublic === false), undefined, undefined, logger, verbose));
         }
         if (typeof owners !== 'undefined') {
           promises.push(spo.setGroupifiedSiteOwners(spoAdminUrl, groupId, owners, logger, verbose));
@@ -1910,15 +1880,14 @@ export const spo = {
     await request.post(requestOptions);
   },
 
-
   /**
-   * Retrieves the site ID for a given web URL.
+   * Retrieves the site ID for a given web URL by the MS Graph.
    * @param webUrl The web URL for which to retrieve the site ID.
    * @param logger The logger object.
    * @param verbose Set for verbose logging
-   * @returns A promise that resolves to the site ID.
+   * @returns The site ID as a string.
    */
-  async getSiteId(webUrl: string, logger?: Logger, verbose?: boolean): Promise<string> {
+  async getSiteIdByMSGraph(webUrl: string, logger?: Logger, verbose?: boolean): Promise<string> {
     if (verbose && logger) {
       await logger.logToStderr(`Getting site id for URL: ${webUrl}...`);
     }
@@ -1935,6 +1904,101 @@ export const spo = {
     const site: Site = await request.get<Site>(requestOptions);
 
     return site.id as string;
+  },
+
+  /**
+   * Retrieves the SharePoint Online site ID for the specified web URL by the SharePoint REST API.
+   * @param webUrl The web URL of the SharePoint Online site to retrieve the site ID for.
+   * @param logger The logger object.
+   * @param verbose Set for verbose logging
+   * @returns The site ID as a string.
+   */
+  async getSiteIdBySPApi(webUrl: string, logger?: Logger, verbose?: boolean): Promise<string> {
+    if (verbose && logger) {
+      await logger.logToStderr(`Getting site id for URL: ${webUrl}...`);
+    }
+
+    const requestOptions: CliRequestOptions = {
+      url: `${webUrl}/_api/site?$select=Id`,
+      headers: {
+        accept: 'application/json;odata=nometadata'
+      },
+      responseType: 'json'
+    };
+
+    const siteResponse = await request.get<{ Id: string }>(requestOptions);
+    return siteResponse.Id;
+  },
+
+  /**
+   * Retrieves the id of a SharePoint web for the specified web URL.
+   * @param webUrl The web URL for which to retrieve the web ID.
+   * @param logger The logger object for logging messages.
+   * @param verbose Set to true for verbose logging.
+   * @returns The web ID as a string.
+   */
+  async getWebId(webUrl: string, logger?: Logger, verbose?: boolean): Promise<string> {
+    if (verbose && logger) {
+      await logger.logToStderr(`Getting web id for URL: ${webUrl}...`);
+    }
+
+    const requestOptions: CliRequestOptions = {
+      url: `${webUrl}/_api/web?$select=Id`,
+      headers: {
+        accept: 'application/json;odata=nometadata'
+      },
+      responseType: 'json'
+    };
+
+    const webResponse = await request.get<{ Id: string }>(requestOptions);
+    return webResponse.Id;
+  },
+
+  /**
+   * Retrieves the ID of a SharePoint list by its title or URL.
+   * @param webUrl The base URL of the SharePoint site.
+   * @param listTitle The title of the list (optional).
+   * @param listUrl The server-relative URL of the list (optional).
+   * @param logger The logger object for logging messages (optional).
+   * @param verbose Set to true for verbose logging (optional).
+   * @returns The list ID as a string.
+   */
+  async getListId(webUrl: string, listTitle?: string, listUrl?: string, logger?: Logger, verbose?: boolean): Promise<string> {
+    if (verbose && logger) {
+      await logger.logToStderr(`Retrieving list id...`);
+    }
+
+    if (!listTitle && !listUrl) {
+      throw new Error('Either listTitle or listUrl must be provided.');
+    }
+
+    let listId = '';
+
+    if (listTitle) {
+      const requestOptions: CliRequestOptions = {
+        url: `${webUrl}/_api/web/lists/getByTitle('${formatting.encodeQueryParameter(listTitle)}')?$select=Id`,
+        headers: {
+          accept: 'application/json;odata=nometadata'
+        },
+        responseType: 'json'
+      };
+      const listResponse = await request.get<{ Id: string }>(requestOptions);
+      listId = listResponse.Id;
+    }
+    else if (listUrl) {
+      const listServerRelativeUrl: string = urlUtil.getServerRelativePath(webUrl, listUrl);
+      const requestOptions: CliRequestOptions = {
+        url: `${webUrl}/_api/web/GetList('${formatting.encodeQueryParameter(listServerRelativeUrl)}')?$select=Id`,
+        headers: {
+          accept: 'application/json;odata=nometadata'
+        },
+        responseType: 'json'
+      };
+      const listResponse = await request.get<{ Id: string }>(requestOptions);
+      listId = listResponse.Id;
+    }
+
+    return listId;
   },
 
   /**
@@ -2302,5 +2366,32 @@ export const spo = {
     };
 
     return request.post<TenantSiteProperties>(requestOptions);
+  },
+
+  /**
+  * Get a role definition by name
+  * Returns a RoleDefinition object
+  * @param webUrl The web url
+  * @param name  the name of the role definition
+  * @param logger The logger object
+  * @param verbose Set for verbose logging
+  */
+  async getRoleDefintionByName(webUrl: string, name: string, logger?: Logger, verbose?: boolean): Promise<RoleDefinition> {
+    if (verbose && logger) {
+      await logger.logToStderr(`Retrieving the role definition by name ${name}`);
+    }
+    const response: RoleDefinition[] = await odata.getAllItems<RoleDefinition>(`${webUrl}/_api/web/roledefinitions`);
+    const roleDefinition = response.find((role: RoleDefinition) => role.Name === name);
+    if (!roleDefinition) {
+      throw new Error(`The specified role definition name '${name}' does not exist.`);
+    }
+
+    const permissions: BasePermissions = new BasePermissions();
+    permissions.high = roleDefinition.BasePermissions.High as number;
+    permissions.low = roleDefinition.BasePermissions.Low as number;
+    roleDefinition.BasePermissionsValue = permissions.parse();
+    roleDefinition.RoleTypeKindValue = RoleType[roleDefinition.RoleTypeKind];
+
+    return roleDefinition;
   }
 };

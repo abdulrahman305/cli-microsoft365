@@ -93,14 +93,16 @@
   - Power Apps
   - Power Platform
   - Purview
-  - Skype for Business
+  - SharePoint Embedded
   - SharePoint Online
+  - SharePoint Premium
   - To Do
 - Supported authentication methods
   - Azure Managed Identity
   - Certificate
   - Client Secret
   - Device Code
+  - Federated identity
   - Username and Password
 - Manage your SharePoint Framework projects
   - Upgrade your projects
@@ -110,7 +112,7 @@
 
 ## Install
 
-To use the CLI for Microsoft 365 you need [`Node.js`](https://nodejs.org). The CLI has been tested with Node.js versions 18 and higher, but we recommend you to use the Node.js LTS version available at the moment.
+To use the CLI for Microsoft 365 you need [`Node.js`](https://nodejs.org). The CLI has been tested with Node.js versions 20 and higher, but we recommend you to use the Node.js LTS version available at the moment.
 
 ```
 npm install -g @pnp/cli-microsoft365
@@ -192,11 +194,11 @@ Execute a command and output response as text using the global `--output` option
 m365 spo site get --url https://contoso.sharepoint.com --output text
 ```
 
-> For more examples and usage, refer to the [command](https://pnp.github.io/cli-microsoft365/cmd/login/) and  [sample scripts](https://pnp.github.io/cli-microsoft365/sample-scripts/) documentation.
+> For more examples and usage, refer to the [command](https://pnp.github.io/cli-microsoft365/cmd/login/) and  [sample scripts](https://pnp.github.io/cli-microsoft365/sample-scripts/introduction/) documentation.
 
 ## Build
 
-To build and run this CLI locally, you will need [`node`](https://nodejs.org) `>= 20.0.0` installed.
+To build and run this CLI locally, you will need [`node`](https://nodejs.org) `>= 22.0.0` installed.
 
 ```sh
 # Clone this repository

@@ -80,7 +80,7 @@ describe(commands.LIST_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -1280,5 +1280,47 @@ describe(commands.LIST_GET, () => {
   it('passes validation if the id option is a valid GUID', async () => {
     const actual = await command.validate({ options: { webUrl: 'https://contoso.sharepoint.com', id: '0CD891EF-AFCE-4E55-B836-FCE03286CCCF' } }, commandInfo);
     assert(actual);
+  });
+
+  it('retrieves the default list in the specified site by providing a webUrl', async () => {
+    const webUrl = 'https://contoso.sharepoint.com';
+    const mockListResponse = {
+      AllowContentTypes: true,
+      BaseTemplate: 100,
+      BaseType: 1,
+      ContentTypesEnabled: false,
+      Created: "2023-07-02T00:03:51Z",
+      DefaultItemOpenUseListSetting: false,
+      Description: "",
+      EnableVersioning: true,
+      EntityTypeName: "Shared_x0020_Documents",
+      Id: "cf07fe11-8b85-424c-972f-5f84fba5157c",
+      ItemCount: 20,
+      ListItemEntityTypeFullName: "SP.Data.Shared_x0020_DocumentsItem",
+      MajorVersionLimit: 500,
+      ParentWebUrl: "/",
+      Title: "Documents",
+      VersionPolicies: {
+        DefaultTrimMode: 1,
+        MinorVersionLimit: 0,
+        MajorVersionLimit: 500
+      }
+    };
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web/DefaultDocumentLibrary`) {
+        return mockListResponse;
+      }
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, {
+      options: {
+        webUrl: webUrl,
+        default: true
+      }
+    });
+
+    assert(loggerLogSpy.calledWith(mockListResponse));
   });
 });

@@ -7,7 +7,8 @@ import { validation } from '../../../../utils/validation.js';
 import SpoCommand from '../../../base/SpoCommand.js';
 import commands from '../../commands.js';
 import { BackgroundControl, Control } from './canvasContent.js';
-import { CanvasSectionTemplate } from './clientsidepages.js';
+import { CanvasColumnFactorType, CanvasSectionTemplate } from './clientsidepages.js';
+import { Page } from './Page.js';
 
 interface CommandArgs {
   options: Options;
@@ -33,13 +34,18 @@ interface Options extends GlobalOptions {
   overlayColor?: string;
   overlayOpacity?: number;
   collapsibleTitle?: string;
+  zoneReflowStrategy?: string;
+  zoneHeight?: number;
+  headingLevel?: number;
 }
 
 class SpoPageSectionAddCommand extends SpoCommand {
-  public readonly sectionTemplate: string[] = ['OneColumn', 'OneColumnFullWidth', 'TwoColumn', 'ThreeColumn', 'TwoColumnLeft', 'TwoColumnRight', 'Vertical'];
+  public readonly sectionTemplate: string[] = ['OneColumn', 'OneColumnFullWidth', 'TwoColumn', 'ThreeColumn', 'TwoColumnLeft', 'TwoColumnRight', 'Vertical', 'Flexible'];
   public readonly zoneEmphasis: string[] = ['None', 'Neutral', 'Soft', 'Strong', 'Image', 'Gradient'];
   public readonly iconAlignment: string[] = ['Left', 'Right'];
   public readonly fillMode: string[] = ['ScaleToFill', 'ScaleToFit', 'Tile', 'OriginalSize'];
+  public readonly zoneReflowStrategy: string[] = ['TopToBottom', 'LeftToRight'];
+  readonly MINIMUM_ZONE_HEIGHT: number = 34;
 
   public get name(): string {
     return commands.PAGE_SECTION_ADD;
@@ -76,7 +82,10 @@ class SpoPageSectionAddCommand extends SpoCommand {
         useLightText: !!args.options.useLightText,
         overlayColor: typeof args.options.overlayColor !== 'undefined',
         overlayOpacity: typeof args.options.overlayOpacity !== 'undefined',
-        collapsibleTitle: typeof args.options.collapsibleTitle !== 'undefined'
+        collapsibleTitle: typeof args.options.collapsibleTitle !== 'undefined',
+        zoneReflowStrategy: typeof args.options.zoneReflowStrategy !== 'undefined',
+        zoneHeight: typeof args.options.zoneHeight !== 'undefined',
+        headingLevel: typeof args.options.headingLevel !== 'undefined'
       });
     });
   }
@@ -143,6 +152,16 @@ class SpoPageSectionAddCommand extends SpoCommand {
       },
       {
         option: '--collapsibleTitle [collapsibleTitle]'
+      },
+      {
+        option: '--zoneReflowStrategy [zoneReflowStrategy]',
+        autocomplete: this.zoneReflowStrategy
+      },
+      {
+        option: '--zoneHeight [zoneHeight]'
+      },
+      {
+        option: '--headingLevel [headingLevel]'
       }
     );
   }
@@ -151,7 +170,7 @@ class SpoPageSectionAddCommand extends SpoCommand {
     this.validators.push(
       async (args: CommandArgs) => {
         if (!(args.options.sectionTemplate in CanvasSectionTemplate)) {
-          return `${args.options.sectionTemplate} is not a valid section template. Allowed values are OneColumn|OneColumnFullWidth|TwoColumn|ThreeColumn|TwoColumnLeft|TwoColumnRight|Vertical`;
+          return `${args.options.sectionTemplate} is not a valid section template. Allowed values are OneColumn|OneColumnFullWidth|TwoColumn|ThreeColumn|TwoColumnLeft|TwoColumnRight|Vertical|Flexible`;
         }
 
         if (typeof args.options.order !== 'undefined') {
@@ -161,7 +180,7 @@ class SpoPageSectionAddCommand extends SpoCommand {
         }
 
         if (typeof args.options.zoneEmphasis !== 'undefined') {
-          if (!this.zoneEmphasis.some(zoneEmphasisValue => zoneEmphasisValue.toLocaleLowerCase() === args.options.zoneEmphasis?.toLowerCase())) {
+          if (!this.zoneEmphasis.some(zoneEmphasisValue => zoneEmphasisValue.toLowerCase() === args.options.zoneEmphasis?.toLowerCase())) {
             return `The value of parameter zoneEmphasis must be ${this.zoneEmphasis.join(', ')}`;
           }
         }
@@ -173,23 +192,35 @@ class SpoPageSectionAddCommand extends SpoCommand {
         }
 
         if (typeof args.options.iconAlignment !== 'undefined') {
-          if (!this.iconAlignment.some(iconAlignmentValue => iconAlignmentValue.toLocaleLowerCase() === args.options.iconAlignment?.toLowerCase())) {
+          if (!this.iconAlignment.some(iconAlignmentValue => iconAlignmentValue.toLowerCase() === args.options.iconAlignment?.toLowerCase())) {
             return `The value of parameter iconAlignment must be ${this.iconAlignment.join(', ')}`;
           }
         }
 
         if (typeof args.options.fillMode !== 'undefined') {
-          if (!this.fillMode.some(fillModeValue => fillModeValue.toLocaleLowerCase() === args.options.fillMode?.toLowerCase())) {
+          if (!this.fillMode.some(fillModeValue => fillModeValue.toLowerCase() === args.options.fillMode?.toLowerCase())) {
             return `The value of parameter fillMode must be ${this.fillMode.join(', ')}`;
           }
         }
 
-        if (args.options.zoneEmphasis?.toLocaleLowerCase() !== 'image' && (args.options.imageUrl || args.options.imageWidth ||
+        if (typeof args.options.zoneReflowStrategy !== 'undefined') {
+          if (!this.zoneReflowStrategy.some(zoneReflowStrategyValue => zoneReflowStrategyValue.toLowerCase() === args.options.zoneReflowStrategy?.toLowerCase())) {
+            return `The value of parameter zoneReflowStrategy must be ${this.zoneReflowStrategy.join(', ')}`;
+          }
+        }
+
+        if (typeof args.options.headingLevel !== 'undefined') {
+          if (![2, 3, 4].some(headingLevelValue => headingLevelValue === args.options.headingLevel)) {
+            return `The value of parameter headingLevel must be 2, 3 or 4`;
+          }
+        }
+
+        if (args.options.zoneEmphasis?.toLowerCase() !== 'image' && (args.options.imageUrl || args.options.imageWidth ||
           args.options.imageHeight || args.options.fillMode)) {
           return 'Specify imageUrl, imageWidth, imageHeight or fillMode only when zoneEmphasis is set to Image';
         }
 
-        if (args.options.zoneEmphasis?.toLocaleLowerCase() === 'image' && !args.options.imageUrl) {
+        if (args.options.zoneEmphasis?.toLowerCase() === 'image' && !args.options.imageUrl) {
           return 'Specify imageUrl when zoneEmphasis is set to Image';
         }
 
@@ -213,13 +244,23 @@ class SpoPageSectionAddCommand extends SpoCommand {
           return 'Specify overlayColor or overlayOpacity only when zoneEmphasis is set to Image or Gradient';
         }
 
+        if (args.options.sectionTemplate?.toLowerCase() !== 'flexible' && (args.options.zoneReflowStrategy || args.options.zoneHeight)) {
+          return 'Specify zoneReflowStrategy or zoneHeight only when sectionTemplate is set to Flexible';
+        }
+
+        if (typeof args.options.zoneHeight !== 'undefined') {
+          if (!Number.isInteger(args.options.zoneHeight) || args.options.zoneHeight < this.MINIMUM_ZONE_HEIGHT) {
+            return `The value of parameter zoneHeight must be ${this.MINIMUM_ZONE_HEIGHT} or higher`;
+          }
+        }
+
         return validation.isValidSharePointUrl(args.options.webUrl);
       }
     );
   }
 
   #initTypes(): void {
-    this.types.string = ['pageName', 'webUrl', 'sectionTemplate', 'zoneEmphasis', 'iconAlignment', 'gradientText', 'imageUrl', 'fillMode', 'overlayColor', 'collapsibleTitle'];
+    this.types.string = ['pageName', 'webUrl', 'sectionTemplate', 'zoneEmphasis', 'iconAlignment', 'gradientText', 'imageUrl', 'fillMode', 'overlayColor', 'collapsibleTitle', 'zoneReflowStrategy'];
     this.types.boolean = ['isLayoutReflowOnTop', 'isCollapsibleSection', 'showDivider', 'isExpanded', 'useLightText'];
   }
 
@@ -247,31 +288,40 @@ class SpoPageSectionAddCommand extends SpoCommand {
       const res = await request.get<{ CanvasContent1: string; IsPageCheckedOutToCurrentUser: boolean }>(requestOptions);
       canvasContent = JSON.parse(res.CanvasContent1 || "[{\"controlType\":0,\"pageSettingsSlice\":{\"isDefaultDescription\":true,\"isDefaultThumbnail\":true}}]");
 
-      if (!res.IsPageCheckedOutToCurrentUser) {
-        requestOptions = {
-          url: `${args.options.webUrl}/_api/sitepages/pages/GetByUrl('sitepages/${formatting.encodeQueryParameter(pageFullName)}')/checkoutpage`,
-          headers: {
-            'accept': 'application/json;odata=nometadata'
-          },
-          responseType: 'json'
-        };
-
-        await request.post(requestOptions);
+      if (args.options.sectionTemplate === 'OneColumnFullWidth') {
+        this.ensureFullWidthSectionCanBeAdded(canvasContent);
       }
 
-      // get columns
-      const columns: (Control | BackgroundControl)[] = canvasContent
-        .filter(c => typeof c.controlType === 'undefined');
+      if (args.options.sectionTemplate === 'Vertical') {
+        this.ensureVerticalSectionCanBeAdded(canvasContent);
+      }
+
+      if (!res.IsPageCheckedOutToCurrentUser) {
+        await Page.checkout(pageFullName, args.options.webUrl, logger, this.verbose);
+      }
+
       // get unique zoneIndex values given each section can have 1 or more
       // columns each assigned to the zoneIndex of the corresponding section
-      const zoneIndices: number[] = columns
+      const zoneIndices: number[] = canvasContent
+        // Exclude the vertical section
+        .filter(c => c.position)
         .map(c => c.position.zoneIndex)
         .filter((value: number, index: number, array: number[]): boolean => {
           return array.indexOf(value) === index;
         })
-        .sort();
-      // zoneIndex for the new section to add
-      const zoneIndex: number = this.getSectionIndex(zoneIndices, args.options.order);
+        .sort((a, b) => a - b);
+
+      // Add a new zoneIndex  at the end of the array
+      zoneIndices.push(zoneIndices.length > 0 ? zoneIndices[zoneIndices.length - 1] + 1 : 1);
+
+      // get section number. if not specified, get the last section
+      let section: number = args.options.order || zoneIndices.length;
+      if (section > zoneIndices.length) {
+        section = zoneIndices.length;
+      }
+
+      // zoneIndex that represents the section where the web part should be added
+      const zoneIndex: number = zoneIndices[section - 1];
       let zoneId: string | undefined;
 
       let backgroundControlToAdd: BackgroundControl | undefined = undefined;
@@ -288,11 +338,18 @@ class SpoPageSectionAddCommand extends SpoCommand {
         }
       }
 
+      // Increment the zoneIndex of all columns that are greater than or equal to the new zoneIndex
+      canvasContent.forEach((c: Control | BackgroundControl) => {
+        if (c.position && c.position.zoneIndex >= zoneIndex) {
+          c.position.zoneIndex += 1;
+        }
+      });
+
       // get the list of columns to insert based on the selected template
       const columnsToAdd: Control[] = this.getColumns(zoneIndex, args, zoneId);
       // insert the column in the right place in the array so that
       // it stays sorted ascending by zoneIndex
-      let pos: number = canvasContent.findIndex(c => typeof c.controlType === 'undefined' && c.position && c.position.zoneIndex > zoneIndex);
+      let pos: number = canvasContent.findIndex(c => c.position && c.position.zoneIndex >= zoneIndex);
       if (pos === -1) {
         pos = canvasContent.length - 1;
       }
@@ -315,24 +372,6 @@ class SpoPageSectionAddCommand extends SpoCommand {
     catch (err: any) {
       this.handleRejectedODataJsonPromise(err);
     }
-  }
-
-  private getSectionIndex(zoneIndices: number[], order?: number): number {
-    // zoneIndex of the first column on the page
-    const minIndex: number = zoneIndices.length === 0 ? 0 : zoneIndices[0];
-    // zoneIndex of the last column on the page
-    const maxIndex: number = zoneIndices.length === 0 ? 0 : zoneIndices[zoneIndices.length - 1];
-    if (!order || order > zoneIndices.length) {
-      // no order specified, add section to the end
-      return maxIndex === 0 ? 1 : maxIndex * 2;
-    }
-
-    // add to the beginning
-    if (order === 1) {
-      return minIndex / 2;
-    }
-
-    return zoneIndices[order - 2] + ((zoneIndices[order - 1] - zoneIndices[order - 2]) / 2);
   }
 
   private getColumns(zoneIndex: number, args: CommandArgs, zoneId?: string): Control[] {
@@ -363,6 +402,9 @@ class SpoPageSectionAddCommand extends SpoCommand {
       case 'Vertical':
         columns.push(this.getVerticalColumn(args, zoneId));
         break;
+      case 'Flexible':
+        columns.push(this.getFlexibleColumn(zoneIndex, sectionIndex++, args, zoneId));
+        break;
       case 'OneColumn':
       default:
         columns.push(this.getColumn(zoneIndex, sectionIndex++, 12, args, zoneId));
@@ -372,7 +414,7 @@ class SpoPageSectionAddCommand extends SpoCommand {
     return columns;
   }
 
-  private getColumn(zoneIndex: number, sectionIndex: number, sectionFactor: number, args: CommandArgs, zoneId?: string): Control {
+  private getColumn(zoneIndex: number, sectionIndex: number, sectionFactor: CanvasColumnFactorType, args: CommandArgs, zoneId?: string): Control {
     const { zoneEmphasis, isCollapsibleSection, isExpanded, showDivider, iconAlignment, collapsibleTitle } = args.options;
     const columnValue: Control = {
       displayMode: 2,
@@ -387,9 +429,9 @@ class SpoPageSectionAddCommand extends SpoCommand {
       }
     };
 
-    if (zoneEmphasis && ['none', 'neutral', 'soft', 'strong'].includes(zoneEmphasis?.toLocaleLowerCase())) {
+    if (zoneEmphasis && ['none', 'neutral', 'soft', 'strong'].includes(zoneEmphasis?.toLowerCase())) {
       // Just these zoneEmphasis values should be added to column emphasis
-      const zoneEmphasisValue: number = ['none', 'neutral', 'soft', 'strong'].indexOf(zoneEmphasis.toLocaleLowerCase());
+      const zoneEmphasisValue: number = ['none', 'neutral', 'soft', 'strong'].indexOf(zoneEmphasis.toLowerCase());
       columnValue.emphasis = { zoneEmphasis: zoneEmphasisValue };
     }
 
@@ -398,8 +440,9 @@ class SpoPageSectionAddCommand extends SpoCommand {
         type: 1,
         isExpanded: !!isExpanded,
         showDividerLine: !!showDivider,
-        iconAlignment: iconAlignment && iconAlignment.toLocaleLowerCase() === "right" ? "right" : "left",
-        displayName: collapsibleTitle
+        iconAlignment: iconAlignment && iconAlignment.toLowerCase() === "right" ? "right" : "left",
+        displayName: collapsibleTitle,
+        headingLevel: args.options.headingLevel ? args.options.headingLevel : 2 //2 is a default heading level
       };
     }
 
@@ -411,6 +454,16 @@ class SpoPageSectionAddCommand extends SpoCommand {
     columnValue.position.isLayoutReflowOnTop = args.options.isLayoutReflowOnTop !== undefined;
     columnValue.position.layoutIndex = 2;
     columnValue.position.controlIndex = 1;
+
+    return columnValue;
+  }
+
+  private getFlexibleColumn(zoneIndex: number, sectionIndex: number, args: CommandArgs, zoneId?: string): Control {
+    const columnValue: Control = this.getColumn(zoneIndex, sectionIndex, 100, args, zoneId);
+    columnValue.zoneReflowStrategy = { axis: args.options.zoneReflowStrategy ? this.zoneReflowStrategy.indexOf(args.options.zoneReflowStrategy) : 0 };
+    if (args.options.zoneHeight) {
+      columnValue.zoneHeight = args.options.zoneHeight;
+    }
 
     return columnValue;
   }
@@ -474,6 +527,26 @@ class SpoPageSectionAddCommand extends SpoCommand {
     }
 
     return backgroundDetails;
+  }
+
+  private ensureFullWidthSectionCanBeAdded(canvasContent: (Control | BackgroundControl)[]): void {
+    const hasVerticalSection = canvasContent.some((c: Control | BackgroundControl) =>
+      c.position?.layoutIndex === 2 && c.position.sectionFactor === 12
+    );
+
+    if (hasVerticalSection) {
+      throw "A vertical section already exists on the page. A full-width section cannot be added to a page that already has a vertical section.";
+    }
+  }
+
+  private ensureVerticalSectionCanBeAdded(canvasContent: (Control | BackgroundControl)[]): void {
+    const hasFullWidthSection = canvasContent.some((c: Control | BackgroundControl) =>
+      c.position?.layoutIndex === 1 && c.position.sectionFactor === 0
+    );
+
+    if (hasFullWidthSection) {
+      throw "A full-width section already exists on the page. A vertical section cannot be added to a page that already has a full-width section.";
+    }
   }
 }
 

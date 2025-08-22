@@ -32,7 +32,7 @@ class MockCommand extends VivaEngageCommand {
 
 describe('VivaEngageCommand', () => {
   before(() => {
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     sinon.stub(accessToken, 'isAppOnlyAccessToken').returns(false);
@@ -144,6 +144,6 @@ describe('VivaEngageCommand', () => {
     sinonUtil.restore(accessToken.isAppOnlyAccessToken);
     sinon.stub(accessToken, 'isAppOnlyAccessToken').returns(true);
     auth.connection.active = true;
-    await assert.rejects(() => (cmd as any).initAction({ options: {} }, {}), new CommandError('This command does not support application-only permissions.'));
+    await assert.rejects(() => (cmd as any).initAction({ options: {} }, {}), new CommandError('This command requires delegated permissions.'));
   });
 });

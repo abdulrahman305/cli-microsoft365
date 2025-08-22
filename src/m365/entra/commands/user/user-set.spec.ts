@@ -40,7 +40,7 @@ describe(commands.USER_SET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -92,6 +92,10 @@ describe(commands.USER_SET, () => {
 
   it('has a description', () => {
     assert.notStrictEqual(command.description, null);
+  });
+
+  it('allows unknown options', () => {
+    assert.strictEqual(command.allowUnknownOptions(), true);
   });
 
   it('fails validation if neither the id nor the userName are specified', async () => {
@@ -281,6 +285,46 @@ describe(commands.USER_SET, () => {
       }
     } as any);
     assert(loggerLogSpy.notCalled);
+  });
+
+  it('correctly updates information about the specified user with unknown options', async () => {
+    const patchStub = sinon.stub(request, 'patch').callsFake(async (opts) => {
+      if ((opts.url as string).indexOf(`/v1.0/users/`) > -1) {
+        return;
+      }
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, {
+      options: {
+        verbose: true,
+        id: id,
+        department: 'Sales & Marketing',
+        companyName: 'Contoso',
+        displayName: displayName,
+        firstName: firstName,
+        lastName: lastName,
+        usageLocation: usageLocation,
+        officeLocation: officeLocation,
+        jobTitle: jobTitle,
+        preferredLanguage: preferredLanguage,
+        accountEnabled: false,
+        extension_b7d8e648520f41d3b9c0fdeb91768a0a_jobGroupTracker: 'JobGroupN'
+      }
+    } as any);
+    assert.deepStrictEqual(patchStub.lastCall.args[0].data, {
+      companyName: 'Contoso',
+      department: 'Sales & Marketing',
+      displayName: displayName,
+      givenName: firstName,
+      surname: lastName,
+      usageLocation: usageLocation,
+      officeLocation: officeLocation,
+      jobTitle: jobTitle,
+      preferredLanguage: preferredLanguage,
+      accountEnabled: false,
+      extension_b7d8e648520f41d3b9c0fdeb91768a0a_jobGroupTracker: 'JobGroupN'
+    });
   });
 
   it('correctly updates user with an empty value', async () => {

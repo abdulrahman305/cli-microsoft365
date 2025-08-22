@@ -55,10 +55,10 @@ describe(commands.WEBSITE_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
     commandInfo = cli.getCommandInfo(command);
     commandOptionsSchema = commandInfo.command.getSchemaToParse()!;
@@ -99,10 +99,6 @@ describe(commands.WEBSITE_GET, () => {
 
   it('has a description', () => {
     assert.notStrictEqual(command.description, null);
-  });
-
-  it('defines correct properties for the default output', () => {
-    assert.deepStrictEqual(command.defaultProperties(), ['id', 'name', 'websiteUrl', 'tenantId', 'subdomain', 'type', 'status', 'siteVisibility']);
   });
 
   it('retrieves the information for the Power Page website by url', async () => {

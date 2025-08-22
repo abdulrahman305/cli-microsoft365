@@ -2,6 +2,7 @@ import { createRequire } from 'module';
 import auth, { AuthType } from '../../Auth.js';
 import { Logger } from '../../cli/Logger.js';
 import Command, { CommandArgs, CommandError } from '../../Command.js';
+import { optionsUtils } from '../../utils/optionsUtils.js';
 
 const require = createRequire(import.meta.url);
 const csomDefs = require('../../../csom.json');
@@ -30,6 +31,7 @@ export default abstract class SpoCommand extends Command {
       'parentWebUrl',
       'previewImageUrl',
       'siteLogoUrl',
+      'siteThumbnailUrl',
       'siteUrl',
       'StartASiteFormUrl',
       'targetUrl',
@@ -80,7 +82,7 @@ export default abstract class SpoCommand extends Command {
   }
 
   protected validateUnknownCsomOptions(options: any, csomObject: string, csomPropertyType: 'get' | 'set'): string | boolean {
-    const unknownOptions: any = this.getUnknownOptions(options);
+    const unknownOptions: any = optionsUtils.getUnknownOptions(options, this.options);
     const optionNames: string[] = Object.getOwnPropertyNames(unknownOptions);
     if (optionNames.length === 0) {
       return true;
