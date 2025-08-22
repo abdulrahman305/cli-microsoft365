@@ -1,8 +1,11 @@
-import { RequiredResourceAccess, ResourceAccess } from '@microsoft/microsoft-graph-types';
+import { Application, RequiredResourceAccess, ResourceAccess } from '@microsoft/microsoft-graph-types';
 import fs from 'fs';
 import { Logger } from '../cli/Logger.js';
 import request, { CliRequestOptions } from '../request.js';
 import { odata } from './odata.js';
+import { formatting } from './formatting.js';
+import { cli } from '../cli/cli.js';
+import { optionsUtils } from './optionsUtils.js';
 
 export interface AppInfo {
   appId: string;
@@ -214,8 +217,9 @@ function updateAppPermissions({ spId, resourceAccessPermission, oAuth2Permission
 
 export const entraApp = {
   appPermissions: [] as AppPermissions[],
-  createAppRegistration: async ({ options, apis, logger, verbose, debug }: {
+  createAppRegistration: async ({ options, apis, logger, verbose, debug, unknownOptions }: {
     options: AppCreationOptions,
+    unknownOptions: any,
     apis: RequiredResourceAccess[],
     logger: Logger,
     verbose: boolean,
@@ -262,6 +266,8 @@ export const entraApp = {
     if (options.allowPublicClientFlows) {
       applicationInfo.isFallbackPublicClient = true;
     }
+
+    optionsUtils.addUnknownOptionsToPayload(applicationInfo, unknownOptions);
 
     if (verbose) {
       await logger.logToStderr(`Creating Microsoft Entra app registration...`);
@@ -410,5 +416,58 @@ export const entraApp = {
     }
 
     return resolvedApis;
+  },
+  async getAppRegistrationByAppId(appId: string, properties?: string[]): Promise<Application> {
+    let url = `https://graph.microsoft.com/v1.0/applications?$filter=appId eq '${appId}'`;
+
+    if (properties) {
+      url += `&$select=${properties.join(',')}`;
+    }
+    const apps = await odata.getAllItems<Application>(url);
+
+    if (apps.length === 0) {
+      throw `App with appId '${appId}' not found in Microsoft Entra ID`;
+    }
+
+    return apps[0];
+  },
+  async getAppRegistrationByAppName(appName: string, properties?: string[]): Promise<Application> {
+    let url = `https://graph.microsoft.com/v1.0/applications?$filter=displayName eq '${formatting.encodeQueryParameter(appName)}'`;
+
+    if (properties) {
+      url += `&$select=${properties.join(',')}`;
+    }
+
+    const apps = await odata.getAllItems<Application>(url);
+
+    if (apps.length === 0) {
+      throw `App with name '${appName}' not found in Microsoft Entra ID`;
+    }
+
+    if (apps.length > 1) {
+      const resultAsKeyValuePair = formatting.convertArrayToHashTable('id', apps);
+      return await cli.handleMultipleResultsFound<Application>(`Multiple apps with name '${appName}' found in Microsoft Entra ID.`, resultAsKeyValuePair);
+    }
+
+    return apps[0];
+  },
+  async getAppRegistrationByObjectId(objectId: string, properties?: string[]): Promise<Application> {
+    let url = `https://graph.microsoft.com/v1.0/applications/${objectId}`;
+
+    if (properties) {
+      url += `?$select=${properties.join(',')}`;
+    }
+
+    const requestOptions: CliRequestOptions = {
+      url: url,
+      headers: {
+        accept: 'application/json;odata.metadata=none'
+      },
+      responseType: 'json'
+    };
+
+    const app = await request.get<Application>(requestOptions);
+
+    return app;
   }
 };

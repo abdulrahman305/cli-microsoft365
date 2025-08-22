@@ -24,7 +24,7 @@ describe(commands.APPROLEASSIGNMENT_REMOVE, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -92,13 +92,13 @@ describe(commands.APPROLEASSIGNMENT_REMOVE, () => {
   });
 
   it('prompts before removing the app role assignment when force option not passed', async () => {
-    await command.action(logger, { options: { appId: 'dc311e81-e099-4c64-bd66-c7183465f3f2', resource: 'SharePoint', scope: 'Sites.Read.All' } });
+    await command.action(logger, { options: { appId: 'dc311e81-e099-4c64-bd66-c7183465f3f2', resource: 'SharePoint', scopes: 'Sites.Read.All' } });
 
     assert(promptIssued);
   });
 
   it('prompts before removing the app role assignment when force option not passed (debug)', async () => {
-    await command.action(logger, { options: { debug: true, appId: 'dc311e81-e099-4c64-bd66-c7183465f3f2', resource: 'SharePoint', scope: 'Sites.Read.All' } });
+    await command.action(logger, { options: { debug: true, appId: 'dc311e81-e099-4c64-bd66-c7183465f3f2', resource: 'SharePoint', scopes: 'Sites.Read.All' } });
 
     assert(promptIssued);
   });

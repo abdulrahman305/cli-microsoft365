@@ -50,7 +50,7 @@ describe('SpoCommand', () => {
 
   before(() => {
     auth.connection.active = true;
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
   });
@@ -147,6 +147,7 @@ describe('SpoCommand', () => {
       'parentWebUrl',
       'previewImageUrl',
       'siteLogoUrl',
+      'siteThumbnailUrl',
       'siteUrl',
       'StartASiteFormUrl',
       'targetUrl',
@@ -174,6 +175,7 @@ describe('SpoCommand', () => {
       'parentWebUrl',
       'previewImageUrl',
       'siteLogoUrl',
+      'siteThumbnailUrl',
       'siteUrl',
       'StartASiteFormUrl',
       'targetUrl',

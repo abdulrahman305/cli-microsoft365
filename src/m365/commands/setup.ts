@@ -311,6 +311,7 @@ class SetupCommand extends AnonymousCommand {
     });
     const appInfo: AppInfo = await entraApp.createAppRegistration({
       options,
+      unknownOptions: {},
       apis,
       logger,
       verbose: this.verbose,

@@ -10,14 +10,14 @@
 </h4>
 
 <p align="center">
-  <a href="https://github.com/pnp/cli-microsoft365/actions?query=workflow%3A%22Release+next%22">
-    <img src="https://github.com/pnp/cli-microsoft365/workflows/Release%20next/badge.svg"
-      alt="GitHub" />
-  </a>
-
   <a href="https://aka.ms/cli-m365/discord">
     <img src="https://img.shields.io/badge/Discord-aka.ms/cli--m365/discord-7289da?style=flat-square"
       alt="Discord" />
+  </a>
+
+  <a href="https://bsky.app/profile/climicrosoft365.bsky.social">
+    <img src="https://img.shields.io/badge/Bsky-%40climicrosoft365.bsky.social-208bfe?style=flat-square"
+      alt="Bluesky" />
   </a>
 
   <a href="https://x.com/climicrosoft365">
@@ -27,6 +27,11 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/pnp/cli-microsoft365/actions?query=workflow%3A%22Release+next%22">
+    <img src="https://github.com/pnp/cli-microsoft365/workflows/Release%20next/badge.svg"
+      alt="GitHub" />
+  </a>
+  
   <a href="https://www.npmjs.com/package/@pnp/cli-microsoft365">
     <img src="https://img.shields.io/npm/v/@pnp/cli-microsoft365/latest?style=flat-square"
       alt="npm @pnp/cli-microsoft365@latest" />
@@ -57,7 +62,7 @@
   <a href="#microsoft-365--power-platform-community">Microsoft 365 & Power Platform Community</a>
 </p>
 <p align="center">
-  <img alt="CLI for Microsoft 365" src="./docs/docs/images/cli-microsoft365.gif" height="500" />
+  <img alt="CLI for Microsoft 365" src="./docs/docs/images/cli-microsoft365.gif" style="max-height: 500px;max-width: 100%;height: auto;width: auto;object-fit: contain;" />
 </p>
 
 ## Features
@@ -88,24 +93,26 @@
   - Power Apps
   - Power Platform
   - Purview
-  - Skype for Business
+  - SharePoint Embedded
   - SharePoint Online
+  - SharePoint Premium
   - To Do
 - Supported authentication methods
   - Azure Managed Identity
   - Certificate
   - Client Secret
   - Device Code
+  - Federated identity
   - Username and Password
 - Manage your SharePoint Framework projects
   - Upgrade your projects
   - Check your environment compatibility
 
-> Follow our [X](https://x.com/climicrosoft365) account to keep yourself updated about new features, improvements, and bug fixes.
+> Follow our [Bluesky](https://bsky.app/profile/climicrosoft365.bsky.social), or [X](https://x.com/climicrosoft365) account to keep yourself updated about new features, improvements, and bug fixes.
 
 ## Install
 
-To use the CLI for Microsoft 365 you need [`Node.js`](https://nodejs.org). The CLI has been tested with Node.js versions 18 and higher, but we recommend you to use the Node.js LTS version available at the moment.
+To use the CLI for Microsoft 365 you need [`Node.js`](https://nodejs.org). The CLI has been tested with Node.js versions 20 and higher, but we recommend you to use the Node.js LTS version available at the moment.
 
 ```
 npm install -g @pnp/cli-microsoft365
@@ -147,13 +154,13 @@ npm install -g @pnp/cli-microsoft365
 
 ## Usage
 
+>Before logging in, you should create a custom Microsoft Entra application registration. Use the `m365 setup` command or refer to the [Using your own Microsoft Entra identity](https://pnp.github.io/cli-microsoft365/user-guide/using-own-identity/) guide.
+
 Use the `login` command to start the Device Code login flow to authenticate with your Microsoft 365 tenant.
 
 ```sh
 m365 login
 ```
-
->On your first login you will be asked to consent to several permissions that the `PnP Management Shell` multi-tenant app requires for the commands to work successfully against your tenant. If you want to create your own identity to use with the CLI, refer to the [Using your own Microsoft Entra identity](https://pnp.github.io/cli-microsoft365/user-guide/using-own-identity/) guide.
 
 >For alternative authentication methods and usage, refer to the [login](https://pnp.github.io/cli-microsoft365/cmd/login/) command documentation
 
@@ -187,11 +194,11 @@ Execute a command and output response as text using the global `--output` option
 m365 spo site get --url https://contoso.sharepoint.com --output text
 ```
 
-> For more examples and usage, refer to the [command](https://pnp.github.io/cli-microsoft365/cmd/login/) and  [sample scripts](https://pnp.github.io/cli-microsoft365/sample-scripts/) documentation.
+> For more examples and usage, refer to the [command](https://pnp.github.io/cli-microsoft365/cmd/login/) and  [sample scripts](https://pnp.github.io/cli-microsoft365/sample-scripts/introduction/) documentation.
 
 ## Build
 
-To build and run this CLI locally, you will need [`node`](https://nodejs.org) `>= 20.0.0` installed.
+To build and run this CLI locally, you will need [`node`](https://nodejs.org) `>= 22.0.0` installed.
 
 ```sh
 # Clone this repository
@@ -216,9 +223,9 @@ When you execute any `m365` command from the terminal, it will now use your loca
 
 We love to accept contributions.
 
-If you want to get involved with helping us grow the CLI, whether that is suggesting or adding a new command, extending an existing command or updating our documentation, we would love to hear from you.
+If you want to get involved with helping us grow the CLI, whether that is suggesting or adding a new command, extending an existing command, or updating our documentation, we would love to hear from you.
 
-Checkout our [Wiki](https://github.com/pnp/cli-microsoft365/wiki) for guides on how to contribute to this project.
+Check out our [Contributing Guide](https://pnp.github.io/cli-microsoft365/contribute/contributing-guide) for detailed information on how to contribute to this project.
 
 ## Need Help?
 

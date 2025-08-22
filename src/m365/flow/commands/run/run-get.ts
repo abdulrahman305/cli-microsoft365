@@ -80,10 +80,6 @@ class FlowRunGetCommand extends PowerAutomateCommand {
     return 'Gets information about a specific run of the specified Microsoft Flow';
   }
 
-  public defaultProperties(): string[] | undefined {
-    return ['name', 'startTime', 'endTime', 'status', 'triggerName'];
-  }
-
   constructor() {
     super();
 
@@ -147,7 +143,7 @@ class FlowRunGetCommand extends PowerAutomateCommand {
     }
 
     if (args.options.includeTriggerInformation) {
-      await this.warn(logger, `Parameter 'includeTriggerInformation' is deprecated. Please use 'withTrigger instead`);
+      await this.warn(logger, `Parameter 'includeTriggerInformation' is deprecated. Please use 'withTrigger' instead`);
     }
 
     const actionsParameter = args.options.withActions ? '$expand=properties%2Factions&' : '';

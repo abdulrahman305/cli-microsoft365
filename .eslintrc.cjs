@@ -18,6 +18,7 @@ const dictionary = [
   'azure',
   'bin',
   'builder',
+  'call',
   'card',
   'catalog',
   'checklist',
@@ -25,15 +26,17 @@ const dictionary = [
   'comm',
   'command',
   'community',
-  'containertype',
+  'container',
   'content',
   'conversation',
   'custom',
   'customizer',
   'dataverse',
   'default',
+  'definition',
   'dev',
   'details',
+  'directory',
   'eligibility',
   'enterprise',
   'entra',
@@ -66,6 +69,7 @@ const dictionary = [
   'log',
   'login',
   'logout',
+  'mailbox',
   'management',
   'member',
   'membership',
@@ -77,26 +81,32 @@ const dictionary = [
   'oauth2',
   'office365',
   'one',
+  'open',
   'ops',
   'org',
+  'organization',
   'owner',
   'permission',
   'pim',
   'place',
   'policy',
   'profile',
+  'pronouns',
   'property',
+  'record',
   'records',
   'recycle',
+  'registration',
   'request',
   'resolver',
-  'registration',
   'retention',
+  'revoke',
   'role',
   'room',
   'schema',
   'sensitivity',
   'service',
+  'session',
   'set',
   'setting',
   'settings',
@@ -116,6 +126,7 @@ const dictionary = [
   'unit',
   'url',
   'user',
+  'value',
   'web',
   'webhook'
 ];
@@ -211,7 +222,8 @@ module.exports = {
           "Query.*",
           "app_displayname",
           "access_token",
-          "expires_on"
+          "expires_on",
+          "extension_*"
         ]
       }
     ],
@@ -261,6 +273,14 @@ module.exports = {
       ],
       "rules": {
         "camelcase": "off"
+      }
+    },
+    {
+      "files": [
+        "*.mjs"
+      ],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off"
       }
     }
   ]

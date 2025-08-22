@@ -14,8 +14,9 @@ import { md } from './utils/md.js';
 import { GraphResponseError } from './utils/odata.js';
 import { prompt } from './utils/prompt.js';
 import { zod } from './utils/zod.js';
+import { optionsUtils } from './utils/optionsUtils.js';
 
-interface CommandOption {
+export interface CommandOption {
   option: string;
   autocomplete?: string[]
 }
@@ -350,13 +351,19 @@ export default abstract class Command {
         pos = pos1;
       }
 
-      commandName = commandName.substr(0, pos).trim();
+      commandName = commandName.substring(0, pos).trim();
     }
 
     return commandName;
   }
 
   protected handleRejectedODataPromise(res: any): void {
+    /* c8 ignore next 4 */
+    if (this.debug && typeof global.it === 'undefined') {
+      const error = new Error();
+      cli.error(error.stack).then(() => { }).catch(() => { });
+    }
+
     if (res.error) {
       try {
         const err: ODataError = JSON.parse(res.error);
@@ -396,6 +403,12 @@ export default abstract class Command {
   }
 
   protected handleRejectedODataJsonPromise(response: any): void {
+    /* c8 ignore next 4 */
+    if (this.debug && typeof global.it === 'undefined') {
+      const error = new Error();
+      cli.error(error.stack).then(() => { }).catch(() => { });
+    }
+
     if (response.error &&
       response.error['odata.error'] &&
       response.error['odata.error'].message) {
@@ -466,35 +479,11 @@ export default abstract class Command {
       await logger.logToStderr(`Executing command as '${auth.connection.identityName}', appId: ${auth.connection.appId}, tenantId: ${auth.connection.identityTenantId}`);
     }
 
-    telemetry.trackEvent(this.getUsedCommandName(), this.getTelemetryProperties(args));
-  }
-
-  protected getUnknownOptions(options: any): any {
-    const unknownOptions: any = JSON.parse(JSON.stringify(options));
-    // remove minimist catch-all option
-    delete unknownOptions._;
-
-    const knownOptions: CommandOption[] = this.options;
-    const longOptionRegex: RegExp = /--([^\s]+)/;
-    const shortOptionRegex: RegExp = /-([a-z])\b/;
-    knownOptions.forEach(o => {
-      const longOptionName: string = (longOptionRegex.exec(o.option) as RegExpExecArray)[1];
-      delete unknownOptions[longOptionName];
-
-      // short names are optional so we need to check if the current command has
-      // one before continuing
-      const shortOptionMatch: RegExpExecArray | null = shortOptionRegex.exec(o.option);
-      if (shortOptionMatch) {
-        const shortOptionName: string = shortOptionMatch[1];
-        delete unknownOptions[shortOptionName];
-      }
-    });
-
-    return unknownOptions;
+    await telemetry.trackEvent(this.getUsedCommandName(), this.getTelemetryProperties(args));
   }
 
   protected trackUnknownOptions(telemetryProps: any, options: any): void {
-    const unknownOptions: any = this.getUnknownOptions(options);
+    const unknownOptions: any = optionsUtils.getUnknownOptions(options, this.options);
     const unknownOptionsNames: string[] = Object.getOwnPropertyNames(unknownOptions);
     unknownOptionsNames.forEach(o => {
       telemetryProps[o] = true;
@@ -502,11 +491,8 @@ export default abstract class Command {
   }
 
   protected addUnknownOptionsToPayload(payload: any, options: any): void {
-    const unknownOptions: any = this.getUnknownOptions(options);
-    const unknownOptionsNames: string[] = Object.getOwnPropertyNames(unknownOptions);
-    unknownOptionsNames.forEach(o => {
-      payload[o] = unknownOptions[o];
-    });
+    const unknownOptions: any = optionsUtils.getUnknownOptions(options, this.options);
+    optionsUtils.addUnknownOptionsToPayload(payload, unknownOptions);
   }
 
   private loadValuesFromAccessToken(args: CommandArgs): void {
@@ -745,7 +731,7 @@ export default abstract class Command {
   }
 
   private getLogItemId(logItem: any): string | undefined {
-    return logItem.id ?? logItem.Id ?? logItem.ID ??
+    return logItem.id ?? logItem.Id?.StringValue ?? logItem.Id ?? logItem.ID ??
       logItem.uniqueId ?? logItem.UniqueId ??
       logItem.objectId ?? logItem.ObjectId ??
       logItem.url ?? logItem.Url ?? logItem.URL;

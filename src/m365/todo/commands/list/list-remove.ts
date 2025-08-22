@@ -2,7 +2,8 @@ import { cli } from '../../../../cli/cli.js';
 import { Logger } from '../../../../cli/Logger.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request from '../../../../request.js';
-import DelegatedGraphCommand from '../../../base/DelegatedGraphCommand.js';
+import { formatting } from '../../../../utils/formatting.js';
+import GraphDelegatedCommand from '../../../base/GraphDelegatedCommand.js';
 import commands from '../../commands.js';
 
 interface CommandArgs {
@@ -15,7 +16,7 @@ interface Options extends GlobalOptions {
   force?: boolean;
 }
 
-class TodoListRemoveCommand extends DelegatedGraphCommand {
+class TodoListRemoveCommand extends GraphDelegatedCommand {
   public get name(): string {
     return commands.LIST_REMOVE;
   }
@@ -73,13 +74,13 @@ class TodoListRemoveCommand extends DelegatedGraphCommand {
     }
   }
 
-  private async getListId(args: CommandArgs): Promise<string> {
+  private async getListId(args: CommandArgs): Promise<string | undefined> {
     if (args.options.id) {
       return args.options.id as string;
     }
 
     const requestOptions: any = {
-      url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${escape(args.options.name!)}'`,
+      url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${formatting.encodeQueryParameter(args.options.name!)}'`,
       headers: {
         accept: "application/json;odata.metadata=none"
       },
@@ -88,12 +89,12 @@ class TodoListRemoveCommand extends DelegatedGraphCommand {
 
     const response: any = await request.get(requestOptions);
 
-    return response.value && response.value.length === 1 ? response.value[0].id : null;
+    return response.value && response.value.length === 1 ? response.value[0].id : undefined;
   }
 
   private async removeList(args: CommandArgs): Promise<void> {
     try {
-      const listId: string = await this.getListId(args);
+      const listId = await this.getListId(args);
 
       if (!listId) {
         throw `The list ${args.options.name} cannot be found`;

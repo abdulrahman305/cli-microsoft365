@@ -55,7 +55,7 @@ enum SharePointVersion {
 }
 
 interface SpfxVersionPrerequisites {
-  gulpCli: VersionCheck;
+  gulpCli?: VersionCheck;
   node: VersionCheck;
   sp: SharePointVersion;
   yo: VersionCheck;
@@ -610,6 +610,47 @@ class SpfxDoctorCommand extends BaseProjectCommand {
         range: '^4 || ^5',
         fix: 'npm i -g yo@5'
       }
+    },
+    '1.21.0': {
+      gulpCli: {
+        range: '^1 || ^2 || ^3',
+        fix: 'npm i -g gulp-cli@3'
+      },
+      node: {
+        range: '>=22.14.0 < 23.0.0',
+        fix: 'Install Node.js >=22.14.0 < 23.0.0'
+      },
+      sp: SharePointVersion.SPO,
+      yo: {
+        range: '^4 || ^5',
+        fix: 'npm i -g yo@5'
+      }
+    },
+    '1.21.1': {
+      gulpCli: {
+        range: '^1 || ^2 || ^3',
+        fix: 'npm i -g gulp-cli@3'
+      },
+      node: {
+        range: '>=22.14.0 < 23.0.0',
+        fix: 'Install Node.js >=22.14.0 < 23.0.0'
+      },
+      sp: SharePointVersion.SPO,
+      yo: {
+        range: '^4 || ^5',
+        fix: 'npm i -g yo@5'
+      }
+    },
+    '1.22.0-beta.1': {
+      node: {
+        range: '>=22.14.0 < 23.0.0',
+        fix: 'Install Node.js >=22.14.0 < 23.0.0'
+      },
+      sp: SharePointVersion.SPO,
+      yo: {
+        range: '^4 || ^5',
+        fix: 'npm i -g yo@5'
+      }
     }
   };
 
@@ -871,6 +912,11 @@ class SpfxDoctorCommand extends BaseProjectCommand {
   }
 
   private async checkGulpCli(prerequisites: SpfxVersionPrerequisites): Promise<void> {
+    if (!prerequisites.gulpCli) {
+      // gulp-cli is not required for this version of SPFx
+      return;
+    }
+
     const gulpCliVersion: string = await this.getPackageVersion('gulp-cli', PackageSearchMode.GlobalOnly, HandlePromise.Continue);
     if (gulpCliVersion) {
       await this.checkStatus('gulp-cli', gulpCliVersion, prerequisites.gulpCli);
@@ -1050,7 +1096,7 @@ class SpfxDoctorCommand extends BaseProjectCommand {
   }
 
   private getNodeVersion(): string {
-    return process.version.substr(1);
+    return process.version.substring(1);
   }
 
   private async checkStatus(what: string, versionFound: string, versionCheck: VersionCheck): Promise<void> {

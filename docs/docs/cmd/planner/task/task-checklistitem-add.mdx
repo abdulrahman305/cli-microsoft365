@@ -27,6 +27,25 @@ m365 planner task checklistitem add [options]
 
 <Global />
 
+## Permissions
+
+<Tabs>
+  <TabItem value="Delegated">
+
+  | Resource        | Permissions     |
+  |-----------------|-----------------|
+  | Microsoft Graph | Tasks.ReadWrite |
+
+  </TabItem>
+  <TabItem value="Application">
+
+  | Resource        | Permissions         |
+  |-----------------|---------------------|
+  | Microsoft Graph | Tasks.ReadWrite.All |
+
+  </TabItem>
+</Tabs>
+
 ## Examples
 
 Adds an unchecked checklist item with the specified title to a Microsoft Planner task with the specified ID.
@@ -67,9 +86,12 @@ m365 planner task checklistitem add --taskId 2Vf8JHgsBUiIf-nuvBtv-ZgAAYw2 --titl
   <TabItem value="Text">
 
   ```txt
-  id       : b65db83e-d777-49db-8cdd-57a41b86f48c
-  isChecked: false
-  title    : Communicate with customer
+  id                  : b65db83e-d777-49db-8cdd-57a41b86f48c
+  isChecked           : false
+  lastModifiedBy      : {"user":{"displayName":null,"id":"b2091e18-7882-4efe-b7d1-90703f5a5c65"}}
+  lastModifiedDateTime: 2023-01-25T22:11:42.2488405Z
+  orderHint           : 8585269221832287402
+  title               : Communicate with customer
   ```
 
   </TabItem>

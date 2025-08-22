@@ -1,0 +1,536 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.25.1
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:debug:20170905':
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > socket.io > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          socket.io > debug
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > socket.io > engine.io > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          socket.io > engine.io > debug
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-adapter > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          socket.io > socket.io-adapter > debug
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-client > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          socket.io > socket.io-client > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > socket.io > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > socket.io > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > socket.io > engine.io > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > socket.io > engine.io >
+          debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-adapter > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > socket.io >
+          socket.io-adapter > debug
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-client > engine.io-client > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          socket.io > socket.io-client > engine.io-client > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-client > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > socket.io >
+          socket.io-client > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-client > engine.io-client > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > socket.io >
+          socket.io-client > engine.io-client > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > express > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          express > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > finalhandler > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          finalhandler > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > express > finalhandler > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          express > finalhandler > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > express > send > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          express > send > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > serve-static > send > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          serve-static > send > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > debug
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-parser > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          socket.io > socket.io-parser > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > body-parser > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > body-parser > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > compression > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > compression > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > connect-timeout > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > connect-timeout > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > express-session > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > express-session > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > finalhandler > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > finalhandler > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > morgan > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > morgan > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > serve-index > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > serve-index > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > tiny-lr > body-parser > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > tiny-lr > body-parser > debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > socket.io > socket.io-parser > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > socket.io >
+          socket.io-parser > debug
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > mocha > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > mocha >
+          debug
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > mocha > debug':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > mocha > debug
+  'npm:hoek:20180212':
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > azure-storage > request > hawk > hoek':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:hoek:20180212'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          azure-storage > request > hawk > hoek
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > azure-storage > request > hawk > boom > hoek':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:hoek:20180212'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          azure-storage > request > hawk > boom > hoek
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > azure-storage > request > hawk > sntp > hoek':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:hoek:20180212'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          azure-storage > request > hawk > sntp > hoek
+  SNYK-JS-LODASH-567746:
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > lodash':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: SNYK-JS-LODASH-567746
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          lodash
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/set-webpack-public-path-plugin > lodash':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: SNYK-JS-LODASH-567746
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/set-webpack-public-path-plugin > lodash
+  'npm:lodash:20180130':
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > lodash':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:lodash:20180130'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          lodash
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > lodash':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:lodash:20180130'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > lodash
+  'npm:mime:20170907':
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > express > send > mime':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:mime:20170907'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          express > send > mime
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > serve-static > send > mime':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:mime:20170907'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          serve-static > send > mime
+  'npm:minimatch:20160620':
+    - gulp > vinyl-fs > glob-stream > minimatch:
+        patched: '2025-05-07T06:56:43.028Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-stream > minimatch
+    - gulp > vinyl-fs > glob-stream > glob > minimatch:
+        patched: '2025-05-07T06:56:43.028Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-stream > glob > minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        id: 'npm:minimatch:20160620'
+        path: '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > minimatch'
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-stream > minimatch
+    - gulp > vinyl-fs > glob-stream > glob > minimatch:
+        patched: '2025-05-07T06:56:49.160Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-stream > glob > minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > minimatch':
+        patched: '2025-05-07T06:56:49.160Z'
+        id: 'npm:minimatch:20160620'
+        path: '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > minimatch'
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob > minimatch':
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-stream > minimatch
+    - gulp > vinyl-fs > glob-stream > glob > minimatch:
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-stream > glob > minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > minimatch':
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > minimatch'
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob > minimatch':
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-build-web > gulp > vinyl-fs > glob-stream > glob >
+          minimatch
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp > vinyl-fs > glob-stream > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp > vinyl-fs > glob-stream > minimatch
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp > vinyl-fs > glob-stream > glob > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp > vinyl-fs > glob-stream > glob > minimatch
+    - gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch:
+        patched: '2025-05-07T06:56:43.028Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch
+    - gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch:
+        patched: '2025-05-07T06:56:43.028Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch
+    - gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch:
+        patched: '2025-05-07T06:56:49.160Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch':
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch
+    - gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch:
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch':
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-build-web > gulp > vinyl-fs > glob-watcher > gaze >
+          globule > minimatch
+    - '@microsoft/sp-build-web > gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-build-web > gulp > vinyl-fs > glob-watcher > gaze >
+          globule > glob > minimatch
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp > vinyl-fs > glob-watcher > gaze > globule > minimatch
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:minimatch:20160620'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp > vinyl-fs > glob-watcher > gaze > globule > glob > minimatch
+  'npm:ms:20170412':
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > mocha > debug > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > mocha >
+          debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > express > send > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          express > send > ms
+    - '@microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma > socket.io > debug > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-build-web > @microsoft/gulp-core-build-karma > karma >
+          socket.io > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > mocha > debug > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > mocha > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > serve-favicon > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > serve-favicon > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > @microsoft/gulp-core-build-karma > karma > socket.io > debug > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          @microsoft/gulp-core-build-karma > karma > socket.io > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > express > debug > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          express > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > serve-static > send > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          serve-static > send > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > connect-timeout > ms':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > connect-timeout > ms
+  'npm:negotiator:20160616':
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > connect > compression > accepts > negotiator':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:negotiator:20160616'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > connect > compression > accepts > negotiator
+  'npm:tough-cookie:20170905':
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > azure-storage > request > tough-cookie':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:tough-cookie:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          azure-storage > request > tough-cookie
+  'npm:tunnel-agent:20170305':
+    - '@microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks > azure-storage > request > tunnel-agent':
+        patched: '2025-05-07T06:56:43.028Z'
+        patched: '2025-05-07T06:56:49.160Z'
+        patched: '2025-05-07T06:56:42.110Z'
+        id: 'npm:tunnel-agent:20170305'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/sp-build-core-tasks >
+          azure-storage > request > tunnel-agent

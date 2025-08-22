@@ -1,7 +1,8 @@
 import { Logger } from '../../../../cli/Logger.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request from '../../../../request.js';
-import DelegatedGraphCommand from '../../../base/DelegatedGraphCommand.js';
+import { formatting } from '../../../../utils/formatting.js';
+import GraphDelegatedCommand from '../../../base/GraphDelegatedCommand.js';
 import commands from '../../commands.js';
 
 interface CommandArgs {
@@ -14,7 +15,7 @@ interface Options extends GlobalOptions {
   newName: string;
 }
 
-class TodoListSetCommand extends DelegatedGraphCommand {
+class TodoListSetCommand extends GraphDelegatedCommand {
   public get name(): string {
     return commands.LIST_SET;
   }
@@ -95,7 +96,7 @@ class TodoListSetCommand extends DelegatedGraphCommand {
     }
 
     const requestOptions: any = {
-      url: `${endpoint}/me/todo/lists?$filter=displayName eq '${escape(args.options.name as string)}'`,
+      url: `${endpoint}/me/todo/lists?$filter=displayName eq '${formatting.encodeQueryParameter(args.options.name!)}'`,
       headers: {
         accept: "application/json;odata.metadata=none"
       },

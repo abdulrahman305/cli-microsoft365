@@ -1,13 +1,12 @@
-import { cli, CommandOutput } from '../../../../cli/cli.js';
 import { Logger } from '../../../../cli/Logger.js';
-import Command from '../../../../Command.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request from '../../../../request.js';
 import { validation } from '../../../../utils/validation.js';
 import SpoCommand from '../../../base/SpoCommand.js';
 import commands from '../../commands.js';
-import spoGroupGetCommand, { Options as SpoGroupGetCommandOptions } from '../group/group-get.js';
-import spoUserGetCommand, { Options as SpoUserGetCommandOptions } from '../user/user-get.js';
+import { entraGroup } from '../../../../utils/entraGroup.js';
+import { spo } from '../../../../utils/spo.js';
+import { cli } from '../../../../cli/cli.js';
 
 interface CommandArgs {
   options: Options;
@@ -18,6 +17,8 @@ interface Options extends GlobalOptions {
   principalId?: number;
   upn?: string;
   groupName?: string;
+  entraGroupId?: string;
+  entraGroupName?: string;
   force?: boolean;
 }
 
@@ -45,6 +46,8 @@ class SpoWebRoleAssignmentRemoveCommand extends SpoCommand {
         principalId: typeof args.options.principalId !== 'undefined',
         upn: typeof args.options.upn !== 'undefined',
         groupName: typeof args.options.groupName !== 'undefined',
+        entraGroupId: typeof args.options.entraGroupId !== 'undefined',
+        entraGroupName: typeof args.options.entraGroupName !== 'undefined',
         force: (!(!args.options.force)).toString()
       });
     });
@@ -65,6 +68,12 @@ class SpoWebRoleAssignmentRemoveCommand extends SpoCommand {
         option: '--groupName [groupName]'
       },
       {
+        option: '--entraGroupId [entraGroupId]'
+      },
+      {
+        option: '--entraGroupName [entraGroupName]'
+      },
+      {
         option: '-f, --force'
       }
     );
@@ -82,6 +91,10 @@ class SpoWebRoleAssignmentRemoveCommand extends SpoCommand {
           return `Specified principalId ${args.options.principalId} is not a number`;
         }
 
+        if (args.options.entraGroupId && !validation.isValidGuid(args.options.entraGroupId)) {
+          return `'${args.options.entraGroupId}' is not a valid GUID for option entraGroupId.`;
+        }
+
         return true;
       }
     );
@@ -89,7 +102,7 @@ class SpoWebRoleAssignmentRemoveCommand extends SpoCommand {
 
   #initOptionSets(): void {
     this.optionSets.push(
-      { options: ['principalId', 'upn', 'groupName'] }
+      { options: ['principalId', 'upn', 'groupName', 'entraGroupId', 'entraGroupName'] }
     );
   }
 
@@ -113,15 +126,24 @@ class SpoWebRoleAssignmentRemoveCommand extends SpoCommand {
 
     try {
       if (options.upn) {
-        options.principalId = await this.getUserPrincipalId(options);
-        await this.removeRoleAssignmentWithOptions(logger, options);
+        const principalId = await this.getUserPrincipalId(options, logger);
+        await this.removeRoleAssignmentWithOptions(options.webUrl, principalId, logger);
       }
       else if (options.groupName) {
-        options.principalId = await this.getGroupPrincipalId(options);
-        await this.removeRoleAssignmentWithOptions(logger, options);
+        const principalId = await this.getGroupPrincipalId(options, logger);
+        await this.removeRoleAssignmentWithOptions(options.webUrl, principalId, logger);
       }
-      else {
-        await this.removeRoleAssignmentWithOptions(logger, options);
+      else if (options.entraGroupId || options.entraGroupName) {
+        if (this.verbose) {
+          await logger.logToStderr('Retrieving group information...');
+        }
+
+        const group = options.entraGroupId
+          ? await entraGroup.getGroupById(options.entraGroupId)
+          : await entraGroup.getGroupByDisplayName(options.entraGroupName!);
+
+        const siteUser = await spo.ensureEntraGroup(options.webUrl, group);
+        await this.removeRoleAssignmentWithOptions(options.webUrl, siteUser.Id, logger);
       }
     }
     catch (err: any) {
@@ -129,9 +151,13 @@ class SpoWebRoleAssignmentRemoveCommand extends SpoCommand {
     }
   }
 
-  private async removeRoleAssignmentWithOptions(logger: Logger, options: Options): Promise<void> {
+  private async removeRoleAssignmentWithOptions(webUrl: string, principalId: number, logger: Logger): Promise<void> {
+    if (this.verbose) {
+      await logger.logToStderr('Removing role assignment...');
+    }
+
     const requestOptions: any = {
-      url: `${options.webUrl}/_api/web/roleassignments/removeroleassignment(principalid='${options.principalId}')`,
+      url: `${webUrl}/_api/web/roleassignments/removeroleassignment(principalid='${principalId}')`,
       method: 'POST',
       headers: {
         'accept': 'application/json;odata=nometadata',
@@ -141,36 +167,16 @@ class SpoWebRoleAssignmentRemoveCommand extends SpoCommand {
     };
 
     await request.post(requestOptions);
-
   }
 
-  private async getGroupPrincipalId(options: Options): Promise<number> {
-    const groupGetCommandOptions: SpoGroupGetCommandOptions = {
-      webUrl: options.webUrl,
-      name: options.groupName,
-      output: 'json',
-      debug: this.debug,
-      verbose: this.verbose
-    };
-
-    const output: CommandOutput = await cli.executeCommandWithOutput(spoGroupGetCommand as Command, { options: { ...groupGetCommandOptions, _: [] } });
-    const getGroupOutput = JSON.parse(output.stdout);
-    return getGroupOutput.Id;
+  private async getGroupPrincipalId(options: Options, logger: Logger): Promise<number> {
+    const group = await spo.getGroupByName(options.webUrl, options.groupName!, logger, this.verbose);
+    return group.Id;
   }
 
-  private async getUserPrincipalId(options: Options): Promise<number> {
-    const userGetCommandOptions: SpoUserGetCommandOptions = {
-      webUrl: options.webUrl,
-      email: options.upn,
-      id: undefined,
-      output: 'json',
-      debug: this.debug,
-      verbose: this.verbose
-    };
-
-    const output: CommandOutput = await cli.executeCommandWithOutput(spoUserGetCommand as Command, { options: { ...userGetCommandOptions, _: [] } });
-    const getUserOutput = JSON.parse(output.stdout);
-    return getUserOutput.Id;
+  private async getUserPrincipalId(options: Options, logger: Logger): Promise<number> {
+    const user = await spo.getUserByEmail(options.webUrl, options.upn!, logger, this.verbose);
+    return user.Id;
   }
 }
 

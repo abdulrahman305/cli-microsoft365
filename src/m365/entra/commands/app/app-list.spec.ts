@@ -18,7 +18,7 @@ describe(commands.APP_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -108,6 +108,44 @@ describe(commands.APP_LIST, () => {
           displayName: 'My App 2',
           description: 'My second app',
           signInAudience: 'My Audience'
+        }
+      ])
+    );
+  });
+
+  it(`should get a list of Microsoft Entra app registrations with specified properties`, async () => {
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `https://graph.microsoft.com/v1.0/applications?$select=id,displayName`) {
+        return {
+          value: [
+            {
+              id: '340a4aa3-1af6-43ac-87d8-189819003952',
+              displayName: 'My App 1'
+            },
+            {
+              id: '340a4aa3-1af6-43ac-87d8-189819003953',
+              displayName: 'My App 2'
+            }
+          ]
+        };
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, {
+      options: { properties: 'id,displayName' }
+    });
+
+    assert(
+      loggerLogSpy.calledWith([
+        {
+          id: '340a4aa3-1af6-43ac-87d8-189819003952',
+          displayName: 'My App 1'
+        },
+        {
+          id: '340a4aa3-1af6-43ac-87d8-189819003953',
+          displayName: 'My App 2'
         }
       ])
     );

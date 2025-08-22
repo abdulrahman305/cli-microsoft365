@@ -28,7 +28,7 @@ describe(commands.LOGIN, () => {
     sinon.stub(auth, 'restoreAuth').callsFake(() => Promise.resolve());
     sinon.stub(auth, 'clearConnectionInfo').callsFake(() => Promise.resolve());
     sinon.stub(auth, 'storeConnectionInfo').callsFake(() => Promise.resolve());
-    sinon.stub(telemetry, 'trackEvent').callsFake(() => { });
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').callsFake(() => '');
     sinon.stub(session, 'getId').callsFake(() => '');
     commandInfo = cli.getCommandInfo(command);
@@ -324,6 +324,26 @@ describe(commands.LOGIN, () => {
     });
     assert.strictEqual(auth.connection.authType, AuthType.Identity, 'Incorrect authType set');
     assert.strictEqual(auth.connection.userName, undefined, 'Incorrect userName set');
+  });
+
+  it('logs in to Microsoft 365 using system-assigned managed identity when authType identity set', async () => {
+    await command.action(logger, {
+      options: commandOptionsSchema.parse({
+        authType: 'identity'
+      })
+    });
+    assert.strictEqual(auth.connection.authType, AuthType.Identity, 'Incorrect authType set');
+  });
+
+  it('logs in to Microsoft 365 using federated identity when authType federatedIdentity set', async () => {
+    await command.action(logger, {
+      options: commandOptionsSchema.parse({
+        appId: '00000000-0000-0000-0000-000000000000',
+        tenant: '00000000-0000-0000-0000-000000000000',
+        authType: 'federatedIdentity'
+      })
+    });
+    assert.strictEqual(auth.connection.authType, AuthType.FederatedIdentity, 'Incorrect authType set');
   });
 
   it('logs in to Microsoft 365 using client secret authType "secret" set', async () => {

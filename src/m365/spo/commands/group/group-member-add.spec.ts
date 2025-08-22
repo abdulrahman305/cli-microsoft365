@@ -180,7 +180,7 @@ describe(commands.GROUP_MEMBER_ADD, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -352,10 +352,6 @@ describe(commands.GROUP_MEMBER_ADD, () => {
   it('passes validation if all the required options are specified', async () => {
     const actual = await command.validate({ options: { webUrl: "https://contoso.sharepoint.com/sites/SiteA", groupId: 32, userNames: "Alex.Wilber@contoso.com" } }, commandInfo);
     assert.strictEqual(actual, true);
-  });
-
-  it('defines correct properties for the default output', () => {
-    assert.deepStrictEqual(command.defaultProperties(), ['Title', 'UserPrincipalName']);
   });
 
   it('correctly logs result when adding users by userNames', async () => {

@@ -96,19 +96,33 @@ export const accessToken = {
     return userId;
   },
 
+  getDecodedAccessToken(accessToken: string): { header: any; payload: any } {
+    const chunks = accessToken.split('.');
+    const headerString = Buffer.from(chunks[0], 'base64').toString();
+    const payloadString = Buffer.from(chunks[1], 'base64').toString();
+
+    const header = JSON.parse(headerString);
+    const payload = JSON.parse(payloadString);
+    return { header, payload };
+  },
+
   /**
-   * Asserts the presence of a delegated access token.
+   * Asserts the presence of a delegated or application-only access token.
    * @throws {CommandError} Will throw an error if the access token is not available.
-   * @throws {CommandError} Will throw an error if the access token is an application-only access token.
+   * @throws {CommandError} Will throw an error if the access token type is not correct.
    */
-  assertDelegatedAccessToken(): void {
+  assertAccessTokenType(type: 'delegated' | 'application'): void {
     const accessToken = auth?.connection?.accessTokens?.[auth.defaultResource]?.accessToken;
     if (!accessToken) {
       throw new CommandError('No access token found.');
     }
 
-    if (this.isAppOnlyAccessToken(accessToken)) {
-      throw new CommandError('This command does not support application-only permissions.');
+    const isAppAccessToken = this.isAppOnlyAccessToken(accessToken);
+    if (type === 'delegated' && isAppAccessToken) {
+      throw new CommandError('This command requires delegated permissions.');
+    }
+    if (type === 'application' && !isAppAccessToken) {
+      throw new CommandError('This command requires application-only permissions.');
     }
   }
 };

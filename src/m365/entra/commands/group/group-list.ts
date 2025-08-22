@@ -13,6 +13,7 @@ interface CommandArgs {
 
 interface Options extends GlobalOptions {
   type?: string;
+  properties?: string;
 }
 
 interface ExtendedGroup extends Group {
@@ -45,7 +46,8 @@ class EntraGroupListCommand extends GraphCommand {
   #initTelemetry(): void {
     this.telemetry.push((args: CommandArgs) => {
       Object.assign(this.telemetryProperties, {
-        type: typeof args.options.type !== 'undefined'
+        type: typeof args.options.type !== 'undefined',
+        properties: typeof args.options.properties !== 'undefined'
       });
     });
   }
@@ -55,6 +57,9 @@ class EntraGroupListCommand extends GraphCommand {
       {
         option: '--type [type]',
         autocomplete: EntraGroupListCommand.groupTypes
+      },
+      {
+        option: '-p, --properties [properties]'
       }
     );
   }
@@ -87,7 +92,8 @@ class EntraGroupListCommand extends GraphCommand {
             requestUrl += '?$filter=securityEnabled eq true and mailEnabled eq false';
             break;
           case 'distribution':
-            requestUrl += '?$filter=securityEnabled eq false and mailEnabled eq true';
+            useConsistencyLevelHeader = true;
+            requestUrl += `?$filter=securityEnabled eq false and mailEnabled eq true and not(groupTypes/any(t:t eq 'Unified'))&$count=true`;
             break;
           case 'mailEnabledSecurity':
             useConsistencyLevelHeader = true;
@@ -95,6 +101,23 @@ class EntraGroupListCommand extends GraphCommand {
             break;
         }
       }
+
+      const queryParameters: string[] = [];
+
+      if (args.options.properties) {
+        const allProperties = args.options.properties.split(',');
+        const selectProperties = allProperties.filter(prop => !prop.includes('/'));
+
+        if (selectProperties.length > 0) {
+          queryParameters.push(`$select=${selectProperties}`);
+        }
+      }
+
+      const queryString = queryParameters.length > 0
+        ? `?${queryParameters.join('&')}`
+        : '';
+
+      requestUrl += queryString;
 
       let groups: Group[] = [];
 
@@ -117,7 +140,7 @@ class EntraGroupListCommand extends GraphCommand {
 
       if (cli.shouldTrimOutput(args.options.output)) {
         groups.forEach((group: ExtendedGroup) => {
-          if (group.groupTypes && group.groupTypes.length > 0 && group.groupTypes[0] === 'Unified') {
+          if (group.groupTypes && group.groupTypes.length > 0 && group.groupTypes.includes('Unified')) {
             group.groupType = 'Microsoft 365';
           }
           else if (group.mailEnabled && group.securityEnabled) {

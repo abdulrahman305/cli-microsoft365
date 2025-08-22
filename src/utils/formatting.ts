@@ -1,3 +1,4 @@
+import { parse } from 'csv-parse/sync';
 import chalk from 'chalk';
 import stripJsonComments from 'strip-json-comments';
 import { BasePermissions } from '../m365/spo/base-permissions.js';
@@ -87,30 +88,14 @@ export const formatting = {
   },
 
   parseCsvToJson(s: string, quoteChar: string = '"', delimiter: string = ','): any {
-    const regex = new RegExp(`\\s*(${quoteChar})?(.*?)\\1\\s*(?:${delimiter}|$)`, 'gs');
-    const lines: string[] = s.split('\n');
-
-    const match = (line: string): string[] => [...line.matchAll(regex)]
-      .map(m => m[2]);  // we only want the second capture group
-
-    const heads = match(lines[0]).slice(0, -1);
-
-    return lines.slice(1)
-      .filter(text => text.trim() !== '')
-      .map(line => {
-        const lineMatch: string[] = match(line);
-        const obj: any = {};
-        heads.forEach((key, index) => {
-          const value = parseInt(lineMatch[index]);
-          if (isNaN(value) || value.toString() !== lineMatch[index]) {
-            obj[key] = lineMatch[index];
-          }
-          else {
-            obj[key] = parseInt(lineMatch[index]);
-          }
-        });
-        return obj;
-      });
+    return parse(s, {
+      quote: quoteChar,
+      delimiter: delimiter,
+      columns: true,
+      skipEmptyLines: true,
+      ltrim: true,
+      cast: true
+    });
   },
 
   encodeQueryParameter(value: string): string {
@@ -213,5 +198,18 @@ export const formatting = {
       resultAsKeyValuePair[obj[key]] = obj;
     });
     return resultAsKeyValuePair;
+  },
+
+  /**
+   * Extracts the GUID from a string in CSOM format.
+   * @param str The string to extract the GUID from
+   * @description The string should be in the format /Guid(XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX)/
+   * @returns The extracted GUID or the original string if no match is found
+   * @example /Guid(eae15efb-ac09-49b9-8906-e579efd622e4)/ => eae15efb-ac09-49b9-8906-e579efd622e4
+   */
+  extractCsomGuid(str: string): string {
+    const guidPattern = /\/Guid\(([0-9a-f-]+)\)\//i;
+    const match = str.match(guidPattern);
+    return match ? match[1] : str;
   }
 };

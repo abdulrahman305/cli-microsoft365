@@ -38,7 +38,7 @@ describe(commands.ENTERPRISEAPP_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -80,6 +80,11 @@ describe(commands.ENTERPRISEAPP_GET, () => {
 
   it('has a description', () => {
     assert.notStrictEqual(command.description, null);
+  });
+
+  it('defines correct alias', () => {
+    const alias = command.alias();
+    assert.deepStrictEqual(alias, [commands.SP_GET]);
   });
 
   it('retrieves information about the specified enterprise application using its display name', async () => {

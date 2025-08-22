@@ -39,7 +39,7 @@ describe(commands.LISTITEM_BATCH_REMOVE, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -111,6 +111,22 @@ describe(commands.LISTITEM_BATCH_REMOVE, () => {
     sinon.stub(cli, 'promptForConfirmation').resolves(true);
 
     sinon.stub(fs, 'readFileSync').returns(csvContent);
+    const postStub = sinon.stub(request, 'post').callsFake(async (opts: any) => {
+      if (opts.url === `${webUrl}/_api/$batch`) {
+        return mockBatchSuccessfulResponse;
+      }
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, { options: { webUrl: webUrl, filePath: filePath, listId: listId, recycle: true, verbose: true } });
+    assert(postStub.calledOnce);
+  });
+
+  it('removes items in batch from a SharePoint list retrieved by id when using a csv file with different casing for the ID column', async () => {
+    sinonUtil.restore(cli.promptForConfirmation);
+    sinon.stub(cli, 'promptForConfirmation').resolves(true);
+
+    sinon.stub(fs, 'readFileSync').returns(`id\n1`);
     const postStub = sinon.stub(request, 'post').callsFake(async (opts: any) => {
       if (opts.url === `${webUrl}/_api/$batch`) {
         return mockBatchSuccessfulResponse;

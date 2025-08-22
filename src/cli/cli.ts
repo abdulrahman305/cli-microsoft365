@@ -46,7 +46,7 @@ let currentCommandName: string | undefined;
 let optionsFromArgs: { options: yargs.Arguments } | undefined;
 const defaultHelpMode = 'options';
 const defaultHelpTarget = 'console';
-const helpModes: string[] = ['options', 'examples', 'remarks', 'response', 'full'];
+const helpModes: string[] = ['options', 'examples', 'remarks', 'permissions', 'response', 'full'];
 const helpTargets: string[] = ['console', 'web'];
 const yargsConfiguration: Partial<yargs.Configuration> = {
   'parse-numbers': true,
@@ -194,9 +194,17 @@ async function execute(rawArgs: string[]): Promise<void> {
           await cli.error('🌶️  Provide values for the following parameters:');
 
           for (const error of result.error.errors) {
-            const optionInfo = cli.commandToExecute!.options.find(o => o.name === error.path.join('.'));
+            const optionName = error.path.join('.');
+            const optionInfo = cli.commandToExecute.options.find(o => o.name === optionName);
             const answer = await cli.promptForValue(optionInfo!);
-            cli.optionsFromArgs!.options[error.path.join('.')] = answer;
+            // coerce the answer to the correct type
+            try {
+              const parsed = getCommandOptionsFromArgs([`--${optionName}`, answer], cli.commandToExecute);
+              cli.optionsFromArgs.options[optionName] = parsed[optionName];
+            }
+            catch (e: any) {
+              return cli.closeWithError(e.message, cli.optionsFromArgs, true);
+            }
           }
         }
         else {
@@ -469,7 +477,7 @@ async function loadCommandFromFile(commandFileUrl: string): Promise<void> {
 }
 
 function getCommandInfo(command: Command, filePath: string = '', helpFilePath: string = ''): CommandInfo {
-  const options = command.schema ? zod.schemaToOptions(command.schema) : getCommandOptions(command);
+  const options = command.schema ? zod.schemaToOptionInfo(command.schema) : getCommandOptions(command);
   command.optionsInfo = options;
 
   return {
@@ -731,7 +739,7 @@ async function printHelp(helpMode: string, exitCode: number = 0): Promise<void> 
     cli.printAvailableCommands();
   }
 
-  telemetry.trackEvent('help', properties);
+  await telemetry.trackEvent('help', properties);
 
   process.exit(exitCode);
 }
@@ -830,7 +838,7 @@ function printAvailableCommands(): void {
       commandsToPrint[commandName] = command;
     }
     else {
-      const subCommandsGroup: string = commandName.substr(0, pos);
+      const subCommandsGroup: string = commandName.substring(0, pos);
       if (!commandGroupsToPrint[subCommandsGroup]) {
         commandGroupsToPrint[subCommandsGroup] = 0;
       }
@@ -930,7 +938,7 @@ async function closeWithError(error: any, args: CommandArgs, showHelpIfEnabled: 
   let errorMessage: string = error instanceof CommandError ? error.message : error;
 
   if (error instanceof ZodError) {
-    errorMessage = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(os.EOL);
+    errorMessage = error.errors.map(e => (e.path.length > 0 ? `${e.path.join('.')}: ${e.message}` : e.message)).join(os.EOL);
   }
 
   if ((!args.options.output || args.options.output === 'json') &&
@@ -1034,7 +1042,7 @@ function loadOptionValuesFromFiles(args: { options: yargs.Arguments }): void {
       return;
     }
 
-    const filePath: string = value.substr(1);
+    const filePath: string = value.substring(1);
     // if the file doesn't exist, leave as-is, if it exists replace with
     // contents from the file
     if (fs.existsSync(filePath)) {

@@ -13,6 +13,7 @@ import { sinonUtil } from '../../../../utils/sinonUtil.js';
 import commands from '../../commands.js';
 import command from './app-remove.js';
 import { settingsNames } from '../../../../settingsNames.js';
+import { entraApp } from '../../../../utils/entraApp.js';
 
 describe(commands.APP_REMOVE, () => {
   let log: string[];
@@ -21,9 +22,19 @@ describe(commands.APP_REMOVE, () => {
   let promptIssued: boolean = false;
   let deleteRequestStub: sinon.SinonStub;
 
+  //#region Mocked Responses 
+  const appResponse = {
+    value: [
+      {
+        "id": "d75be2e1-0204-4f95-857d-51a37cf40be8"
+      }
+    ]
+  };
+  //#endregion
+
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -51,22 +62,8 @@ describe(commands.APP_REMOVE, () => {
 
     promptIssued = false;
 
-    sinon.stub(request, 'get').callsFake(async (opts: any) => {
-      if ((opts.url as string).indexOf(`/v1.0/myorganization/applications?$filter=`) > -1) {
-        // fake call for getting app
-        if (opts.url.indexOf('startswith') === -1) {
-          return {
-            "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications(id)",
-            "value": [
-              {
-                "id": "d75be2e1-0204-4f95-857d-51a37cf40be8"
-              }
-            ]
-          };
-        }
-      }
-      throw 'Invalid request';
-    });
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').resolves(appResponse.value[0]);
+    sinon.stub(entraApp, 'getAppRegistrationByAppName').resolves(appResponse.value[0]);
 
     deleteRequestStub = sinon.stub(request, 'delete').callsFake(async (opts: any) => {
       if (opts.url === 'https://graph.microsoft.com/v1.0/myorganization/applications/d75be2e1-0204-4f95-857d-51a37cf40be8') {
@@ -82,7 +79,9 @@ describe(commands.APP_REMOVE, () => {
       request.delete,
       cli.promptForConfirmation,
       cli.getSettingWithDefaultValue,
-      cli.handleMultipleResultsFound
+      cli.handleMultipleResultsFound,
+      entraApp.getAppRegistrationByAppId,
+      entraApp.getAppRegistrationByAppName
     ]);
   });
 
@@ -229,30 +228,25 @@ describe(commands.APP_REMOVE, () => {
   });
 
   it('fails to get app by id when app does not exists', async () => {
-    sinonUtil.restore(request.get);
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if ((opts.url as string).indexOf(`/v1.0/myorganization/applications?$filter=`) > -1) {
-        return { value: [] };
-      }
-      throw "No Microsoft Entra application registration with ID myapp found";
-    });
+    sinonUtil.restore(entraApp.getAppRegistrationByAppId);
+    const error = `App with appId 'd75be2e1-0204-4f95-857d-51a37cf40be8' not found in Microsoft Entra ID`;
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').rejects(new Error(error));
 
-    await assert.rejects(command.action(logger, { options: { debug: true, appId: 'd75be2e1-0204-4f95-857d-51a37cf40be8', force: true } } as any), new CommandError("No Microsoft Entra application registration with ID d75be2e1-0204-4f95-857d-51a37cf40be8 found"));
+    await assert.rejects(command.action(logger, { options: { debug: true, appId: 'd75be2e1-0204-4f95-857d-51a37cf40be8', force: true } } as any), new CommandError(error));
   });
 
   it('fails to get app by name when app does not exists', async () => {
-    sinonUtil.restore(request.get);
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if ((opts.url as string).indexOf(`/v1.0/myorganization/applications?$filter=`) > -1) {
-        return { value: [] };
-      }
-      throw 'No Microsoft Entra application registration with name myapp found';
-    });
+    sinonUtil.restore(entraApp.getAppRegistrationByAppName);
+    const error = `App with name 'myapp' not found in Microsoft Entra ID`;
+    sinon.stub(entraApp, 'getAppRegistrationByAppName').rejects(new Error(error));
 
-    await assert.rejects(command.action(logger, { options: { debug: true, name: 'myapp', force: true } } as any), new CommandError("No Microsoft Entra application registration with name myapp found"));
+    await assert.rejects(command.action(logger, { options: { debug: true, name: 'myapp', force: true } } as any), new CommandError(error));
   });
 
   it('fails when multiple apps with same name exists', async () => {
+    sinonUtil.restore(entraApp.getAppRegistrationByAppName);
+    const error = `Multiple apps with name 'myapp' found in Microsoft Entra ID. Found: d75be2e1-0204-4f95-857d-51a37cf40be8, 340a4aa3-1af6-43ac-87d8-189819003952.`;
+    sinon.stub(entraApp, 'getAppRegistrationByAppName').rejects(new Error(error));
     sinon.stub(cli, 'getSettingWithDefaultValue').callsFake((settingName, defaultValue) => {
       if (settingName === settingsNames.prompt) {
         return false;
@@ -261,58 +255,12 @@ describe(commands.APP_REMOVE, () => {
       return defaultValue;
     });
 
-    sinonUtil.restore(request.get);
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if ((opts.url as string).indexOf(`/v1.0/myorganization/applications?$filter=`) > -1) {
-        return {
-          "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications",
-          "value": [
-            {
-              "id": "d75be2e1-0204-4f95-857d-51a37cf40be8"
-            },
-            {
-              "id": "340a4aa3-1af6-43ac-87d8-189819003952"
-            }
-          ]
-        };
-      }
-
-      throw "Multiple Microsoft Entra application registration with name 'myapp' found.";
-    });
-
     await assert.rejects(command.action(logger, {
       options: {
         debug: true,
         name: 'myapp',
         force: true
       }
-    }), new CommandError("Multiple Microsoft Entra application registration with name 'myapp' found. Found: d75be2e1-0204-4f95-857d-51a37cf40be8, 340a4aa3-1af6-43ac-87d8-189819003952."));
-  });
-
-  it('handles selecting single result when multiple apps with the specified name found and cli is set to prompt', async () => {
-    sinonUtil.restore(request.get);
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications?$filter=displayName eq 'myapp'&$select=id`) {
-        return {
-          "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications",
-          "value": [
-            { "id": "d75be2e1-0204-4f95-857d-51a37cf40be8" },
-            { "id": "340a4aa3-1af6-43ac-87d8-189819003952" }
-          ]
-        };
-      }
-
-      throw "Multiple Microsoft Entra application registration with name 'myapp' found.";
-    });
-
-    sinon.stub(cli, 'handleMultipleResultsFound').resolves({ id: 'd75be2e1-0204-4f95-857d-51a37cf40be8' });
-
-    await command.action(logger, {
-      options: {
-        name: 'myapp',
-        force: true
-      }
-    });
-    assert(deleteRequestStub.called);
+    }), new CommandError(error));
   });
 });
