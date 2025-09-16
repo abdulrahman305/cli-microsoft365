@@ -3,6 +3,7 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   home: [
     'index',
+    'v11-upgrade-guidance',
     'v10-upgrade-guidance',
     'v9-upgrade-guidance',
     'v8-upgrade-guidance',
@@ -675,6 +676,15 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          roleassignment: [
+            {
+              type: 'doc',
+              label: 'roleassignment add',
+              id: 'cmd/entra/roleassignment/roleassignment-add'
+            }
+          ]
+        },
+        {
           roledefinition: [
             {
               type: 'doc',
@@ -1296,6 +1306,11 @@ const sidebars: SidebarsConfig = {
           mail: [
             {
               type: 'doc',
+              label: 'mail searchfolder add',
+              id: 'cmd/outlook/mail/mail-searchfolder-add'
+            },
+            {
+              type: 'doc',
               label: 'mail send',
               id: 'cmd/outlook/mail/mail-send'
             }
@@ -1819,30 +1834,6 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
-          card: [
-            {
-              type: 'doc',
-              label: 'card clone',
-              id: 'cmd/pp/card/card-clone'
-            },
-            {
-              type: 'doc',
-              label: 'card get',
-              id: 'cmd/pp/card/card-get'
-            },
-            {
-              type: 'doc',
-              label: 'card list',
-              id: 'cmd/pp/card/card-list'
-            },
-            {
-              type: 'doc',
-              label: 'card remove',
-              id: 'cmd/pp/card/card-remove'
-            }
-          ]
-        },
-        {
           copilot: [
             {
               type: 'doc',
@@ -2129,29 +2120,6 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'threatassessment list',
               id: 'cmd/purview/threatassessment/threatassessment-list'
-            }
-          ]
-        }
-      ]
-    },
-    {
-      'Skype (skype)': [
-        {
-          report: [
-            {
-              type: 'doc',
-              label: 'report activitycounts',
-              id: 'cmd/skype/report/report-activitycounts'
-            },
-            {
-              type: 'doc',
-              label: 'report activityusercounts',
-              id: 'cmd/skype/report/report-activityusercounts'
-            },
-            {
-              type: 'doc',
-              label: 'report activityuserdetail',
-              id: 'cmd/skype/report/report-activityuserdetail'
             }
           ]
         }
@@ -2770,6 +2738,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'file version keep',
+              id: 'cmd/spo/file/file-version-keep'
+            },
+            {
+              type: 'doc',
               label: 'file version list',
               id: 'cmd/spo/file/file-version-list'
             },
@@ -3344,15 +3317,6 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'listitem record unlock',
               id: 'cmd/spo/listitem/listitem-record-unlock'
-            }
-          ]
-        },
-        {
-          mail: [
-            {
-              type: 'doc',
-              label: 'mail send',
-              id: 'cmd/spo/mail/mail-send'
             }
           ]
         },
@@ -4845,21 +4809,6 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'engage community user remove',
               id: 'cmd/viva/engage/engage-community-user-remove'
-            },
-            {
-              type: 'doc',
-              label: 'engage group list',
-              id: 'cmd/viva/engage/engage-group-list'
-            },
-            {
-              type: 'doc',
-              label: 'engage group user add',
-              id: 'cmd/viva/engage/engage-group-user-add'
-            },
-            {
-              type: 'doc',
-              label: 'engage group user remove',
-              id: 'cmd/viva/engage/engage-group-user-remove'
             },
             {
               type: 'doc',

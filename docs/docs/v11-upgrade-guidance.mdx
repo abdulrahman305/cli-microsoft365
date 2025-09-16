@@ -1,0 +1,214 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# v11 Upgrade Guidance
+
+The v11 release of CLI for Microsoft 365 introduces several breaking changes. To assist you in upgrading to the latest version, we've outlined the changes and the actions you may need to take.
+
+## SharePoint
+
+### `spo homesite set` no longer adds new home sites
+
+The [spo homesite set](./cmd/spo/homesite/homesite-set.mdx) command has been updated to only modify existing home sites. It will no longer add a new site as home site if you don't have any configured yet.
+
+#### What action do I need to take?
+
+- **For adding new home sites**: Use the new [spo homesite add](./cmd/spo/homesite/homesite-add.mdx) command instead
+- **For updating existing home sites**: Continue using [spo homesite set](./cmd/spo/homesite/homesite-set.mdx) as before with required option `siteUrl`.
+
+### `spo list view add` default paged option changed
+
+The [spo list view add](./cmd/spo/list/list-view-add.mdx) command has been updated to change the default value of the `paged` option from `false` to `true`. This change reflects the common usage pattern where most views allow paging and fetch new items while scrolling down.
+
+#### What action do I need to take?
+
+- **If you want paged views (most common)**: No action required as this is now the default behavior.
+- **If you want static views**: Explicitly specify `--paged false` when creating views that should not fetch new items while scrolling.
+
+### Updated `homesite` commands and options
+
+In the beginning when SharePoint home sites were introduced, you could only setup one single home site per tenant.
+Nowadays, you can have multiple home sites in your tenant.
+To reflect this change, we had to update our `spo homesite` commands to always require a URL to identify the home site to work with.
+
+For the following commands, the `url` option is now required.
+
+- [spo homesite get](./cmd/spo/homesite/homesite-get.mdx)
+- [spo homesite remove](./cmd/spo/homesite/homesite-remove.mdx)
+
+Additionally, the `spo homesite remove` command will not return a command output anymore. Since the command output was more informative in the past, we decided to just drop it.
+
+Due to a change in the underlying API, the command output of `spo homesite get` has also been changed. Check the documentation for the latest output format.
+
+#### What action do I need to take?
+
+Update your scripts to use the required `url` option in `spo homesite get` and `spo homesite remove` commands.
+Additionally, update your scripts to handle the changed output of the `spo homesite get` command and the lack of output of the `spo homesite remove` command.
+
+### `spo serviceprincipal grant list` command output updated
+
+In order to align our commands with the latest updates done by Microsoft we had to update the API endpoint used by the [spo serviceprincipal grant list](./cmd/spo/serviceprincipal/serviceprincipal-grant-list.mdx) command. As a result, the output of this command has changed.
+
+#### What action do I need to take?
+
+- **If you parse the output of this command**: Update your scripts to handle the new output format. 
+
+## SharePoint Framework
+
+### Updated `spfx project upgrade` commands default behavior
+
+The [spfx project upgrade](./cmd/spfx/project/project-upgrade.mdx) command has been updated to use PowerShell as the default shell instead of bash. This change reflects the current usage patterns where PowerShell is more commonly used than bash. 
+
+#### What action do I need to take?
+
+- **If you prefer bash**: Explicitly specify the `--shell` option with `bash` value when running the command
+- **If you use PowerShell**: No action required as this is now the default behavior
+
+## Teams
+
+### Ensure list output for `teams report` commands
+
+We noticed that some of the `list` commands were not returning an array, but an object with a `value` property. We've updated those commands to return an array of items.
+
+<details>
+  <summary>Click here to compare the different command outputs of an affected command</summary>
+
+<Tabs>
+  <TabItem value="v10 output">
+
+  ```json
+  {
+    "@odata.count": 1,
+    "value": [
+      {
+        "id": "9e8bba57-dc14-533a-a7dd-f0da6575eed1",
+        "correlationId": "c98e1515-a937-4b81-b8a8-3992afde64e0",
+        "userId": "db03c14b-06eb-4189-939b-7cbf3a20ba27",
+        "userPrincipalName": "richard.malk@contoso.com",
+        "userDisplayName": "Richard Malk",
+        "startDateTime": "2019-11-01T00:00:25.105Z",
+        "inviteDateTime": "2019-11-01T00:00:21.949Z",
+        "failureDateTime": "0001-01-01T00:00:00Z",
+        "endDateTime": "2019-11-01T00:00:30.105Z",
+        "duration": 5,
+        "callType": "ByotIn",
+        "successfulCall": true,
+        "callerNumber": "+12345678***",
+        "calleeNumber": "+01234567***",
+        "mediaPathLocation": "USWE",
+        "signalingLocation": "EUNO",
+        "finalSipCode": 0,
+        "callEndSubReason": 540000,
+        "finalSipCodePhrase": "BYE",
+        "trunkFullyQualifiedDomainName": "tll-audiocodes01.adatum.biz",
+        "mediaBypassEnabled": false
+      }
+    ]
+  }
+  ```
+
+  </TabItem>
+  <TabItem value="v11 output">
+
+  ```json
+  [
+    {
+      "id": "9e8bba57-dc14-533a-a7dd-f0da6575eed1",
+      "correlationId": "c98e1515-a937-4b81-b8a8-3992afde64e0",
+      "userId": "db03c14b-06eb-4189-939b-7cbf3a20ba27",
+      "userPrincipalName": "richard.malk@contoso.com",
+      "userDisplayName": "Richard Malk",
+      "startDateTime": "2019-11-01T00:00:25.105Z",
+      "inviteDateTime": "2019-11-01T00:00:21.949Z",
+      "failureDateTime": "0001-01-01T00:00:00Z",
+      "endDateTime": "2019-11-01T00:00:30.105Z",
+      "duration": 5,
+      "callType": "ByotIn",
+      "successfulCall": true,
+      "callerNumber": "+12345678***",
+      "calleeNumber": "+01234567***",
+      "mediaPathLocation": "USWE",
+      "signalingLocation": "EUNO",
+      "finalSipCode": 0,
+      "callEndSubReason": 540000,
+      "finalSipCodePhrase": "BYE",
+      "trunkFullyQualifiedDomainName": "tll-audiocodes01.adatum.biz",
+      "mediaBypassEnabled": false
+    }
+  ]
+  ```
+
+  </TabItem>
+</Tabs>
+</details>
+
+The commands impacted by this change are:
+
+- [teams report directroutingcalls](./cmd/teams/report/report-directroutingcalls.mdx)
+- [teams report pstncalls](./cmd/teams/report/report-pstncalls.mdx)
+
+#### What action do I need to take?
+
+Update your scripts to expect an array of items.
+
+
+## General
+
+### Changed the way to retrieve default environments
+
+We've changed how Power Platform commands retrieve default environments for consistency across our commands. Previously, some commands would return the default environment when you didn't specify any options. Now, you need to explicitly specify the `--default` option to get the default environment.
+
+Affected commands:
+
+- [pp environment get](./cmd/pp/environment/environment-get.mdx)
+- [flow environment get](./cmd/flow/environment/environment-get.mdx)
+- [pa environment get](./cmd/pa/environment/environment-get.mdx)
+
+#### What action do I need to take?
+
+Update your scripts to include the `--default` option when you want to retrieve the default environment.
+
+### Ensured output for `list` commands
+
+We noticed that some of the `list` commands were not returning any output when no items were found. We've updated all `list` commands to return an empty array when no items are found.
+
+The commands impacted by this change are:
+
+- [spo customaction list](./cmd/spo/customaction/customaction-list.mdx)
+
+#### What action do I need to take?
+
+Update your scripts to expect an empty array when no items are found.
+
+### Removed aliasses
+
+We've removed some aliasses to streamline the command set and avoid confusion. The following aliasses have been removed:
+
+- `pp chatbot get` is now [pp copilot get](./cmd/pp/copilot/copilot-get.mdx)
+- `pp chatbot list` is now [pp copilot list](./cmd/pp/copilot/copilot-list.mdx)
+- `pp chatbot remove` is now [pp copilot remove](./cmd/pp/copilot/copilot-remove.mdx)
+- `spo tenant homesite list` is now [spo homesite list](./cmd/spo/homesite/homesite-list.mdx)
+
+#### What action do I need to take?
+
+Update any `pp chatbot` and `spo tenant homesite` references in your scripts to `pp copilot` and `spo homesite` for compatibility.
+
+### Removed commands
+
+Some commands were removed because their API endpoint became deprecated or the product began an end-of-life phase.
+
+Read the documentation for alternative commands to find out how to use them and what permissions are required.
+
+Command | Alternative
+--- | ---
+`pp card clone` | None
+`pp card get` | None
+`pp card list` | None
+`pp card remove` | None
+`spo mail send` | [outlook mail send](./cmd/outlook/mail/mail-send.mdx)
+`skype report activitycounts` | None
+`skype report activityusercounts` | None
+`skype report activityuserdetail` | None
+`viva engage group list` | [viva engage community list](./cmd/viva/engage/engage-community-list.mdx)
+`viva engage group user add` | [viva engage community user add](./cmd/viva/engage/engage-community-user-add.mdx)
+`viva engage group user remove` | [viva engage community user remove](./cmd/viva/engage/engage-community-user-remove.mdx)

@@ -4,7 +4,45 @@ sidebar_position: 4
 
 # Release notes
 
-## v10.11.0 (beta)
+## v11.0.0 (beta)
+
+### New commands
+
+**Outlook:**
+
+- [outlook mail searchfolder add](../cmd/outlook/mail/mail-searchfolder-add.mdx) - creates a new mail search folder in the user's mailbox [#6276](https://github.com/pnp/cli-microsoft365/issues/6276)
+
+**SharePoint:**
+
+- [spo file version keep](../cmd/spo/file/file-version-keep.mdx) - ensure that a specific file version will never expire [#6774](https://github.com/pnp/cli-microsoft365/issues/6774)
+
+**Entra ID:**
+
+- [entra roleassignment add](../cmd/entra/roleassignment/roleassignment-add.mdx) - assign a Entra ID role to a user and specify the scope for which the user has been granted access [#6563](https://github.com/pnp/cli-microsoft365/issues/6563)
+
+### Changes
+
+- added CLI for Microsoft 365 MCP server guide [#6817](https://github.com/pnp/cli-microsoft365/pull/6817)
+- fixed dependabot updates
+- added additional platform options to [entra app add](../cmd/entra/app/app-add.mdx) command [6570](https://github.com/pnp/cli-microsoft365/issues/6570)
+- added Copilot instructions
+
+### ⚠️ Breaking changes
+
+ - updated [spo homesite set](../cmd/spo/homesite/homesite-set.mdx) command to work with multiple home sites [#6489](https://github.com/pnp/cli-microsoft365/issues/6489)
+ - ensured `list` commands always have an output [#6824](https://github.com/pnp/cli-microsoft365/issues/6824)
+ - updated `teams report` commands to return an array of items for `get` commands [#6739](https://github.com/pnp/cli-microsoft365/issues/6739)
+ - updated the default value of the `paged` option for [spo list view add](../cmd/spo/list/list-view-add.mdx) [#6741](https://github.com/pnp/cli-microsoft365/issues/6741)
+ - updated the way to retrieve default objects [#6545](https://github.com/pnp/cli-microsoft365/issues/6545)
+ - removed `viva engage group` commands [#6285](https://github.com/pnp/cli-microsoft365/issues/6285)
+ - removed deprecated commands [#6577](https://github.com/pnp/cli-microsoft365/issues/6577)
+ - removed `pp card` commands [#6852](https://github.com/pnp/cli-microsoft365/issues/6852)
+ - updated `spfx project upgrade` shell option to default `powershell` [#6769](https://github.com/pnp/cli-microsoft365/issues/6769)
+ - fixed `spo serviceprincipal grant list` API issue [#6757](https://github.com/pnp/cli-microsoft365/issues/6757)
+ - updated `spo homesite` options and output [#6731](https://github.com/pnp/cli-microsoft365/issues/6731)
+ - removed deprecated aliases [#6532](https://github.com/pnp/cli-microsoft365/issues/6532)
+
+## [v10.11.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.11.0)
 
 ### New commands
 
@@ -231,7 +269,7 @@ sidebar_position: 4
 ### Changes
 
 - updated [spo page get](../cmd/spo/page/page-get.mdx) command with `--default` option to retrieve the default page [#6493](https://github.com/pnp/cli-microsoft365/issues/6493)
-- added a deprecation warning for [spo mail send](../cmd/spo/mail/mail-send.mdx) command [#6576](https://github.com/pnp/cli-microsoft365/issues/6576)
+- added a deprecation warning for `spo mail send` command [#6576](https://github.com/pnp/cli-microsoft365/issues/6576)
 - added new [sample script](../sample-scripts/entra/find-obsolete-m365-groups/index.mdx) to get a list of all obsolete M365 groups [#2475](https://github.com/pnp/cli-microsoft365/issues/2475)
 - fixed prompting for a value when an option is missing [#6518](https://github.com/pnp/cli-microsoft365/issues/6518)
 - updated project & docs dependencies
@@ -1718,8 +1756,8 @@ sidebar_position: 4
 
 **Power Platform:**
 
-- [pp card clone](../cmd/pp/card/card-clone.mdx) - clones a specific Microsoft Power Platform card in the specified Power Platform environment [#3790](https://github.com/pnp/cli-microsoft365/issues/3790)
-- [pp card remove](../cmd/pp/card/card-remove.mdx) - removes the specified Microsoft Power Platform card in the specified Power Platform environment [#3781](https://github.com/pnp/cli-microsoft365/issues/3781)
+- `pp card clone` - clones a specific Microsoft Power Platform card in the specified Power Platform environment [#3790](https://github.com/pnp/cli-microsoft365/issues/3790)
+- `pp card remove` - removes the specified Microsoft Power Platform card in the specified Power Platform environment [#3781](https://github.com/pnp/cli-microsoft365/issues/3781)
 - [pp chatbot list](../cmd/pp/copilot/copilot-list.mdx) - lists Microsoft Power Platform chatbot in the specified Power Platform environment [#3650](https://github.com/pnp/cli-microsoft365/issues/3650)
 - [pp dataverse table get](../cmd/pp/dataverse/dataverse-table-get.mdx) - lists a dataverse table in a given environment [#3726](https://github.com/pnp/cli-microsoft365/issues/3726)
 - [pp dataverse table remove](../cmd/pp/dataverse/dataverse-table-remove.mdx) - removes a dataverse table in a given environment [#4031](https://github.com/pnp/cli-microsoft365/issues/4031)
@@ -1836,8 +1874,8 @@ sidebar_position: 4
 
 **Power Platform:**
 
-- [pp card get](../cmd/pp/card/card-get.mdx) - gets a specific Microsoft Power Platform card in the specified Power Platform environment [#3770](https://github.com/pnp/cli-microsoft365/issues/3770)
-- [pp card list](../cmd/pp/card/card-list.mdx) - lists Microsoft Power Platform cards in the specified Power Platform environment [#3767](https://github.com/pnp/cli-microsoft365/issues/3767)
+- `pp card get` - gets a specific Microsoft Power Platform card in the specified Power Platform environment [#3770](https://github.com/pnp/cli-microsoft365/issues/3770)
+- `pp card list` - lists Microsoft Power Platform cards in the specified Power Platform environment [#3767](https://github.com/pnp/cli-microsoft365/issues/3767)
 - [pp dataverse table list](../cmd/pp/dataverse/dataverse-table-list.mdx) - lists dataverse tables in a given environment [#3653](https://github.com/pnp/cli-microsoft365/issues/3653)
 - [pp gateway get](../cmd/pp/gateway/gateway-get.mdx) - gets information about the specified gateway [#3653](https://github.com/pnp/cli-microsoft365/issues/3653)
 - [pp solution get](../cmd/pp/solution/solution-get.mdx) - gets a specific solution in a given environment [#3722](https://github.com/pnp/cli-microsoft365/issues/3722)
@@ -3190,8 +3228,8 @@ sidebar_position: 4
 
 **Yammer:**
 
-- [yammer group user add](../cmd/viva/engage/engage-group-user-add.mdx) - adds a user to a Yammer Group [#1456](https://github.com/pnp/cli-microsoft365/issues/1456)
-- [yammer group user remove](../cmd/viva/engage/engage-group-user-remove.mdx) - removes a user from a Yammer group [#1457](https://github.com/pnp/cli-microsoft365/issues/1457)
+- yammer group user add - adds a user to a Yammer Group [#1456](https://github.com/pnp/cli-microsoft365/issues/1456)
+- yammer group user remove - removes a user from a Yammer group [#1457](https://github.com/pnp/cli-microsoft365/issues/1457)
 - [yammer message like set](../cmd/viva/engage/engage-message-like-set.mdx) - likes or unlikes a Yammer message [#1455](https://github.com/pnp/cli-microsoft365/issues/1455)
 
 ### Changes
@@ -3303,9 +3341,9 @@ sidebar_position: 4
 
 **Skype:**
 
-- [skype report activitycounts](../cmd/skype/report/report-activitycounts.mdx) - gets the trends on how many users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1302](https://github.com/pnp/cli-microsoft365/issues/1302)
-- [skype report activityusercounts](../cmd/skype/report/report-activityusercounts.mdx) - gets the trends on how many unique users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1303](https://github.com/pnp/cli-microsoft365/issues/1303)
-- [skype report activityuserdetail](../cmd/skype/report/report-activityuserdetail.mdx) - gets details about Skype for Business activity by user [#1301](https://github.com/pnp/cli-microsoft365/issues/1301)
+- `skype report activitycounts` - gets the trends on how many users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1302](https://github.com/pnp/cli-microsoft365/issues/1302)
+- `skype report activityusercounts` - gets the trends on how many unique users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1303](https://github.com/pnp/cli-microsoft365/issues/1303)
+- `skype report activityuserdetail` - gets details about Skype for Business activity by user [#1301](https://github.com/pnp/cli-microsoft365/issues/1301)
 
 **Yammer:**
 
@@ -3383,7 +3421,7 @@ sidebar_position: 4
 
 **Yammer:**
 
-- [yammer group list](../cmd/viva/engage/engage-group-list.mdx) - returns the list of groups in a Yammer network or the groups for a specific user [#1185](https://github.com/pnp/cli-microsoft365/issues/1185)
+- yammer group list - returns the list of groups in a Yammer network or the groups for a specific user [#1185](https://github.com/pnp/cli-microsoft365/issues/1185)
 
 ### Changes
 
@@ -3701,7 +3739,7 @@ sidebar_position: 4
 **SharePoint Online:**
 
 - [spo contenttype field remove](../cmd/spo/contenttype/contenttype-field-remove.mdx) - removes a column from a site- or list content type [#673](https://github.com/pnp/cli-microsoft365/issues/673)
-- [spo mail send](../cmd/spo/mail/mail-send.mdx) - sends an e-mail from SharePoint [#753](https://github.com/pnp/cli-microsoft365/issues/753)
+- 'spo mail send' - sends an e-mail from SharePoint [#753](https://github.com/pnp/cli-microsoft365/issues/753)
 
 **Microsoft Graph:**
 
