@@ -6,8 +6,8 @@ import { formatting } from '../../../../utils/formatting.js';
 import { ClientSvcResponse, ClientSvcResponseContents, FormDigestInfo, spo } from '../../../../utils/spo.js';
 import SpoCommand from '../../../base/SpoCommand.js';
 import commands from '../../commands.js';
-import { TenantSiteProperties } from './TenantSiteProperties.js';
-import { SPOTenantSitePropertiesEnumerable } from './SPOTenantSitePropertiesEnumerable.js';
+import { SiteProperties } from './SiteProperties.js';
+import { SPOSitePropertiesEnumerable } from './SPOSitePropertiesEnumerable.js';
 
 interface CommandArgs {
   options: Options;
@@ -17,15 +17,14 @@ interface Options extends GlobalOptions {
   type?: string;
   webTemplate?: string;
   filter?: string;
-  includeOneDriveSites?: boolean;
   withOneDriveSites?: boolean;
 }
 
-class SpoTenantSiteListCommand extends SpoCommand {
-  private allSites?: TenantSiteProperties[];
+class SpoSiteListCommand extends SpoCommand {
+  private allSites?: SiteProperties[];
 
   public get name(): string {
-    return commands.TENANT_SITE_LIST;
+    return commands.SITE_LIST;
   }
 
   public get description(): string {
@@ -50,7 +49,6 @@ class SpoTenantSiteListCommand extends SpoCommand {
         webTemplate: args.options.webTemplate,
         type: args.options.type,
         filter: (!(!args.options.filter)).toString(),
-        includeOneDriveSites: typeof args.options.includeOneDriveSites !== 'undefined',
         withOneDriveSites: typeof args.options.withOneDriveSites !== 'undefined'
       });
     });
@@ -67,9 +65,6 @@ class SpoTenantSiteListCommand extends SpoCommand {
       },
       {
         option: '--filter [filter]'
-      },
-      {
-        option: '--includeOneDriveSites'
       },
       {
         option: '--withOneDriveSites'
@@ -90,14 +85,9 @@ class SpoTenantSiteListCommand extends SpoCommand {
           return `${args.options.type} is not a valid value for the type option. Allowed values are ${typeValues.join('|')}`;
         }
 
-        if (args.options.includeOneDriveSites || args.options.withOneDriveSites
+        if (args.options.withOneDriveSites
           && (args.options.type || args.options.webTemplate)) {
-          if (args.options.includeOneDriveSites) {
-            return 'When using includeOneDriveSites, don\'t specify the type or webTemplate options';
-          }
-          else {
-            return 'When using withOneDriveSites, don\'t specify the type or webTemplate options';
-          }
+          return 'When using withOneDriveSites, don\'t specify the type or webTemplate options';
         }
 
         return true;
@@ -110,12 +100,8 @@ class SpoTenantSiteListCommand extends SpoCommand {
   }
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
-    if (args.options.includeOneDriveSites) {
-      await this.warn(logger, `Parameter 'includeOneDriveSites' is deprecated. Please use 'withOneDriveSites' instead`);
-    }
-
     const webTemplate: string = this.getWebTemplateId(args.options);
-    const includeOneDriveSites: boolean = (args.options.includeOneDriveSites || args.options.withOneDriveSites) || false;
+    const includeOneDriveSites: boolean = args.options.withOneDriveSites || false;
     const personalSite: string = includeOneDriveSites === false ? '0' : '1';
 
     try {
@@ -155,7 +141,7 @@ class SpoTenantSiteListCommand extends SpoCommand {
       throw responseContent.ErrorInfo.ErrorMessage;
     }
     else {
-      const sites: SPOTenantSitePropertiesEnumerable = json[json.length - 1];
+      const sites: SPOSitePropertiesEnumerable = json[json.length - 1];
       this.allSites!.push(...sites._Child_Items_);
 
       if (sites.NextStartIndexFromSharePoint) {
@@ -171,7 +157,7 @@ class SpoTenantSiteListCommand extends SpoCommand {
       return options.webTemplate;
     }
 
-    if (options.includeOneDriveSites || options.withOneDriveSites) {
+    if (options.withOneDriveSites) {
       return '';
     }
 
@@ -186,4 +172,4 @@ class SpoTenantSiteListCommand extends SpoCommand {
   }
 }
 
-export default new SpoTenantSiteListCommand();
+export default new SpoSiteListCommand();
