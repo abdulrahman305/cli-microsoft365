@@ -93,7 +93,7 @@ describe(commands.ENTERPRISEAPP_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').callsFake(() => Promise.resolve());
-    sinon.stub(telemetry, 'trackEvent').callsFake(() => { });
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').callsFake(() => '');
     sinon.stub(session, 'getId').callsFake(() => '');
     auth.connection.active = true;
@@ -132,6 +132,11 @@ describe(commands.ENTERPRISEAPP_LIST, () => {
 
   it('has a description', () => {
     assert.notStrictEqual(command.description, null);
+  });
+
+  it('defines correct alias', () => {
+    const alias = command.alias();
+    assert.deepStrictEqual(alias, [commands.SP_LIST]);
   });
 
   it('defines correct properties for the default output', () => {

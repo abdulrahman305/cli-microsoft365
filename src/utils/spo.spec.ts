@@ -94,6 +94,35 @@ describe('utils/spo', () => {
   let loggerLogSpy: sinon.SinonSpy;
 
   const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+  const roledefinitionResponse = {
+    value:
+      [
+        {
+          BasePermissions: {
+            High: '2147483647',
+            Low: '4294967295'
+          },
+          Description: 'Has full control.',
+          Hidden: false,
+          Id: 1073741829,
+          Name: 'Full Control',
+          Order: 1,
+          RoleTypeKind: 5
+        },
+        {
+          BasePermissions: {
+            High: '432',
+            Low: '1012866047'
+          },
+          Description: 'Can view, add, update, delete, approve, and customize.',
+          Hidden: false,
+          Id: 1073741828,
+          Name: 'Design',
+          Order: 32,
+          RoleTypeKind: 4
+        }
+      ]
+  };
 
   before(() => {
     auth.connection.active = true;
@@ -1897,6 +1926,66 @@ describe('utils/spo', () => {
     assert.deepStrictEqual(actual, webResponse);
   });
 
+
+  it(`retrieves spo group by name sucessfully`, async () => {
+    const groupResponse = {
+      Id: 11,
+      IsHiddenInUI: false,
+      LoginName: "groupname",
+      Title: "groupname",
+      PrincipalType: 8,
+      AllowMembersEditMembership: false,
+      AllowRequestToJoinLeave: false,
+      AutoAcceptRequestToJoinLeave: false,
+      Description: "",
+      OnlyAllowMembersViewMembership: true,
+      OwnerTitle: "John Doe",
+      RequestToJoinLeaveEmailSetting: null
+    };
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `https://contoso.sharepoint.com/sites/sales/_api/web/sitegroups/GetByName('${formatting.encodeQueryParameter('groupname')}')`) {
+        return groupResponse;
+      }
+
+      throw 'Invalid request';
+    });
+
+    const group = await spo.getGroupByName('https://contoso.sharepoint.com/sites/sales', 'groupname', logger, true);
+    assert.deepEqual(group, groupResponse);
+  });
+
+  it(`retrieves spo user by email sucessfully`, async () => {
+    const userResponse = {
+      Id: 11,
+      IsHiddenInUI: false,
+      LoginName: 'i:0#.f|membership|john.doe@contoso.com',
+      Title: 'John Doe',
+      PrincipalType: 1,
+      Email: 'john.doe@contoso.com',
+      Expiration: '',
+      IsEmailAuthenticationGuestUser: false,
+      IsShareByEmailGuestUser: false,
+      IsSiteAdmin: false,
+      UserId: {
+        NameId: '10032002473c5ae3',
+        NameIdIssuer: 'urn:federation:microsoftonline'
+      },
+      UserPrincipalName: 'john.doe@contoso.com'
+    };
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `https://contoso.sharepoint.com/sites/sales/_api/web/siteusers/GetByEmail('${formatting.encodeQueryParameter('john.doe@contoso.com')}')`) {
+        return userResponse;
+      }
+
+      throw 'Invalid request';
+    });
+
+    const user = await spo.getUserByEmail('https://contoso.sharepoint.com/sites/sales', 'john.doe@contoso.com', logger, true);
+    assert.deepEqual(user, userResponse);
+  });
+
   it(`applies a retention label to list items successfully`, async () => {
     sinon.stub(request, 'post').callsFake(async (opts) => {
       if (opts.url === `https://contoso.sharepoint.com/sites/project-x/_api/SP_CompliancePolicy_SPPolicyStoreProxy_SetComplianceTagOnBulkItems`
@@ -1959,7 +2048,7 @@ describe('utils/spo', () => {
       throw 'Invalid request';
     });
 
-    const id = await spo.getSiteId('https://contoso.sharepoint.com', logger);
+    const id = await spo.getSiteIdByMSGraph('https://contoso.sharepoint.com', logger);
 
     assert.strictEqual(id, 'contoso.sharepoint.com,ea49a393-e3e6-4760-a1b2-e96539e15372,66e2861c-96d9-4418-a75c-0ed1bca68b42');
   });
@@ -2999,6 +3088,86 @@ describe('utils/spo', () => {
     );
   });
 
+  it('correctly re-polls when JobFinishedObjectInfo not present when using getCopyJobResult', async () => {
+    const postStub = sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url === 'https://contoso.sharepoint.com/sites/sales/_api/Site/GetCopyJobProgress') {
+        if (postStub.callCount < 5) {
+          return {
+            JobState: 4,
+            Logs: []
+          };
+        }
+
+        if (postStub.callCount === 5) {
+          return {
+            JobState: 4,
+            Logs: [
+              JSON.stringify({
+                Event: 'JobStart',
+                JobId: 'fb4cc143-383c-4da0-bd91-02d2acbb01c7',
+                Time: '08/10/2024 16:30:39.004',
+                SiteId: '53dec431-9d4f-415b-b12b-010259d5b4e1',
+                WebId: 'af102f32-b389-49dc-89bf-d116a17e0aa6',
+                DBId: '5a926054-85d7-4cf6-85f0-c38fa01c4d39',
+                FarmId: '823af112-cd95-49a2-adf5-eccb09c8ba5d',
+                ServerId: 'a6145d7e-1b85-4124-895e-b1e618bfe5ae',
+                SubscriptionId: '18c58817-3bc9-489d-ac63-f7264fb357e5',
+                TotalRetryCount: '0',
+                MigrationType: 'Copy',
+                MigrationDirection: 'Import',
+                CorrelationId: 'd8f444a1-10a8-9000-862c-0bad6eff1006'
+              })
+            ]
+          };
+        }
+
+        if (postStub.callCount === 6) {
+          return {
+            JobState: 0,
+            Logs: []
+          };
+        }
+
+        return {
+          JobState: 0,
+          Logs: [
+            JSON.stringify({
+              Event: 'JobEnd',
+              JobId: 'fb4cc143-383c-4da0-bd91-02d2acbb01c7',
+              Time: '08/10/2024 16:30:39.008',
+              TotalRetryCount: '0',
+              MigrationType: 'Copy',
+              MigrationDirection: 'Import',
+              CorrelationId: 'd8f444a1-10a8-9000-862c-0bad6eff1006'
+            }),
+            JSON.stringify({
+              Event: 'JobFinishedObjectInfo',
+              JobId: '6d1eda82-0d1c-41eb-ab05-1d9cd4afe786',
+              Time: '08/10/2024 18:59:40.145',
+              SourceObjectFullUrl: 'https://contoso.sharepoint.com/sites/marketing/Shared Documents/Icons/Company.png',
+              TargetServerUrl: 'https://contoso.sharepoint.com',
+              TargetSiteId: '794dada8-4389-45ce-9559-0de74bf3554a',
+              TargetWebId: '8de9b4d3-3c30-4fd0-a9d7-2452bd065555',
+              TargetListId: '44b336a5-e397-4e22-a270-c39e9069b123',
+              TargetObjectUniqueId: '15488d89-b82b-40be-958a-922b2ed79383',
+              TargetObjectSiteRelativeUrl: 'Shared Documents/Icons/Company.png',
+              CorrelationId: '5efd44a1-c034-9000-9692-4e1a1b3ca33b'
+            })
+          ]
+        };
+      }
+
+      throw 'Invalid request: ' + opts.url;
+    });
+
+    await spo.getCopyJobResult('https://contoso.sharepoint.com/sites/sales', copyJobInfo);
+
+    const postRequests = postStub.getCalls();
+    postRequests.forEach((request) =>
+      assert.deepStrictEqual(request.args[0].data, { copyJobInfo: copyJobInfo })
+    );
+  });
+
   it('correctly returns result when using getCopyJobResult', async () => {
     sinon.stub(request, 'post').callsFake(async (opts) => {
       if (opts.url === 'https://contoso.sharepoint.com/sites/sales/_api/Site/GetCopyJobProgress') {
@@ -3156,5 +3325,321 @@ describe('utils/spo', () => {
     await spo.getSiteAdminPropertiesByUrl('https://contoso.sharepoint.com/sites/sales', true, logger, true);
 
     assert.deepStrictEqual(postStub.firstCall.args[0].data, { url: 'https://contoso.sharepoint.com/sites/sales', includeDetail: true });
+  });
+
+  it('retrieves a roledefintion by its name', async () => {
+    sinon.stub(request, 'get').callsFake(async opts => {
+      if (opts.url === `https://contoso.sharepoint.com/sites/sales/_api/web/roledefinitions`) {
+        return roledefinitionResponse;
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getRoleDefintionByName(webUrl, 'Full Control', logger, true);
+    assert.deepEqual(actual, {
+      BasePermissions: {
+        High: '2147483647',
+        Low: '4294967295'
+      },
+      Description: 'Has full control.',
+      Hidden: false,
+      Id: 1073741829,
+      Name: 'Full Control',
+      Order: 1,
+      RoleTypeKind: 5,
+      BasePermissionsValue: [
+        'ViewListItems',
+        'AddListItems',
+        'EditListItems',
+        'DeleteListItems',
+        'ApproveItems',
+        'OpenItems',
+        'ViewVersions',
+        'DeleteVersions',
+        'CancelCheckout',
+        'ManagePersonalViews',
+        'ManageLists',
+        'ViewFormPages',
+        'AnonymousSearchAccessList',
+        'Open',
+        'ViewPages',
+        'AddAndCustomizePages',
+        'ApplyThemeAndBorder',
+        'ApplyStyleSheets',
+        'ViewUsageData',
+        'CreateSSCSite',
+        'ManageSubwebs',
+        'CreateGroups',
+        'ManagePermissions',
+        'BrowseDirectories',
+        'BrowseUserInfo',
+        'AddDelPrivateWebParts',
+        'UpdatePersonalWebParts',
+        'ManageWeb',
+        'AnonymousSearchAccessWebLists',
+        'UseClientIntegration',
+        'UseRemoteAPIs',
+        'ManageAlerts',
+        'CreateAlerts',
+        'EditMyUserInfo',
+        'EnumeratePermissions'
+      ],
+      RoleTypeKindValue: 'Administrator'
+    });
+  });
+
+  it('throws error when no roledefinition found', async () => {
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `https://contoso.sharepoint.com/sites/sales/_api/web/roledefinitions`) {
+        return roledefinitionResponse;
+      }
+
+      throw 'Invalid request';
+    });
+
+    try {
+      await spo.getRoleDefintionByName(webUrl, 'Unknown');
+      assert.fail('No error message thrown.');
+    }
+    catch (ex) {
+      assert.deepStrictEqual(ex, Error(`The specified role definition name 'Unknown' does not exist.`));
+    }
+  });
+
+  it('retrieves site id successfully', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const siteId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/site?$select=Id`) {
+        return { Id: siteId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getSiteIdBySPApi(webUrl, logger, true);
+    assert.strictEqual(actual, siteId);
+  });
+
+  it('throws an error when site id cannot be retrieved', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/site?$select=Id`) {
+        throw new Error('Site not found');
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    await assert.rejects(
+      spo.getSiteIdBySPApi(webUrl, logger, true),
+      new Error('Site not found')
+    );
+  });
+
+  it('logs verbose output when retrieving site id', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const siteId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+    const logStub = sinon.stub(logger, 'logToStderr');
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/site?$select=Id`) {
+        return { Id: siteId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getSiteIdBySPApi(webUrl, logger, true);
+    assert.strictEqual(actual, siteId);
+    assert(logStub.calledWith(`Getting site id for URL: ${webUrl}...`));
+  });
+
+  it('does not log verbose output when verbose is false while getting site id', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const siteId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+    const logStub = sinon.stub(logger, 'logToStderr');
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/site?$select=Id`) {
+        return { Id: siteId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getSiteIdBySPApi(webUrl, logger, false);
+    assert.strictEqual(actual, siteId);
+    assert(logStub.notCalled);
+  });
+
+  it('retrieves web id successfully', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const webId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web?$select=Id`) {
+        return { Id: webId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getWebId(webUrl, logger, true);
+    assert.strictEqual(actual, webId);
+  });
+
+  it('throws an error when web id cannot be retrieved', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web?$select=Id`) {
+        throw new Error('Web not found');
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    await assert.rejects(
+      spo.getWebId(webUrl, logger, true),
+      new Error('Web not found')
+    );
+  });
+
+  it('logs verbose output when retrieving web id', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const webId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+    const logStub = sinon.stub(logger, 'logToStderr');
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web?$select=Id`) {
+        return { Id: webId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getWebId(webUrl, logger, true);
+    assert.strictEqual(actual, webId);
+    assert(logStub.calledWith(`Getting web id for URL: ${webUrl}...`));
+  });
+
+  it('does not log verbose output when verbose is false while getting web id', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const webId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+    const logStub = sinon.stub(logger, 'logToStderr');
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web?$select=Id`) {
+        return { Id: webId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getWebId(webUrl, logger, false);
+    assert.strictEqual(actual, webId);
+    assert(logStub.notCalled);
+  });
+
+  it('retrieves list id by title successfully', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const listTitle = 'Documents';
+    const listId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web/lists/getByTitle('${formatting.encodeQueryParameter(listTitle)}')?$select=Id`) {
+        return { Id: listId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getListId(webUrl, listTitle, undefined, logger, true);
+    assert.strictEqual(actual, listId);
+  });
+
+  it('retrieves list id by URL successfully', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const listUrl = '/sites/sales/Lists/TestList';
+    const listId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web/GetList('${formatting.encodeQueryParameter(listUrl)}')?$select=Id`) {
+        return { Id: listId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getListId(webUrl, undefined, listUrl, logger, true);
+    assert.strictEqual(actual, listId);
+  });
+
+  it('throws an error when neither listTitle nor listUrl is provided', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+
+    await assert.rejects(
+      spo.getListId(webUrl, undefined, undefined, logger, true),
+      new Error('Either listTitle or listUrl must be provided.')
+    );
+  });
+
+  it('throws an error when list title does not exist', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const listTitle = 'NonExistentList';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web/lists/getByTitle('${formatting.encodeQueryParameter(listTitle)}')?$select=Id`) {
+        throw new Error('List not found');
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    await assert.rejects(
+      spo.getListId(webUrl, listTitle, undefined, logger, true),
+      new Error('List not found')
+    );
+  });
+
+  it('throws an error when list URL does not exist', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const listUrl = '/sites/sales/Lists/NonExistentList';
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web/GetList('${formatting.encodeQueryParameter(listUrl)}')?$select=Id`) {
+        throw new Error('List not found');
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    await assert.rejects(
+      spo.getListId(webUrl, undefined, listUrl, logger, true),
+      new Error('List not found')
+    );
+  });
+
+  it('logs verbose output when retrieving list id by title', async () => {
+    const webUrl = 'https://contoso.sharepoint.com/sites/sales';
+    const listTitle = 'Documents';
+    const listId = 'b2307a39-e878-458b-bc90-03bc578531d6';
+    const logStub = sinon.stub(logger, 'logToStderr');
+
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `${webUrl}/_api/web/lists/getByTitle('${formatting.encodeQueryParameter(listTitle)}')?$select=Id`) {
+        return { Id: listId };
+      }
+
+      throw `Invalid request ${opts.url}`;
+    });
+
+    const actual = await spo.getListId(webUrl, listTitle, undefined, logger, true);
+    assert.strictEqual(actual, listId);
+    assert(logStub.calledWith('Retrieving list id...'));
   });
 });

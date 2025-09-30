@@ -1,10 +1,9 @@
 import { Application, AppRole, AppRoleAssignment, OAuth2PermissionGrant, PermissionScope, RequiredResourceAccess, ResourceAccess, ServicePrincipal } from '@microsoft/microsoft-graph-types';
-import { cli } from '../../../../cli/cli.js';
+import { z } from 'zod';
 import { Logger } from '../../../../cli/Logger.js';
-import Command from '../../../../Command.js';
 import request, { CliRequestOptions } from '../../../../request.js';
-import appGetCommand, { Options as AppGetCommandOptions } from '../../../entra/commands/app/app-get.js';
-import AppCommand from '../../../base/AppCommand.js';
+import { entraApp } from '../../../../utils/entraApp.js';
+import AppCommand, { appCommandOptions } from '../../../base/AppCommand.js';
 import commands from '../../commands.js';
 
 interface ApiPermission {
@@ -30,6 +29,10 @@ class AppPermissionListCommand extends AppCommand {
 
   public get description(): string {
     return 'Lists API permissions for the current Microsoft Entra app';
+  }
+
+  public get schema(): z.ZodTypeAny | undefined {
+    return appCommandOptions;
   }
 
   public async commandAction(logger: Logger): Promise<void> {
@@ -221,23 +224,12 @@ class AppPermissionListCommand extends AppCommand {
 
   private async getAppRegistration(appId: string, logger: Logger): Promise<Application> {
     if (this.verbose) {
-      await logger.logToStderr(`Retrieving Microsoft Entra application registration ${appId}`);
+      await logger.logToStderr(`Retrieving the Entra application registration with appId '${appId}'`);
     }
 
-    const options: AppGetCommandOptions = {
-      appId: appId,
-      output: 'json',
-      debug: this.debug,
-      verbose: this.verbose
-    };
+    const app: Application = await entraApp.getAppRegistrationByAppId(appId);
 
-    const output = await cli.executeCommandWithOutput(appGetCommand as Command, { options: { ...options, _: [] } });
-
-    if (this.debug) {
-      await logger.logToStderr(output.stderr);
-    }
-
-    return JSON.parse(output.stdout) as Application;
+    return app;
   }
 
   private async getAppRegPermissions(appId: string, logger: Logger): Promise<ApiPermission[]> {

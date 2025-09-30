@@ -1,6 +1,9 @@
 import assert from 'assert';
 import sinon from 'sinon';
+import { z } from 'zod';
 import auth from '../../../../Auth.js';
+import { cli } from '../../../../cli/cli.js';
+import { CommandInfo } from '../../../../cli/CommandInfo.js';
 import { Logger } from '../../../../cli/Logger.js';
 import { CommandError } from '../../../../Command.js';
 import request from '../../../../request.js';
@@ -8,22 +11,26 @@ import { telemetry } from '../../../../telemetry.js';
 import { pid } from '../../../../utils/pid.js';
 import { session } from '../../../../utils/session.js';
 import { sinonUtil } from '../../../../utils/sinonUtil.js';
+import { accessToken } from '../../../../utils/accessToken.js';
 import commands from '../../commands.js';
 import command from './environment-get.js';
-import { accessToken } from '../../../../utils/accessToken.js';
 
 describe(commands.ENVIRONMENT_GET, () => {
   let log: string[];
   let logger: Logger;
   let loggerLogSpy: sinon.SinonSpy;
+  let commandInfo: CommandInfo;
+  let commandOptionsSchema: z.ZodTypeAny;
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
+    commandInfo = cli.getCommandInfo(command);
+    commandOptionsSchema = commandInfo.command.getSchemaToParse()!;
   });
 
   beforeEach(() => {
@@ -61,8 +68,31 @@ describe(commands.ENVIRONMENT_GET, () => {
     assert.notStrictEqual(command.description, null);
   });
 
-  it('defines correct properties for the default output', () => {
-    assert.deepStrictEqual(command.defaultProperties(), ['name', 'id', 'location', 'displayName', 'provisioningState', 'environmentSku', 'azureRegionHint', 'isDefault']);
+  it('fails validation when no options specified', () => {
+    const actual = commandOptionsSchema.safeParse({});
+    assert.strictEqual(actual.success, false);
+  });
+
+  it('passes validation when name is specified', () => {
+    const actual = commandOptionsSchema.safeParse({
+      name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c5'
+    });
+    assert.strictEqual(actual.success, true);
+  });
+
+  it('passes validation when default is specified', () => {
+    const actual = commandOptionsSchema.safeParse({
+      default: true
+    });
+    assert.strictEqual(actual.success, true);
+  });
+
+  it('fails validation when both name and default are specified', () => {
+    const actual = commandOptionsSchema.safeParse({
+      name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c5',
+      default: true
+    });
+    assert.strictEqual(actual.success, false);
   });
 
   it('retrieves information about the default environment', async () => {
@@ -80,7 +110,12 @@ describe(commands.ENVIRONMENT_GET, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { verbose: true } });
+    await command.action(logger, {
+      options: {
+        verbose: true,
+        default: true
+      }
+    });
     assert(loggerLogSpy.calledWith(env));
   });
 
@@ -99,7 +134,12 @@ describe(commands.ENVIRONMENT_GET, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { verbose: true, name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c5' } });
+    await command.action(logger, {
+      options: {
+        verbose: true,
+        name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c5'
+      }
+    });
     assert(loggerLogSpy.calledWith(env));
   });
 
@@ -111,8 +151,11 @@ describe(commands.ENVIRONMENT_GET, () => {
       }
     });
 
-    await assert.rejects(command.action(logger, { options: { name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c6' } } as any),
-      new CommandError(`Access to the environment 'Default-d87a7535-dd31-4437-bfe1-95340acd55c6' is denied.`));
+    await assert.rejects(command.action(logger, {
+      options: {
+        name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c6'
+      }
+    }), new CommandError(`Access to the environment 'Default-d87a7535-dd31-4437-bfe1-95340acd55c6' is denied.`));
   });
 
   it('correctly handles API OData error', async () => {
@@ -127,7 +170,10 @@ describe(commands.ENVIRONMENT_GET, () => {
       }
     });
 
-    await assert.rejects(command.action(logger, { options: { name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c5' } } as any),
-      new CommandError('An error has occurred'));
+    await assert.rejects(command.action(logger, {
+      options: {
+        name: 'Default-d87a7535-dd31-4437-bfe1-95340acd55c5'
+      }
+    }), new CommandError('An error has occurred'));
   });
 });

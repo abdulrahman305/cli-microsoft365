@@ -2,7 +2,8 @@ import { cli } from '../../../../cli/cli.js';
 import { Logger } from '../../../../cli/Logger.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request, { CliRequestOptions } from '../../../../request.js';
-import DelegatedGraphCommand from '../../../base/DelegatedGraphCommand.js';
+import { formatting } from '../../../../utils/formatting.js';
+import GraphDelegatedCommand from '../../../base/GraphDelegatedCommand.js';
 import commands from '../../commands.js';
 
 interface CommandArgs {
@@ -16,7 +17,7 @@ interface Options extends GlobalOptions {
   force?: boolean;
 }
 
-class TodoTaskRemoveCommand extends DelegatedGraphCommand {
+class TodoTaskRemoveCommand extends GraphDelegatedCommand {
   public get name(): string {
     return commands.TASK_REMOVE;
   }
@@ -81,7 +82,7 @@ class TodoTaskRemoveCommand extends DelegatedGraphCommand {
     if (options.listName) {
       // Search list by its name
       const requestOptions: CliRequestOptions = {
-        url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${escape(options.listName)}'`,
+        url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${formatting.encodeQueryParameter(options.listName)}'`,
         headers: {
           accept: "application/json;odata.metadata=none"
         },

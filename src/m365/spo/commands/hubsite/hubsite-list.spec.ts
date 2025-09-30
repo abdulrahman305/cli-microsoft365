@@ -18,7 +18,7 @@ describe(commands.HUBSITE_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -238,6 +238,13 @@ describe(commands.HUBSITE_LIST, () => {
     ]));
   });
 
+  it('correctly handles OData error when retrieving hub sites', async () => {
+    sinon.stub(request, 'get').rejects({ error: { 'odata.error': { message: { value: 'An error has occurred' } } } });
+
+    await assert.rejects(command.action(logger, { options: {} } as any),
+      new CommandError('An error has occurred'));
+  });
+
   it('correctly retrieves the associated sites in batches', async () => {
     // Cast the command class instance to any so we can set the private
     // property 'batchSize' to a small number for easier testing
@@ -246,6 +253,7 @@ describe(commands.HUBSITE_LIST, () => {
     let firstPagedRequest: boolean = false;
     let secondPagedRequest: boolean = false;
     let thirdPagedRequest: boolean = false;
+
     sinon.stub(request, 'get').resolves({
       value: [
         {
@@ -270,6 +278,7 @@ describe(commands.HUBSITE_LIST, () => {
         }
       ]
     });
+
     sinon.stub(request, 'post').callsFake(async (opts) => {
       if ((opts.url as string).indexOf(`/_api/web/lists/GetByTitle('DO_NOT_DELETE_SPLIST_TENANTADMIN_AGGREGATED_SITECOLLECTIONS')/RenderListDataAsStream`) > -1
         && opts.data.parameters.ViewXml.indexOf('<RowLimit Paged="TRUE">' + newBatchSize + '</RowLimit>') > -1) {
@@ -287,6 +296,7 @@ describe(commands.HUBSITE_LIST, () => {
             RowLimit: 3
           };
         }
+
         if ((opts.url as string).indexOf('?Paged=TRUE&p_Title=Another%20Hub%20Sub%202&p_ID=32&PageFirstRow=4&View=00000000-0000-0000-0000-00000000000') > -1) {
           secondPagedRequest = true;
           return {
@@ -302,6 +312,7 @@ describe(commands.HUBSITE_LIST, () => {
             RowLimit: 3
           };
         }
+
         if ((opts.url as string).indexOf('?Paged=TRUE&p_Title=Hub%20sub%204&p_ID=29&PageFirstRow=7&View=00000000-0000-0000-0000-00000000000') > -1) {
           thirdPagedRequest = true;
           return {
@@ -320,7 +331,8 @@ describe(commands.HUBSITE_LIST, () => {
       }
       throw 'Invalid request';
     });
-    await command.action(logger, { options: { includeAssociatedSites: true, output: 'json' } });
+
+    await command.action(logger, { options: { withAssociatedSites: true, output: 'json' } });
     assert.strictEqual((firstPagedRequest && secondPagedRequest && thirdPagedRequest), true);
   });
 
@@ -406,7 +418,7 @@ describe(commands.HUBSITE_LIST, () => {
       }
       throw 'Invalid request';
     });
-    await command.action(logger, { options: { debug: true, includeAssociatedSites: true, output: 'json' } });
+    await command.action(logger, { options: { debug: true, withAssociatedSites: true, output: 'json' } });
     assert.strictEqual((firstPagedRequest && secondPagedRequest && thirdPagedRequest), true);
   });
 
@@ -549,7 +561,7 @@ describe(commands.HUBSITE_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { includeAssociatedSites: true, output: 'json' } });
+    await command.action(logger, { options: { withAssociatedSites: true, output: 'json' } });
     assert.strictEqual(JSON.stringify(log[0]), JSON.stringify([
       {
         "Description": null,
@@ -648,15 +660,8 @@ describe(commands.HUBSITE_LIST, () => {
       }
       throw 'Invalid request';
     });
-    await command.action(logger, { options: { debug: true, includeAssociatedSites: true } });
+    await command.action(logger, { options: { debug: true, withAssociatedSites: true } });
     assert.strictEqual(firstPagedRequest, true);
-  });
-
-  it('correctly handles OData error when retrieving hub sites', async () => {
-    sinon.stub(request, 'get').rejects({ error: { 'odata.error': { message: { value: 'An error has occurred' } } } });
-
-    await assert.rejects(command.action(logger, { options: {} } as any),
-      new CommandError('An error has occurred'));
   });
 
   it('correctly handles error in the first batch of associated sites', async () => {
@@ -702,7 +707,7 @@ describe(commands.HUBSITE_LIST, () => {
 
     sinon.stub(request, 'post').rejects(error);
 
-    await assert.rejects(command.action(logger, { options: { includeAssociatedSites: true, output: 'json' } } as any),
+    await assert.rejects(command.action(logger, { options: { withAssociatedSites: true, output: 'json' } } as any),
       new CommandError('An error has occurred'));
   });
 
@@ -771,7 +776,7 @@ describe(commands.HUBSITE_LIST, () => {
       }
       throw 'Invalid request';
     });
-    await assert.rejects(command.action(logger, { options: { debug: true, includeAssociatedSites: true, output: 'json' } } as any),
+    await assert.rejects(command.action(logger, { options: { debug: true, withAssociatedSites: true, output: 'json' } } as any),
       new CommandError('An error has occurred'));
   });
 });

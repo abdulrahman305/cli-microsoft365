@@ -9,7 +9,7 @@ interface CommandArgs {
 }
 
 interface Options extends GlobalOptions {
-  includeSuspended: boolean;
+  withSuspended?: boolean;
 }
 
 class VivaEngageNetworkListCommand extends VivaEngageCommand {
@@ -35,7 +35,7 @@ class VivaEngageNetworkListCommand extends VivaEngageCommand {
   #initTelemetry(): void {
     this.telemetry.push((args: CommandArgs) => {
       Object.assign(this.telemetryProperties, {
-        includeSuspended: args.options.includeSuspended
+        withSuspended: args.options.withSuspended
       });
     });
   }
@@ -43,7 +43,7 @@ class VivaEngageNetworkListCommand extends VivaEngageCommand {
   #initOptions(): void {
     this.options.unshift(
       {
-        option: '--includeSuspended'
+        option: '--withSuspended'
       }
     );
   }
@@ -57,7 +57,7 @@ class VivaEngageNetworkListCommand extends VivaEngageCommand {
       },
       responseType: 'json',
       data: {
-        includeSuspended: args.options.includeSuspended !== undefined && args.options.includeSuspended !== false
+        includeSuspended: (args.options.withSuspended !== undefined && args.options.withSuspended !== false)
       }
     };
 

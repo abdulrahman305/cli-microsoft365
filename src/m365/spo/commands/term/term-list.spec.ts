@@ -397,7 +397,7 @@ describe(commands.TERM_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     sinon.stub(spo, 'getRequestDigest').resolves({
@@ -483,7 +483,7 @@ describe(commands.TERM_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { termSetId: termSetId, termGroupId: termGroupId, includeChildTerms: true } });
+    await command.action(logger, { options: { termSetId: termSetId, termGroupId: termGroupId, withChildTerms: true } });
     assert(loggerLogSpy.calledWith(csomChildResponseFormatted));
   });
 
@@ -508,7 +508,7 @@ describe(commands.TERM_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { termSetId: termSetId, termGroupId: termGroupId, includeChildTerms: true, output: 'text' } });
+    await command.action(logger, { options: { termSetId: termSetId, termGroupId: termGroupId, withChildTerms: true, output: 'text' } });
     assert(loggerLogSpy.calledWith(csomChildResponseFormattedText));
   });
 

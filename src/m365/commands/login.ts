@@ -50,15 +50,16 @@ class LoginCommand extends Command {
 
   public getRefinedSchema(schema: typeof options): z.ZodEffects<any> | undefined {
     return schema
-      .refine(options => typeof options.appId !== 'undefined' || cli.getConfig().get(settingsNames.clientId), {
-        message: `appId is required. TIP: use the "m365 setup" command to configure the default appId`
+      .refine(options => typeof options.appId !== 'undefined' || cli.getClientId() || options.authType === 'identity' || options.authType === 'federatedIdentity', {
+        message: `appId is required. TIP: use the "m365 setup" command to configure the default appId.`,
+        path: ['appId']
       })
       .refine(options => options.authType !== 'password' || options.userName, {
-        message: 'Username is required when using password authentication',
+        message: 'Username is required when using password authentication.',
         path: ['userName']
       })
       .refine(options => options.authType !== 'password' || options.password, {
-        message: 'Password is required when using password authentication',
+        message: 'Password is required when using password authentication.',
         path: ['password']
       })
       .refine(options => options.authType !== 'certificate' || !(options.certificateFile && options.certificateBase64Encoded), {
@@ -70,13 +71,13 @@ class LoginCommand extends Command {
         options.certificateBase64Encoded ||
         cli.getConfig().get(settingsNames.clientCertificateFile) ||
         cli.getConfig().get(settingsNames.clientCertificateBase64Encoded), {
-        message: 'Specify either certificateFile or certificateBase64Encoded',
+        message: 'Specify either certificateFile or certificateBase64Encoded.',
         path: ['certificateFile']
       })
       .refine(options => options.authType !== 'secret' ||
         options.secret ||
         cli.getConfig().get(settingsNames.clientSecret), {
-        message: 'Secret is required when using secret authentication',
+        message: 'Secret is required when using secret authentication.',
         path: ['secret']
       });
   }
@@ -218,6 +219,9 @@ class LoginCommand extends Command {
       case 'identity':
         auth.connection.authType = AuthType.Identity;
         auth.connection.userName = args.options.userName;
+        break;
+      case 'federatedIdentity':
+        auth.connection.authType = AuthType.FederatedIdentity;
         break;
       case 'browser':
         auth.connection.authType = AuthType.Browser;

@@ -29,22 +29,20 @@ const config: Config = {
     mdx1Compat: {
       comments: false,
       admonitions: false,
-      headingIds: true
+      headingIds: false
     }
   },
 
-  customFields: {
-    mendableAnonKey: 'd3313d54-6f8e-40e0-90d3-4095019d4be7'
+  future: {
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+      useCssCascadeLayers: true
+    },
+    experimental_faster: true
   },
 
   plugins: [
     'docusaurus-plugin-sass',
-    [
-      'docusaurus-node-polyfills',
-      {
-        excludeAliases: ['console']
-      }
-    ],
     [
       'client-redirects',
       {

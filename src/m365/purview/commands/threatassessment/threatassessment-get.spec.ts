@@ -53,7 +53,7 @@ describe(commands.THREATASSESSMENT_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -102,8 +102,8 @@ describe(commands.THREATASSESSMENT_GET, () => {
     assert.notStrictEqual(actual, true);
   });
 
-  it('passes validation if a correct id is entered and includeResults is specified', async () => {
-    const actual = await command.validate({ options: { id: threatAssessmentId, includeResults: true } }, commandInfo);
+  it('passes validation if a correct id is entered and withResults is specified', async () => {
+    const actual = await command.validate({ options: { id: threatAssessmentId, withResults: true } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 
@@ -129,7 +129,7 @@ describe(commands.THREATASSESSMENT_GET, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { id: threatAssessmentId, includeResults: true, verbose: true } });
+    await command.action(logger, { options: { id: threatAssessmentId, withResults: true, verbose: true } });
     assert(loggerLogSpy.calledWith(threatAssessmentGetResponseIncludingResults));
   });
 

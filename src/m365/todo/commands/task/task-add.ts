@@ -1,8 +1,9 @@
 import { Logger } from '../../../../cli/Logger.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request, { CliRequestOptions } from '../../../../request.js';
+import { formatting } from '../../../../utils/formatting.js';
 import { validation } from '../../../../utils/validation.js';
-import DelegatedGraphCommand from '../../../base/DelegatedGraphCommand.js';
+import GraphDelegatedCommand from '../../../base/GraphDelegatedCommand.js';
 import commands from '../../commands.js';
 
 interface CommandArgs {
@@ -24,7 +25,7 @@ interface Options extends GlobalOptions {
   status?: string;
 }
 
-class TodoTaskAddCommand extends DelegatedGraphCommand {
+class TodoTaskAddCommand extends GraphDelegatedCommand {
   private static readonly allowedStatuses: string[] = ['notStarted', 'inProgress', 'completed', 'waitingOnOthers', 'deferred'];
 
   public get name(): string {
@@ -206,7 +207,7 @@ class TodoTaskAddCommand extends DelegatedGraphCommand {
     }
 
     const requestOptions: any = {
-      url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${escape(args.options.listName as string)}'`,
+      url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${formatting.encodeQueryParameter(args.options.listName!)}'`,
       headers: {
         accept: 'application/json;odata.metadata=none'
       },

@@ -1,6 +1,8 @@
 import assert from 'assert';
 import sinon from 'sinon';
+import { z } from 'zod';
 import auth from '../../../../Auth.js';
+import { CommandInfo } from '../../../../cli/CommandInfo.js';
 import { Logger } from '../../../../cli/Logger.js';
 import { CommandError } from '../../../../Command.js';
 import request from '../../../../request.js';
@@ -8,6 +10,7 @@ import { telemetry } from '../../../../telemetry.js';
 import { pid } from '../../../../utils/pid.js';
 import { session } from '../../../../utils/session.js';
 import { sinonUtil } from '../../../../utils/sinonUtil.js';
+import { cli } from '../../../../cli/cli.js';
 import commands from '../../commands.js';
 import command from './administrativeunit-list.js';
 
@@ -15,13 +18,17 @@ describe(commands.ADMINISTRATIVEUNIT_LIST, () => {
   let log: string[];
   let logger: Logger;
   let loggerLogSpy: sinon.SinonSpy;
+  let commandInfo: CommandInfo;
+  let commandOptionsSchema: z.ZodTypeAny;
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
+    commandInfo = cli.getCommandInfo(command);
+    commandOptionsSchema = commandInfo.command.getSchemaToParse()!;
   });
 
   beforeEach(() => {
@@ -85,9 +92,7 @@ describe(commands.ADMINISTRATIVEUNIT_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, {
-      options: {}
-    });
+    await command.action(logger, { options: commandOptionsSchema.parse({}) });
 
     assert(
       loggerLogSpy.calledWith([
@@ -105,6 +110,42 @@ describe(commands.ADMINISTRATIVEUNIT_LIST, () => {
     );
   });
 
+  it(`should get a list of administrative units with specified properties`, async () => {
+    sinon.stub(request, 'get').callsFake(async (opts) => {
+      if (opts.url === `https://graph.microsoft.com/v1.0/directory/administrativeUnits?$select=id,displayName`) {
+        return {
+          value: [
+            {
+              id: 'fc33aa61-cf0e-46b6-9506-f633347202ab',
+              displayName: 'European Division'
+            },
+            {
+              id: 'a25b4c5e-e8b7-4f02-a23d-0965b6415098',
+              displayName: 'Asian Division'
+            }
+          ]
+        };
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, { options: commandOptionsSchema.parse({ properties: 'id,displayName' }) });
+
+    assert(
+      loggerLogSpy.calledWith([
+        {
+          id: 'fc33aa61-cf0e-46b6-9506-f633347202ab',
+          displayName: 'European Division'
+        },
+        {
+          id: 'a25b4c5e-e8b7-4f02-a23d-0965b6415098',
+          displayName: 'Asian Division'
+        }
+      ])
+    );
+  });
+
   it('handles error when retrieving administrative units list failed', async () => {
     sinon.stub(request, 'get').callsFake(async (opts) => {
       if (opts.url === `https://graph.microsoft.com/v1.0/directory/administrativeUnits`) {
@@ -114,7 +155,7 @@ describe(commands.ADMINISTRATIVEUNIT_LIST, () => {
     });
 
     await assert.rejects(
-      command.action(logger, { options: {} } as any),
+      command.action(logger, { options: commandOptionsSchema.parse({}) }),
       new CommandError('An error has occurred')
     );
   });

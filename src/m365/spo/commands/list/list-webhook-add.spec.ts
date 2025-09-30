@@ -22,7 +22,7 @@ describe(commands.LIST_WEBHOOK_ADD, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -383,7 +383,7 @@ describe(commands.LIST_WEBHOOK_ADD, () => {
     const currentDate: Date = new Date();
     currentDate.setMonth(currentDate.getMonth() + 4);
     currentDate.setDate(1);
-    const dateString: string = currentDate.toISOString().substr(0, 10);
+    const dateString: string = currentDate.toISOString().substring(0, 10);
 
     const actual = await command.validate({
       options:

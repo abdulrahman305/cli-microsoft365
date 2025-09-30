@@ -25,7 +25,7 @@ describe(commands.CHAT_MEMBER_ADD, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -122,7 +122,7 @@ describe(commands.CHAT_MEMBER_ADD, () => {
       visibleHistoryStartDateTime: '0001-01-01T00:00:00Z'
     };
 
-    await command.action(logger, { options: { chatId: chatId, userId: userId, includeAllHistory: true } });
+    await command.action(logger, { options: { chatId: chatId, userId: userId, withAllHistory: true } });
     assert.deepStrictEqual(postStub.lastCall.args[0].data, requestBody);
   });
 

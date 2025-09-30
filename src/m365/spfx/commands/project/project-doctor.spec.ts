@@ -27,6 +27,7 @@ describe(commands.PROJECT_DOCTOR, () => {
   before(() => {
     trackEvent = sinon.stub(telemetry, 'trackEvent').callsFake((commandName) => {
       telemetryCommandName = commandName;
+      return Promise.resolve();
     });
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
@@ -578,6 +579,22 @@ describe(commands.PROJECT_DOCTOR, () => {
 
   it('e2e: shows correct number of findings for a valid 1.20.0 project', async () => {
     sinon.stub(command as any, 'getProjectRoot').callsFake(_ => path.join(process.cwd(), 'src/m365/spfx/commands/project/test-projects/spfx-1200-webpart-react'));
+
+    await command.action(logger, { options: {} } as any);
+    const findings: FindingToReport[] = log[0];
+    assert.strictEqual(findings.length, 0);
+  });
+
+  it('e2e: shows correct number of findings for a valid 1.21.0 project', async () => {
+    sinon.stub(command as any, 'getProjectRoot').callsFake(_ => path.join(process.cwd(), 'src/m365/spfx/commands/project/test-projects/spfx-1210-webpart-react'));
+
+    await command.action(logger, { options: {} } as any);
+    const findings: FindingToReport[] = log[0];
+    assert.strictEqual(findings.length, 0);
+  });
+
+  it('e2e: shows correct number of findings for a valid 1.22.0-beta.1 project', async () => {
+    sinon.stub(command as any, 'getProjectRoot').callsFake(_ => path.join(process.cwd(), 'src/m365/spfx/commands/project/test-projects/spfx-1220-beta.1-webpart-react'));
 
     await command.action(logger, { options: {} } as any);
     const findings: FindingToReport[] = log[0];

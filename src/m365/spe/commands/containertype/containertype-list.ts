@@ -1,63 +1,36 @@
 import { Logger } from '../../../../cli/Logger.js';
-import config from '../../../../config.js';
-import request, { CliRequestOptions } from '../../../../request.js';
-import { ClientSvcResponse, ClientSvcResponseContents, FormDigestInfo, spo } from '../../../../utils/spo.js';
-import SpoCommand from '../../../base/SpoCommand.js';
 import commands from '../../commands.js';
-import { ContainerTypeProperties } from '../../ContainerTypeProperties.js';
+import GraphDelegatedCommand from '../../../base/GraphDelegatedCommand.js';
+import { odata } from '../../../../utils/odata.js';
 
-class SpeContainertypeListCommand extends SpoCommand {
+class SpeContainerTypeListCommand extends GraphDelegatedCommand {
 
   public get name(): string {
     return commands.CONTAINERTYPE_LIST;
   }
 
   public get description(): string {
-    return 'Lists all Container Types';
+    return 'Lists all container types';
   }
 
   public defaultProperties(): string[] | undefined {
-    return ['ContainerTypeId', 'DisplayName', 'OwningAppId'];
+    return ['id', 'name', 'owningAppId'];
   }
 
   public async commandAction(logger: Logger): Promise<void> {
     try {
-      const spoAdminUrl = await spo.getSpoAdminUrl(logger, this.debug);
-
       if (this.verbose) {
         await logger.logToStderr(`Retrieving list of Container types...`);
       }
 
-      const allContainerTypes = await this.getAllContainerTypes(spoAdminUrl, logger);
-      await logger.log(allContainerTypes);
+      const containerTypes = await odata.getAllItems<any>(`${this.resource}/beta/storage/fileStorage/containerTypes`);
+
+      await logger.log(containerTypes);
     }
     catch (err: any) {
-      this.handleRejectedPromise(err);
+      this.handleRejectedODataJsonPromise(err);
     }
-  }
-
-  private async getAllContainerTypes(spoAdminUrl: string, logger: Logger): Promise<ContainerTypeProperties[]> {
-    const formDigestInfo: FormDigestInfo = await spo.ensureFormDigest(spoAdminUrl, logger, undefined, this.debug);
-
-    const requestOptions: CliRequestOptions = {
-      url: `${spoAdminUrl}/_vti_bin/client.svc/ProcessQuery`,
-      headers: {
-        'X-RequestDigest': formDigestInfo.FormDigestValue
-      },
-      data: `<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="16.0.0.0" ApplicationName="${config.applicationName}" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009"><Actions><ObjectPath Id="46" ObjectPathId="45" /><Method Name="GetSPOContainerTypes" Id="47" ObjectPathId="45"><Parameters><Parameter Type="Enum">1</Parameter></Parameters></Method></Actions><ObjectPaths><Constructor Id="45" TypeId="{268004ae-ef6b-4e9b-8425-127220d84719}" /></ObjectPaths></Request>`
-    };
-
-    const res: string = await request.post(requestOptions);
-    const json: ClientSvcResponse = JSON.parse(res);
-    const response: ClientSvcResponseContents = json[0];
-
-    if (response.ErrorInfo) {
-      throw response.ErrorInfo.ErrorMessage;
-    }
-
-    const containerTypes: ContainerTypeProperties[] = json[json.length - 1];
-    return containerTypes;
   }
 }
 
-export default new SpeContainertypeListCommand();
+export default new SpeContainerTypeListCommand();

@@ -1,17 +1,18 @@
 import { AzureCloudInstance, DeviceCodeResponse } from '@azure/msal-common';
-import type * as Msal from '@azure/msal-node';
+import * as Msal from '@azure/msal-node';
 import assert from 'assert';
 import type clipboard from 'clipboardy';
 import type NodeForge from 'node-forge';
 import type { AuthServer } from './AuthServer.js';
 import { CommandError } from './Command.js';
 import { FileTokenStorage } from './auth/FileTokenStorage.js';
+import { MsalNetworkClient } from './auth/MsalNetworkClient.js';
 import { TokenStorage } from './auth/TokenStorage.js';
 import { msalCachePlugin } from './auth/msalCachePlugin.js';
 import { Logger } from './cli/Logger.js';
 import { cli } from './cli/cli.js';
 import { ConnectionDetails } from './m365/commands/ConnectionDetails.js';
-import request from './request.js';
+import request, { CliRequestOptions } from './request.js';
 import { settingsNames } from './settingsNames.js';
 import * as accessTokenUtil from './utils/accessToken.js';
 import { browserUtil } from './utils/browserUtil.js';
@@ -104,6 +105,7 @@ export enum AuthType {
   Password = 'password',
   Certificate = 'certificate',
   Identity = 'identity',
+  FederatedIdentity = 'federatedIdentity',
   Browser = 'browser',
   Secret = 'secret'
 }
@@ -157,25 +159,21 @@ export class Auth {
   public static initialize(): void {
     this.cloudEndpoints[CloudType.USGov] = {
       'https://graph.microsoft.com': 'https://graph.microsoft.com',
-      'https://graph.windows.net': 'https://graph.windows.net',
       'https://management.azure.com/': 'https://management.usgovcloudapi.net/',
       'https://login.microsoftonline.com': 'https://login.microsoftonline.com'
     };
     this.cloudEndpoints[CloudType.USGovHigh] = {
       'https://graph.microsoft.com': 'https://graph.microsoft.us',
-      'https://graph.windows.net': 'https://graph.windows.net',
       'https://management.azure.com/': 'https://management.usgovcloudapi.net/',
       'https://login.microsoftonline.com': 'https://login.microsoftonline.us'
     };
     this.cloudEndpoints[CloudType.USGovDoD] = {
       'https://graph.microsoft.com': 'https://dod-graph.microsoft.us',
-      'https://graph.windows.net': 'https://graph.windows.net',
       'https://management.azure.com/': 'https://management.usgovcloudapi.net/',
       'https://login.microsoftonline.com': 'https://login.microsoftonline.us'
     };
     this.cloudEndpoints[CloudType.China] = {
       'https://graph.microsoft.com': 'https://microsoftgraph.chinacloudapi.cn',
-      'https://graph.windows.net': 'https://graph.chinacloudapi.cn',
       'https://management.azure.com/': 'https://management.chinacloudapi.cn',
       'https://login.microsoftonline.com': 'https://login.chinacloudapi.cn'
     };
@@ -229,7 +227,8 @@ export class Auth {
     // wasn't specified
     if (this.connection.authType !== AuthType.Certificate &&
       this.connection.authType !== AuthType.Secret &&
-      this.connection.authType !== AuthType.Identity) {
+      this.connection.authType !== AuthType.Identity &&
+      this.connection.authType !== AuthType.FederatedIdentity) {
       this.clientApplication = await this.getPublicClient(logger, debug);
       if (this.clientApplication) {
         const accounts = await this.clientApplication.getTokenCache().getAllAccounts();
@@ -253,6 +252,9 @@ export class Auth {
           break;
         case AuthType.Identity:
           getTokenPromise = this.ensureAccessTokenWithIdentity.bind(this);
+          break;
+        case AuthType.FederatedIdentity:
+          getTokenPromise = this.ensureAccessTokenWithFederatedIdentity.bind(this);
           break;
         case AuthType.Browser:
           getTokenPromise = this.ensureAccessTokenWithBrowser.bind(this);
@@ -354,7 +356,7 @@ export class Auth {
           piiLoggingEnabled: false,
           logLevel: debug ? LogLevel.Verbose : LogLevel.Error
         },
-        proxyUrl: process.env.HTTP_PROXY || process.env.HTTPS_PROXY
+        networkClient: new MsalNetworkClient()
       }
     };
   }
@@ -697,6 +699,142 @@ export class Auth {
     }
   }
 
+  private async ensureAccessTokenWithFederatedIdentity(resource: string, logger: Logger, debug: boolean): Promise<AccessToken | null> {
+    if (debug) {
+      await logger.logToStderr('Trying to retrieve access token using federated identity...');
+    }
+
+    if (process.env.ACTIONS_ID_TOKEN_REQUEST_URL && process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN) {
+      if (debug) {
+        await logger.logToStderr('ACTIONS_ID_TOKEN_REQUEST_URL and ACTIONS_ID_TOKEN_REQUEST_TOKEN env variables found. The context is GitHub Actions...');
+      }
+
+      const federationToken = await this.getFederationTokenFromGithub(logger, debug);
+      return this.getAccessTokenWithFederatedToken(resource, federationToken, logger, debug);
+    }
+    else if (process.env.SYSTEM_OIDCREQUESTURI) {
+      if (debug) {
+        await logger.logToStderr('SYSTEM_OIDCREQUESTURI env variable found. The context is Azure DevOps...');
+      }
+
+      if (!process.env.SYSTEM_ACCESSTOKEN) {
+        throw new CommandError(`The SYSTEM_ACCESSTOKEN environment variable is not available. Please check the Azure DevOps pipeline task configuration. It should contain 'SYSTEM_ACCESSTOKEN: $(System.AccessToken)' in the env section.`);
+      }
+
+      const serviceConnectionId = process.env.AZURESUBSCRIPTION_SERVICE_CONNECTION_ID;
+      const serviceConnectionAppId = process.env.AZURESUBSCRIPTION_CLIENT_ID;
+      const serviceConnectionTenantId = process.env.AZURESUBSCRIPTION_TENANT_ID;
+      const useServiceConnection = serviceConnectionId && serviceConnectionAppId && serviceConnectionTenantId;
+
+      if (!useServiceConnection) {
+        if (debug) {
+          await logger.logToStderr('Not using a service connection. Run this command in an AzurePowerShell task to be able to use a service connection.');
+        }
+
+        if (!this.connection.appId || this.connection.tenant === 'common') {
+          throw new CommandError('The appId and tenant parameters are required when not using a service connection.');
+        }
+      }
+      else {
+        if (debug) {
+          if (this.connection.appId || this.connection.tenant !== 'common') {
+            await logger.logToStderr('When using a service connection, the appId and tenant values are updated to the values of the service connection.');
+          }
+
+          await logger.logToStderr(`Using service connection '${serviceConnectionId}' with app Id '${serviceConnectionAppId}' and tenant Id '${serviceConnectionTenantId}'...`);
+        }
+
+        this.connection.appId = serviceConnectionAppId;
+        this.connection.tenant = serviceConnectionTenantId;
+      }
+
+      const federationToken = await this.getFederationTokenFromAzureDevOps(logger, debug, serviceConnectionId);
+
+      return this.getAccessTokenWithFederatedToken(resource, federationToken, logger, debug);
+    }
+    else {
+      throw new CommandError('Federated identity is currently only supported in GitHub Actions and Azure DevOps.');
+    }
+  }
+
+  private async getFederationTokenFromGithub(logger: Logger, debug: boolean): Promise<string> {
+    if (debug) {
+      await logger.logToStderr('Retrieving GitHub federation token...');
+    }
+
+    const requestOptions: CliRequestOptions = {
+      url: `${process.env.ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${encodeURIComponent('api://AzureADTokenExchange')}`,
+      headers: {
+        Authorization: `Bearer ${process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN}`,
+        Accept: 'application/json',
+        'x-anonymous': true
+      },
+      responseType: 'json'
+    };
+
+    const accessTokenResponse = await request.get<{ value: string }>(requestOptions);
+
+    return accessTokenResponse.value;
+  }
+
+  private async getFederationTokenFromAzureDevOps(logger: Logger, debug: boolean, serviceConnectionId?: string | undefined): Promise<string> {
+    if (debug) {
+      await logger.logToStderr('Retrieving Azure DevOps federation token...');
+    }
+
+    const urlSuffix = serviceConnectionId ? `&serviceConnectionId=${serviceConnectionId}` : '';
+
+    const requestOptions: CliRequestOptions = {
+      url: `${process.env.SYSTEM_OIDCREQUESTURI}?api-version=7.1${urlSuffix}`,
+      headers: {
+        Authorization: `Bearer ${process.env.SYSTEM_ACCESSTOKEN}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-anonymous': true
+      },
+      responseType: 'json'
+    };
+
+    const accessTokenResponse = await request.post<{ oidcToken: string }>(requestOptions);
+
+    return accessTokenResponse.oidcToken;
+  }
+
+  private async getAccessTokenWithFederatedToken(resource: string, federatedToken: string, logger: Logger, debug: boolean): Promise<AccessToken | null> {
+    if (debug) {
+      await logger.logToStderr('Retrieving Entra ID Access Token with federated token...');
+    }
+
+    const queryParams = [
+      'grant_type=client_credentials',
+      `scope=${encodeURIComponent(`${resource}/.default`)}`,
+      `client_id=${this.connection.appId}`,
+      `client_assertion_type=${encodeURIComponent('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')}`,
+      `client_assertion=${federatedToken}`
+    ];
+
+    const requestOptions: CliRequestOptions = {
+      url: `https://login.microsoftonline.com/${this.connection.tenant}/oauth2/v2.0/token`,
+      headers: {
+        accept: 'application/json',
+        'x-anonymous': true,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: queryParams.join('&'),
+      responseType: 'json'
+    };
+
+    const accessTokenResponse = await request.post<{ access_token: string; expires_in: string }>(requestOptions);
+
+    const expiresIn = parseInt(accessTokenResponse.expires_in) * 1000;
+    const now = new Date();
+
+    return {
+      accessToken: accessTokenResponse.access_token,
+      expiresOn: new Date(now.getTime() + expiresIn)
+    };
+  }
+
   private async ensureAccessTokenWithSecret(resource: string, logger: Logger, debug: boolean, fetchNew: boolean): Promise<AccessToken | null> {
     this.clientApplication = await this.getConfidentialClient(logger, debug, undefined, undefined, this.connection.secret);
     return (this.clientApplication as Msal.ConfidentialClientApplication).acquireTokenByClientCredential({
@@ -753,7 +891,10 @@ export class Auth {
     let allConnections = await this.getAllConnections();
 
     if (this.connection.active) {
-      allConnections = allConnections.filter(c => c.identityId !== this.connection.identityId);
+      allConnections = allConnections.filter(c =>
+        c.identityId !== this.connection.identityId ||
+        c.appId !== this.connection.appId ||
+        c.tenant !== this.connection.tenant);
       allConnections.forEach(c => c.active = false);
       allConnections = [{ ...this.connection as any }, ...allConnections];
     }
@@ -788,7 +929,8 @@ export class Auth {
     // When using an application identity, there is no account in the MSAL TokenCache
     if (this.connection.authType !== AuthType.Certificate &&
       this.connection.authType !== AuthType.Secret &&
-      this.connection.authType !== AuthType.Identity) {
+      this.connection.authType !== AuthType.Identity &&
+      this.connection.authType !== AuthType.FederatedIdentity) {
       this.clientApplication = await this.getPublicClient(logger, debug);
 
       if (this.clientApplication) {

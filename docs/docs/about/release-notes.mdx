@@ -1,8 +1,433 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Release notes
+
+## v11.0.0 (beta)
+
+### New commands
+
+**Outlook:**
+
+- [outlook mail searchfolder add](../cmd/outlook/mail/mail-searchfolder-add.mdx) - creates a new mail search folder in the user's mailbox [#6276](https://github.com/pnp/cli-microsoft365/issues/6276)
+
+**SharePoint:**
+
+- [spo file version keep](../cmd/spo/file/file-version-keep.mdx) - ensure that a specific file version will never expire [#6774](https://github.com/pnp/cli-microsoft365/issues/6774)
+
+**Entra ID:**
+
+- [entra roleassignment add](../cmd/entra/roleassignment/roleassignment-add.mdx) - assign a Entra ID role to a user and specify the scope for which the user has been granted access [#6563](https://github.com/pnp/cli-microsoft365/issues/6563)
+
+### Changes
+
+- added CLI for Microsoft 365 MCP server guide [#6817](https://github.com/pnp/cli-microsoft365/pull/6817)
+- fixed dependabot updates
+- added additional platform options to [entra app add](../cmd/entra/app/app-add.mdx) command [6570](https://github.com/pnp/cli-microsoft365/issues/6570)
+- added Copilot instructions
+- migrated 'entra administrativeunit list' to Zod. [6810](https://github.com/pnp/cli-microsoft365/issues/6810)
+- migrated 'entra administrative unit get' to Zod. [6809](https://github.com/pnp/cli-microsoft365/issues/6809)
+- migrated 'entra administrativeunit remove' to Zod. [6812](https://github.com/pnp/cli-microsoft365/issues/6812)
+- migrated 'entra administrativeunit add' to Zod. [6814](https://github.com/pnp/cli-microsoft365/issues/6814)
+- refactored how unknown options are configured for zod for some commands. [6889](https://github.com/pnp/cli-microsoft365/issues/6889)
+- restructured v11 upgrade guidance. [6887](https://github.com/pnp/cli-microsoft365/issues/6887)
+
+### ⚠️ Breaking changes
+
+ - updated [spo homesite set](../cmd/spo/homesite/homesite-set.mdx) command to work with multiple home sites [#6489](https://github.com/pnp/cli-microsoft365/issues/6489)
+ - ensured `list` commands always have an output [#6824](https://github.com/pnp/cli-microsoft365/issues/6824)
+ - updated `teams report` commands to return an array of items for `get` commands [#6739](https://github.com/pnp/cli-microsoft365/issues/6739)
+ - updated the default value of the `paged` option for [spo list view add](../cmd/spo/list/list-view-add.mdx) [#6741](https://github.com/pnp/cli-microsoft365/issues/6741)
+ - updated the way to retrieve default objects [#6545](https://github.com/pnp/cli-microsoft365/issues/6545)
+ - removed `viva engage group` commands [#6285](https://github.com/pnp/cli-microsoft365/issues/6285)
+ - removed deprecated commands [#6577](https://github.com/pnp/cli-microsoft365/issues/6577)
+ - removed `pp card` commands [#6852](https://github.com/pnp/cli-microsoft365/issues/6852)
+ - updated `spfx project upgrade` shell option to default `powershell` [#6769](https://github.com/pnp/cli-microsoft365/issues/6769)
+ - fixed `spo serviceprincipal grant list` API issue [#6757](https://github.com/pnp/cli-microsoft365/issues/6757)
+ - updated `spo homesite` options and output [#6731](https://github.com/pnp/cli-microsoft365/issues/6731)
+ - removed deprecated aliases [#6532](https://github.com/pnp/cli-microsoft365/issues/6532)
+ - removed deprecated options [#6481](https://github.com/pnp/cli-microsoft365/issues/6481)
+ - moved 'spo tenant site' commands to 'spo site' [#6879](https://github.com/pnp/cli-microsoft365/issues/6879)
+ - updated 'spe containertype' commands to use Graph [#6840](https://github.com/pnp/cli-microsoft365/issues/6840)
+ - updated 'spo homesite add' options [#6881](https://github.com/pnp/cli-microsoft365/issues/6881)
+
+## [v10.11.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.11.0)
+
+### New commands
+
+**CLI:**
+
+- [cli app add](../cmd/cli/app/app-add.mdx) - creates a new app registration to use for the CLI for Microsoft 365 [#6656](https://github.com/pnp/cli-microsoft365/issues/6656)
+
+**SharePoint Embedded:**
+
+- [spe container recyclebinitem restore](../cmd/spe/container/container-recyclebinitem-restore.mdx) - restores a deleted container [#6085](https://github.com/pnp/cli-microsoft365/issues/6085)
+
+**Teams:**
+
+- [teams callrecord list](../cmd/teams/callrecord/callrecord-list.mdx) - lists all Teams calls within the tenant [#6737](https://github.com/pnp/cli-microsoft365/issues/6737)
+
+**Viva:**
+
+- [viva engage role list](../cmd/viva/engage/engage-role-list.mdx) - lists all Viva Engage roles [#6796](https://github.com/pnp/cli-microsoft365/issues/6796)
+- [viva engage role member list](../cmd/viva/engage/engage-role-member-list.mdx) - lists all users assigned to a Viva Engage role [#6820](https://github.com/pnp/cli-microsoft365/issues/6820)
+
+### Changes
+
+- added Azure DevOps guidance and updates GitHub Actions guidance [#5879](https://github.com/pnp/cli-microsoft365/issues/5879)
+- added support for SPFx v1.22.0-beta.1 [#6765](https://github.com/pnp/cli-microsoft365/issues/6765)
+- added dependabot
+- enhanced docs to be v4 ready [#6800](https://github.com/pnp/cli-microsoft365/issues/6800)
+- enhanced app commands to use getAppRegistrationByAppName util [#6679](https://github.com/pnp/cli-microsoft365/issues/6679)
+- updated [spo serviceprincipal permissionrequest list](../cmd/spo/serviceprincipal/serviceprincipal-permissionrequest-list.mdx) command where the output was not consistent [#6788](https://github.com/pnp/cli-microsoft365/pull/6788)
+- updated [spo site appcatalog list](../cmd/spo/site/site-appcatalog-list.mdx) command with ability to ignore deleted sites [#6794](https://github.com/pnp/cli-microsoft365/pull/6794)
+- updated `spo page section` commands to support vertical sections [#6743](https://github.com/pnp/cli-microsoft365/pull/6743)
+- updated `spo tenant site unarchive` warning prompt [#6753](https://github.com/pnp/cli-microsoft365/pull/6753)
+- updated [spfx project doctor](../cmd/spfx/project/project-doctor.mdx) command to check the Typescript version of the project [#6716](https://github.com/pnp/cli-microsoft365/issues/6716)
+- updated [entra group member add](../cmd/entra/group/group-member-add.mdx) command to support adding subgroups [#6480](https://github.com/pnp/cli-microsoft365/issues/6480)
+- updated [spo file version list](../cmd/spo/file/file-version-list.mdx) and [spo file version get](../cmd/spo/file/file-version-get.mdx) response to include `ExpirationDate` property [#6773](https://github.com/pnp/cli-microsoft365/issues/6773)
+
+## [v10.10.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.10.0)
+
+### New commands
+
+**Entra ID:**
+
+- [entra organization set](../cmd/entra/organization/organization-set.mdx) - Updates info about the organization [#6581](https://github.com/pnp/cli-microsoft365/issues/6581)
+
+**SharePoint:**
+
+- [spo page control remove](../cmd/spo/page/page-control-remove.mdx) - removes a control from a modern page [#6770](https://github.com/pnp/cli-microsoft365/issues/6770)
+
+### Changes
+
+- added support for documenting minimal permissions [#6705](https://github.com/pnp/cli-microsoft365/pull/6705)
+- added minimal permissions to docs pages [#4399](https://github.com/pnp/cli-microsoft365/issues/4399)
+- enhanced `spo page` commands to use `spo.ts` util functions [#6621](https://github.com/pnp/cli-microsoft365/issues/6621)
+- enhanced [spo list view add](../cmd/spo/list/list-view-add.mdx) with extra types [#6735](https://github.com/pnp/cli-microsoft365/issues/6735)
+- updated [spo page section add](../cmd/spo/page/page-section-add.mdx) command with Flexible section [#6742](https://github.com/pnp/cli-microsoft365/issues/6742)
+- fixed setting sitelogo and sitethumbnail from another site [#6689](https://github.com/pnp/cli-microsoft365/issues/6689)
+- fixed docs styling [#6762](https://github.com/pnp/cli-microsoft365/issues/6762)
+- fixed app permission add fails when service principal not found [#6289](https://github.com/pnp/cli-microsoft365/issues/6289)
+- fixed bug where Zod validation errors display additional colons [#6789](https://github.com/pnp/cli-microsoft365/issues/6789)
+- fixed command [spo homesite remove](../cmd/spo/homesite/homesite-remove.mdx) to work with multiple home sites [#6491](https://github.com/pnp/cli-microsoft365/issues/6491)
+
+## [v10.9.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.9.0)
+
+### New commands
+
+**Viva:**
+
+- [viva engage community remove](../cmd/viva/engage/engage-community-remove.mdx) - removes a Viva Engage community [#6280](https://github.com/pnp/cli-microsoft365/issues/6280)
+
+### Changes
+
+- removed Node.JS 18 support [#6707](https://github.com/pnp/cli-microsoft365/pull/6707)
+- added Alpine 3.20 image to Dockerfile [#6648](https://github.com/pnp/cli-microsoft365/issues/6648)
+- fixed Docker image completion [#6718](https://github.com/pnp/cli-microsoft365/issues/6718)
+- removed links to GitHub wiki
+- fixed spo page commands to handle emphasis and vertical sections [#6708](https://github.com/pnp/cli-microsoft365/issues/6708)
+- aligned `--with` and `--include` options [#6574](https://github.com/pnp/cli-microsoft365/issues/6574)
+
+## [v10.8.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.8.0)
+
+### New commands
+
+**CLI:**
+
+- [cli app reconsent](../cmd/cli/app/app-reconsent.mdx) - reconsents all permission scopes used in CLI for Microsoft 365 [#6657](https://github.com/pnp/cli-microsoft365/issues/6657)
+
+**Entra ID:**
+
+- [entra organization list](../cmd/entra/organization/organization-list.mdx) - Retrieves a list of organizations [#6580](https://github.com/pnp/cli-microsoft365/issues/6580)
+
+**Microsoft Graph:**
+
+- [graph directoryextension list](../cmd/graph/directoryextension/directoryextension-list.mdx) - gets a list of directory extensions [#6615](https://github.com/pnp/cli-microsoft365/issues/6615)
+- [graph openextension set](../cmd/graph/openextension/openextension-set.mdx) - update an open extension for a specific resource [#6638](https://github.com/pnp/cli-microsoft365/issues/6638)
+
+**SharePoint Embedded:**
+
+- [spe container add](../cmd/spe/container/container-add.mdx) - creates a new SharePoint Embedded Container [#6081](https://github.com/pnp/cli-microsoft365/issues/6081)
+- [spe container remove](../cmd/spe/container/container-remove.mdx) - removes a SharePoint Embedded Container [#6084](https://github.com/pnp/cli-microsoft365/issues/6084)
+- [spe container permission list](../cmd/spe/container/container-permission-list.mdx) - lists permissions of a SharePoint Embedded Container [#6162](https://github.com/pnp/cli-microsoft365/issues/6162)
+- [spe container recyclebinitem list](../cmd/spe/container/container-recyclebinitem-list.mdx) - lists deleted containers of a specific SharePoint embedded Container Type [#6156](https://github.com/pnp/cli-microsoft365/issues/6156)
+- [spe containertype remove](../cmd/spe/containertype/containertype-remove.mdx) - removes a SharePoint Embedded Container Type [#5992](https://github.com/pnp/cli-microsoft365/issues/5992)
+
+**SharePoint Premium:**
+
+- [spp model apply](../cmd/spp/model/model-apply.mdx) - applies (or syncs) a trained document understanding model to a document library [#6119](https://github.com/pnp/cli-microsoft365/issues/6119)
+
+### Changes
+
+- refactored [teams app install](../cmd/teams/app/app-install.mdx) to use util [#5314](https://github.com/pnp/cli-microsoft365/issues/5314)
+- refactored [spo site set](../cmd/spo/site/site-set.mdx) to use util [#5306](https://github.com/pnp/cli-microsoft365/issues/5306)
+- refactored [viva connections app create](../cmd/viva/connections/connections-app-create.mdx) to use util [#5324](https://github.com/pnp/cli-microsoft365/issues/5324)
+- added login through federated identity for Azure Devops [#6649](https://github.com/pnp/cli-microsoft365/issues/6649)
+- fixed setup command app creation [#6720](https://github.com/pnp/cli-microsoft365/issues/6720)
+- fixed problem with [spo page section add](../cmd/spo/page/page-section-add.mdx) command [#6701](https://github.com/pnp/cli-microsoft365/issues/6701)
+- migrated 'adaptivecard send' to Zod
+- migrated 'app' commands to Zod
+- migrated 'booking business get' to Zod
+- migrated 'context remove' to Zod
+- migrated 'context option remove' to Zod
+- enhanced [spo list get](../cmd/spo/list/list-get.mdx) command with ability to get the default list of a site [#5856](https://github.com/pnp/cli-microsoft365/issues/5856)
+- added documentation about [handling errors in PowerShell](../user-guide/using-cli.mdx#handling-errors-in-powershell) [#6664](https://github.com/pnp/cli-microsoft365/pull/6664)
+
+## [v10.7.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.7.0)
+
+### Changes
+
+- added support for SPFx 1.21.1 [#6710](https://github.com/pnp/cli-microsoft365/issues/6710)
+
+## [v10.6.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.6.0)
+
+### New commands
+
+**Entra ID:**
+
+- [entra group member remove](../cmd/entra/group/group-member-remove.mdx) - removes members from a Microsoft Entra group [#5472](https://github.com/pnp/cli-microsoft365/issues/5472)
+
+**Microsoft Graph:**
+
+- [graph openextension add](../cmd/graph/openextension/openextension-add.mdx) - creates a new open extension for a specific resource [#6627](https://github.com/pnp/cli-microsoft365/issues/6627)
+- [graph openextension get](../cmd/graph/openextension/openextension-get.mdx) - retrieve an open extension for a specific resource [#6636](https://github.com/pnp/cli-microsoft365/issues/6636)
+- [graph openextension list](../cmd/graph/openextension/openextension-list.mdx) - retrieves open extensions for a specific resource [#6635](https://github.com/pnp/cli-microsoft365/issues/6635)
+- [graph openextension remove](../cmd/graph/openextension/openextension-remove.mdx) - removes a specific open extension for a specific resource [#6637](https://github.com/pnp/cli-microsoft365/issues/6637)
+
+### Changes
+
+- fixed 'graph directoryextension get' examples [#6658](https://github.com/pnp/cli-microsoft365/issues/6658)
+- added unknown options for entra group/app/administrativeunit commands [#6314](https://github.com/pnp/cli-microsoft365/issues/6314)
+- refactored app commands to use getAppRegistrationByAppId util [#5234](https://github.com/pnp/cli-microsoft365/issues/5234)
+- refactored 'spo web roleassignment add' to use util [#5310](https://github.com/pnp/cli-microsoft365/issues/5310)
+- refactored 'spo web roleassignment remove' to use util [#5312](https://github.com/pnp/cli-microsoft365/issues/5312)
+- refactored 'spo folder roleassignment add' to use util [#5282](https://github.com/pnp/cli-microsoft365/issues/5282)
+- refactored 'spo folder roleassignment remove' to use util [#5284](https://github.com/pnp/cli-microsoft365/issues/5284)
+- refactored 'spo listitem roleassignment remove' to use util [#5296](https://github.com/pnp/cli-microsoft365/issues/5296)
+- refactored 'spo listitem roleassignment add' to use util [#5294](https://github.com/pnp/cli-microsoft365/issues/5294)
+- refactored 'pp card get' to use util [#6673](https://github.com/pnp/cli-microsoft365/issues/6673)
+- refactored 'pp card remove' to use util [#5244](https://github.com/pnp/cli-microsoft365/issues/5244)
+- refactored 'pp card clone' to use util [#5242](https://github.com/pnp/cli-microsoft365/issues/5242)
+- refactored 'pp solution publish' to use util [#5248](https://github.com/pnp/cli-microsoft365/issues/5248)
+- refactored 'pp solution remove' to use util [#5252](https://github.com/pnp/cli-microsoft365/issues/5252)
+- refactored 'pp solution get' to use util
+- added a new sample 'search parent flows' [#6624](https://github.com/pnp/cli-microsoft365/issues/6624)
+- updated project & docs dependencies
+- updated 'entra policy list' with latest supported policy types. [#6633](https://github.com/pnp/cli-microsoft365/issues/6633)
+- added option 'decoded' to 'accesstoken get' [#6651](https://github.com/pnp/cli-microsoft365/issues/6651)
+- fixed getting access token behind a proxy [#6290](https://github.com/pnp/cli-microsoft365/issues/6290)
+- fixed undefined in verbose logs [#6619](https://github.com/pnp/cli-microsoft365/issues/6619)
+- removed option '--outputFile' from 'spfx project upgrade' in docs [#6662](https://github.com/pnp/cli-microsoft365/issues/6662)
+- included stack trace in errors [#5660](https://github.com/pnp/cli-microsoft365/issues/5660)
+- added support for SPFx 1.21.0 [#6672](https://github.com/pnp/cli-microsoft365/issues/6672)
+- fixed bug in handling exit (Ctrl + c) gracefully [#6097](https://github.com/pnp/cli-microsoft365/issues/6097)
+- updated node version handling in ci cd commands [#6242](https://github.com/pnp/cli-microsoft365/issues/6242)
+- fixed Login fails with error: Network request failed [#6692](https://github.com/pnp/cli-microsoft365/issues/6692)
+
+## [v10.5.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.5.0)
+
+### New commands
+
+**Microsoft Graph:**
+
+- [graph directoryextension add](../cmd/graph/directoryextension/directoryextension-add.mdx) - creates a new directory extension [#6316](https://github.com/pnp/cli-microsoft365/issues/6316)
+- [graph directoryextension get](../cmd/graph/directoryextension/directoryextension-get.mdx) - retrieves a directory extension [#6613](https://github.com/pnp/cli-microsoft365/issues/6613)
+- [graph directoryextension remove](../cmd/graph/directoryextension/directoryextension-remove.mdx) - removes a directory extension [#6614](https://github.com/pnp/cli-microsoft365/issues/6614)
+
+**SharePoint:**
+
+- [spo homesite add](../cmd/spo/homesite/homesite-add.mdx) - Adds a home site [#6488](https://github.com/pnp/cli-microsoft365/issues/6488)
+- [spo page section remove](../cmd/spo/page/page-section-remove.mdx) - removes a section from a modern page [#6541](https://github.com/pnp/cli-microsoft365/issues/6541)
+
+**Viva:**
+
+- [viva engage community user add](../cmd/viva/engage/engage-community-user-add.mdx) - adds users to a specified Microsoft 365 Viva Engage community [#6293](https://github.com/pnp/cli-microsoft365/issues/6293)
+- [viva engage community user remove](../cmd/viva/engage/engage-community-user-remove.mdx) - removes a user from a specified Microsoft 365 Viva Engage community [#6296](https://github.com/pnp/cli-microsoft365/issues/6296)
+
+### Changes
+
+- removed double slashes on API requests [#6618](https://github.com/pnp/cli-microsoft365/issues/6618)
+- added [guide for using the CLI with Azure Functions](../user-guide/automation/azure-function-powershell.mdx) [#5943](https://github.com/pnp/cli-microsoft365/issues/5943)
+- added new [sample script](../sample-scripts/entra/read-role-permissions/index.mdx) to check role permissions for a user [#6600](https://github.com/pnp/cli-microsoft365/issues/6600)
+- added new [sample script](../sample-scripts/spo/remove-page-header/index.mdx) to remove a page header [#6629](https://github.com/pnp/cli-microsoft365/issues/6629)
+- fixed link for sample scripts in readme [#6589](https://github.com/pnp/cli-microsoft365/issues/6589)
+- fixed [spo page header set](../cmd/spo/page/page-header-set.mdx) for customizable headers [#6542](https://github.com/pnp/cli-microsoft365/issues/6542)
+- extended connections to support using the same user with different app or tenant [#6644](https://github.com/pnp/cli-microsoft365/issues/6644)
+- fixed collecting telemetry behind a proxy [#6643](https://github.com/pnp/cli-microsoft365/pull/6643)
+- added support for authenticating using federated identity in GitHub Actions [#6610](https://github.com/pnp/cli-microsoft365/issues/6610)
+- removed defaultProperties method from various commands [#6432](https://github.com/pnp/cli-microsoft365/issues/6432)
+
+## [v10.4.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.4.0)
+
+### New commands
+
+**Entra ID:**
+
+- [entra resourcenamespace list](../cmd/entra/resourcenamespace/resourcenamespace-list.mdx) - retrieves a list of Microsoft Entra ID RBAC resource namespaces [#6561](https://github.com/pnp/cli-microsoft365/issues/6561)
+- [entra user session revoke](../cmd/entra/user/user-session-revoke.mdx) - revokes all sign-in sessions for a given user [#6514](https://github.com/pnp/cli-microsoft365/issues/6514)
+
+**Outlook:**
+
+- [outlook mailbox settings get](../cmd/outlook/mailbox/mailbox-settings-get.mdx) - retrieves user mailbox settings [#6567](https://github.com/pnp/cli-microsoft365/issues/6567)
+
+**Tenant:**
+
+- [tenant report settings get](../cmd/tenant/report/report-settings-get.mdx) - retrieves tenant-level settings for Microsoft 365 reports [#6246](https://github.com/pnp/cli-microsoft365/issues/6246)
+
+### Changes
+
+- updated [spo page get](../cmd/spo/page/page-get.mdx) command with `--default` option to retrieve the default page [#6493](https://github.com/pnp/cli-microsoft365/issues/6493)
+- added a deprecation warning for `spo mail send` command [#6576](https://github.com/pnp/cli-microsoft365/issues/6576)
+- added new [sample script](../sample-scripts/entra/find-obsolete-m365-groups/index.mdx) to get a list of all obsolete M365 groups [#2475](https://github.com/pnp/cli-microsoft365/issues/2475)
+- fixed prompting for a value when an option is missing [#6518](https://github.com/pnp/cli-microsoft365/issues/6518)
+- updated project & docs dependencies
+- added internalName option for spo field commands [#6249](https://github.com/pnp/cli-microsoft365/issues/6249)
+- added 'groupName' option and deprecated 'groupDisplayName' on 'entra group member' commands [#6546](https://github.com/pnp/cli-microsoft365/issues/6546)
+- fixed spo pages commands [#6462](https://github.com/pnp/cli-microsoft365/issues/6462)
+- fixed 'page clientsidewebpart add' for vertical sections [#6265](https://github.com/pnp/cli-microsoft365/issues/6265)
+- fixed 'project upgrade guidance' order for v1.20 [#6602](https://github.com/pnp/cli-microsoft365/issues/6602)
+- renamed 'spo tenant homesite list' command [#6597](https://github.com/pnp/cli-microsoft365/issues/6597)
+- removed scope for deprecated Azure AD Graph API [#6594](https://github.com/pnp/cli-microsoft365/issues/6594)
+- fixed collecting telemetry
+- switched to Node@22 [#6604](https://github.com/pnp/cli-microsoft365/issues/6604)
+
+## [v10.3.2](https://github.com/pnp/cli-microsoft365/releases/tag/v10.3.2)
+
+### Changes
+
+- reverted logging telemetry fix due to unexpected behavior on Windows machines
+
+## [v10.3.1](https://github.com/pnp/cli-microsoft365/releases/tag/v10.3.1)
+
+### Changes
+
+- fixed m365 setup permissions error [#6592](https://github.com/pnp/cli-microsoft365/issues/6592)
+- fixed logging telemetry
+
+## [v10.3.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.3.0)
+
+### New commands
+
+**Entra ID:**
+
+- [entra pim role assignment remove](../cmd/entra/pim/pim-role-assignment-remove.mdx) - requests deactivation of an Entra role assignment for a user or group [#5841](https://github.com/pnp/cli-microsoft365/issues/5841)
+- [entra roledefinition add](../cmd/entra/roledefinition/roledefinition-add.mdx) - creates a custom Microsoft Entra ID role definition [#6466](https://github.com/pnp/cli-microsoft365/issues/6466)
+- [entra roledefinition set](../cmd/entra/roledefinition/roledefinition-set.mdx) - updates a custom Microsoft Entra ID role definition [#6467](https://github.com/pnp/cli-microsoft365/issues/6467)
+- [entra rolepermission list](../cmd/entra/rolepermission/rolepermission-list.mdx) - retrieves a list of Microsoft Entra ID role permissions [#6562](https://github.com/pnp/cli-microsoft365/issues/6562)
+
+**Exchange Online:**
+
+- [exo approleassignment add](../cmd/exo/approleassignment/approleassignment-add) - grants permissions to an application that's accessing data in Exchange Online and specify which mailboxes an app can access. [#5988](https://github.com/pnp/cli-microsoft365/issues/5988)
+
+**Outlook:**
+
+- [outlook mailbox settings set](../cmd/outlook/mailbox/mailbox-settings-set.mdx) - updates user mailbox settings [#6208](https://github.com/pnp/cli-microsoft365/issues/6208)
+
+**Power Platform:**
+
+- [pp website get](../cmd/pp/website/website-get.mdx) - gets information about a Power Pages website. [#6259](https://github.com/pnp/cli-microsoft365/issues/6259)
+
+**SharePoint:**
+
+- [spo list defaultvalue clear](../cmd/spo/list/list-defaultvalue-clear.mdx) - clears default column values for a specific document library [#6505](https://github.com/pnp/cli-microsoft365/issues/6505)
+- [spo list defaultvalue list](../cmd/spo/list/list-defaultvalue-list.mdx) - retrieves default column values for a specific document library [#6404](https://github.com/pnp/cli-microsoft365/issues/6404)
+- [spo list defaultvalue remove](../cmd/spo/list/list-defaultvalue-remove.mdx) - removes default column values for a specific document library [#6504](https://github.com/pnp/cli-microsoft365/issues/6504)
+- [spo list defaultvalue set](../cmd/spo/list/list-defaultvalue-set.mdx) - updates default column values for a specific document library [#6503](https://github.com/pnp/cli-microsoft365/issues/6503)
+
+**SharePoint Embedded:**
+
+- [spe container activate](../cmd/spe/container/container-activate.mdx) - activates a container [#6086](https://github.com/pnp/cli-microsoft365/issues/6086)
+
+**Tenant:**
+
+- [tenant people pronouns set](../cmd/tenant/people/people-pronouns-set.mdx) - manage pronouns settings for an organization [#6205](https://github.com/pnp/cli-microsoft365/issues/6205)
+- [tenant report settings set](../cmd/tenant/report/report-settings-set.mdx) - manage tenant-level settings for Microsoft 365 reports [#6247](https://github.com/pnp/cli-microsoft365/issues/6247)
+
+### Changes
+
+- fixed singular option reference in 'entra approleassignment remove' [#6551](https://github.com/pnp/cli-microsoft365/issues/6551)
+- updated 'spo file roleassignment' command [#6197](https://github.com/pnp/cli-microsoft365/issues/6197)
+- enhanced 'spo listitem roleassignment' commands with Microsoft Entra groups [#6195](https://github.com/pnp/cli-microsoft365/issues/6195)
+- enhanced 'spo web roleassignment' commands with Microsoft Entra groups [#6193](https://github.com/pnp/cli-microsoft365/issues/6193)
+- enhanced 'spo folder roleassignment' commands with Microsoft Entra groups [#6196](https://github.com/pnp/cli-microsoft365/issues/6196)
+- added Bluesky to docs
+- fixed retrieving distribution groups [#6529](https://github.com/pnp/cli-microsoft365/issues/6529)
+- fixed login validation for system-assigned managed identity [#6527](https://github.com/pnp/cli-microsoft365/issues/6527)
+- fixed 'spo folder roleassignment add' command by removing incorrect breakroleinheritance functionality [#6555](https://github.com/pnp/cli-microsoft365/issues/6555)
+- added new sample script [Remove OAuth2 permission grants in a specific enterprise application (or service principal) in Entra ID](../sample-scripts/entra/entra-remove-oauth2-permission-grants/index.mdx) [#6537](https://github.com/pnp/cli-microsoft365/issues/6537)
+- fixed 'entra app add' command [#6565](https://github.com/pnp/cli-microsoft365/issues/6565)
+
+## [v10.2.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.2.0)
+
+### New commands
+
+**Entra ID:**
+
+- [entra roledefinition get](../cmd/entra/roledefinition/roledefinition-get.mdx) - retrieves a Microsoft Entra ID role definition [#6465](https://github.com/pnp/cli-microsoft365/issues/6465)
+- [entra roledefinition list](../cmd/entra/roledefinition/roledefinition-list.mdx) - returns a list of all Microsoft Entra ID role definitions [#6464](https://github.com/pnp/cli-microsoft365/issues/6464)
+- [entra roledefinition remove](../cmd/entra/roledefinition/roledefinition-remove.mdx) - removes a custom Microsoft Entra ID role definition [#6468](https://github.com/pnp/cli-microsoft365/issues/6468)
+
+**SharePoint:**
+
+- [spo tenant homesite list](../cmd/spo/homesite/homesite-list.mdx) - lists all home sites [#6492](https://github.com/pnp/cli-microsoft365/issues/6492)
+
+**SharePoint Embedded:**
+
+- [spe container get](../cmd/spe/container/container-get.mdx) - gets a container of a specific container type [#6083](https://github.com/pnp/cli-microsoft365/issues/6083)
+
+**SharePoint Premium:**
+
+- [spp model get](../cmd/spp/model/model-get.mdx) - retrieves information about a document understanding model [#6105](https://github.com/pnp/cli-microsoft365/issues/6105)
+
+**Tenant:**
+
+- [tenant people pronouns get](../cmd/tenant/people/people-pronouns-get.mdx) - retrieves information about pronouns settings for an organization [#6206](https://github.com/pnp/cli-microsoft365/issues/6206)
+
+### Changes
+
+- fixed an issue where removing entra app permissions fails when a service principal doesn't exist [#6291](https://github.com/pnp/cli-microsoft365/issues/6291)
+- fixed killing teams process for [teams cache remove](../cmd/teams/cache/cache-remove.mdx) [#6515](https://github.com/pnp/cli-microsoft365/issues/6515)
+- fixed copy job polling [#6422](https://github.com/pnp/cli-microsoft365/issues/6422)
+- updated project readme file [#5564](https://github.com/pnp/cli-microsoft365/issues/5564)
+- enhanced [spo user ensure](../cmd/spo/user/user-ensure.mdx) command with additional options [#6181](https://github.com/pnp/cli-microsoft365/issues/6181)
+- enhanced [spo page section add](../cmd/spo/page/page-section-add.mdx) with `collapsibleTitle` option [#6461](https://github.com/pnp/cli-microsoft365/issues/6461)
+
+## [v10.1.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.1.0)
+
+**SharePoint Embedded:**
+
+- [spe container list](../cmd/spe/container/container-list.mdx) - lists containers of a specific Container Type [#6082](https://github.com/pnp/cli-microsoft365/issues/6082)
+- [spe containertype get](../cmd/spe/containertype/containertype-get.mdx) - retrieves a specific Container Type [#5991](https://github.com/pnp/cli-microsoft365/issues/5991)
+
+**SharePoint Premium:**
+
+- [spp model remove](../cmd/spp/model/model-remove.mdx) - deletes a document understanding model [#6118](https://github.com/pnp/cli-microsoft365/issues/6118)
+
+**Viva:**
+
+- [viva engage community set](../cmd/viva/engage/engage-community-set.mdx) - updates an existing Viva Engage community [#6279](https://github.com/pnp/cli-microsoft365/issues/6279)
+
+### Changes
+
+- fixed using env var for login command [#6469](https://github.com/pnp/cli-microsoft365/issues/6469)
+- fixed missing `sp` aliases in some `enterpriseapp` commands [#6476](https://github.com/pnp/cli-microsoft365/issues/6476)
+- updated `entra m365group` commands to accept displayName option [#6147](https://github.com/pnp/cli-microsoft365/issues/6147)
+- updated linting to make it faster in GitHub workflows [#6348](https://github.com/pnp/cli-microsoft365/issues/6348)
+- enhanced [entra m365group get](../cmd/entra/m365group/m365group-get.mdx) with additional properties [#6148](https://github.com/pnp/cli-microsoft365/issues/6148)
+- enhanced `spo contenttype` commands with Parent property [#6329](https://github.com/pnp/cli-microsoft365/issues/6329)
+- updated docs on how to log in to CLI [#6343](https://github.com/pnp/cli-microsoft365/issues/6343)
+- enhanced [graph subscription add](../cmd/graph/subscription/subscription-add.mdx) command with additional options [#6158](https://github.com/pnp/cli-microsoft365/issues/6158)
+- fixed CSV-parsing issues for commands that accept a CSV-input [#5825](https://github.com/pnp/cli-microsoft365/issues/5825)
+- added `copilot` alias to `pp chatbot` commands. Closes [#6261](https://github.com/pnp/cli-microsoft365/issues/6261)
+- enhanced [spo listitem batch remove](../cmd/spo/listitem/listitem-batch-remove.mdx) command to allow case-insensitive column names [#6419](https://github.com/pnp/cli-microsoft365/issues/6419)
+- enhanced `spo site admin` commands to retrieve the site ID as admin. Closes [#6443](https://github.com/pnp/cli-microsoft365/issues/6443)
+- fixed [spo listitem batch set](../cmd/spo/listitem/listitem-batch-set.mdx) command to escape XML-special characters [#6430](https://github.com/pnp/cli-microsoft365/issues/6430)
+- aligned all sample scripts with the latest v10 release [#6369](https://github.com/pnp/cli-microsoft365/issues/6369)
+- updated entra group/app/administrativeunit get/list commands [#6315](https://github.com/pnp/cli-microsoft365/issues/6315)
+- added customer quotes docs page
+- fixed prompting for entra app [#6498](https://github.com/pnp/cli-microsoft365/issues/6498)
 
 ## [v10.0.0](https://github.com/pnp/cli-microsoft365/releases/tag/v10.0.0)
 
@@ -11,7 +436,7 @@ sidebar_position: 3
 **SharePoint:**
 
 - [spo page publish](../cmd/spo/page/page-publish.mdx) - publishes a modern page [#6420](https://github.com/pnp/cli-microsoft365/issues/6420)
-- [spo tenant site membership list](../cmd/spo/tenant/tenant-site-membership-list.mdx) - retrieves information about default site groups' membership [#5980](https://github.com/pnp/cli-microsoft365/issues/5980)
+- `spo tenant site membership list` - retrieves information about default site groups' membership [#5980](https://github.com/pnp/cli-microsoft365/issues/5980)
 - [spo folder sharinglink set](../cmd/spo/folder/folder-sharinglink-set.mdx) - updates a specific sharing link of a folder [#5964](https://github.com/pnp/cli-microsoft365/issues/5964)
 
 **SharePoint Premium:**
@@ -34,7 +459,7 @@ sidebar_position: 3
 - enhanced [spo list remove](../cmd/spo/list/list-remove.mdx) command with `--recylce` flag [#6270](https://github.com/pnp/cli-microsoft365/issues/6270)
 - enhanced [spo file remove](../cmd/spo/file/file-remove.mdx) command with `--bypassSharedLock` flag [#6313](https://github.com/pnp/cli-microsoft365/issues/6313)
 - updated 'spo userprofile get' command docs.
-- adds alias for [spo tenant site list](../cmd/spo/tenant/tenant-site-list.mdx) command [#6143](https://github.com/pnp/cli-microsoft365/issues/6143)
+- adds alias for `spo tenant site list` command [#6143](https://github.com/pnp/cli-microsoft365/issues/6143)
 
 ### ⚠️ Breaking changes
 
@@ -58,7 +483,7 @@ sidebar_position: 3
 - enhanced the output of [spo sitescript get](../cmd/spo/sitescript/sitescript-get.mdx) command [#5559](https://github.com/pnp/cli-microsoft365/issues/5559)
 - updated [spo file move](../cmd/spo/file/file-move.mdx) options [#6153](https://github.com/pnp/cli-microsoft365/issues/6153)
 - updated purpose of option `displayName` for [entra m365group set](../cmd/entra/m365group/m365group-set.mdx) command [#6146](https://github.com/pnp/cli-microsoft365/issues/6146)
-- renamed command `spo site rename` to [spo tenant site rename](../cmd/spo/tenant/tenant-site-rename.mdx) [#6142](https://github.com/pnp/cli-microsoft365/issues/6142)
+- renamed command `spo site rename` to `spo tenant site rename` [#6142](https://github.com/pnp/cli-microsoft365/issues/6142)
 - removed `cli reconsent` command [#6360](https://github.com/pnp/cli-microsoft365/issues/6360)
 - ensured empty result output for various list commands [#6288](https://github.com/pnp/cli-microsoft365/issues/6288)
 - removed deprecated `userName` option from [entra m365group user add](../cmd/entra/m365group/m365group-user-add.mdx) command [#6218](https://github.com/pnp/cli-microsoft365/issues/6218)
@@ -221,8 +646,8 @@ sidebar_position: 3
 
 **SharePoint:**
 
-- [spo tenant site archive](../cmd/spo/tenant/tenant-site-archive.mdx) - archives a site collection [#6018](https://github.com/pnp/cli-microsoft365/issues/6018)
-- [spo tenant site unarchive](../cmd/spo/tenant/tenant-site-unarchive.mdx) - unarchives a site collection [#6019](https://github.com/pnp/cli-microsoft365/issues/6019)
+- `spo tenant site archive` - archives a site collection [#6018](https://github.com/pnp/cli-microsoft365/issues/6018)
+- `spo tenant site unarchive` - unarchives a site collection [#6019](https://github.com/pnp/cli-microsoft365/issues/6019)
 - [spo site admin list](../cmd/spo/site/site-admin-list.mdx) - lists all administrators of a specific SharePoint site [#5882](https://github.com/pnp/cli-microsoft365/issues/5882)
 
 **Teams:**
@@ -1260,8 +1685,8 @@ sidebar_position: 3
 
 **Power Platform:**
 
-- [pp chatbot get](../cmd/pp/chatbot/chatbot-get.mdx) - get information about the specified chatbot [#4107](https://github.com/pnp/cli-microsoft365/issues/4107)
-- [pp chatbot remove](../cmd/pp/chatbot/chatbot-remove.mdx) - removes the specified chatbot [#4106](https://github.com/pnp/cli-microsoft365/issues/4106)
+- [pp chatbot get](../cmd/pp/copilot/copilot-get.mdx) - get information about the specified chatbot [#4107](https://github.com/pnp/cli-microsoft365/issues/4107)
+- [pp chatbot remove](../cmd/pp/copilot/copilot-remove.mdx) - removes the specified chatbot [#4106](https://github.com/pnp/cli-microsoft365/issues/4106)
 - [pp dataverse table row list](../cmd/pp/dataverse/dataverse-table-row-list.mdx) - lists table rows for the given Dataverse table [#3791](https://github.com/pnp/cli-microsoft365/issues/3791)
 - [pp solution publisher add](../cmd/pp/solution/solution-publisher-add.mdx) - adds a specified publisher in a given environment [#3977](https://github.com/pnp/cli-microsoft365/issues/3977)
 - [pp dataverse table row remove](../cmd/pp/dataverse/dataverse-table-row-remove.mdx) - removes a row from a dataverse table in a given environment [#4030](https://github.com/pnp/cli-microsoft365/issues/4030)
@@ -1341,9 +1766,9 @@ sidebar_position: 3
 
 **Power Platform:**
 
-- [pp card clone](../cmd/pp/card/card-clone.mdx) - clones a specific Microsoft Power Platform card in the specified Power Platform environment [#3790](https://github.com/pnp/cli-microsoft365/issues/3790)
-- [pp card remove](../cmd/pp/card/card-remove.mdx) - removes the specified Microsoft Power Platform card in the specified Power Platform environment [#3781](https://github.com/pnp/cli-microsoft365/issues/3781)
-- [pp chatbot list](../cmd/pp/chatbot/chatbot-list.mdx) - lists Microsoft Power Platform chatbot in the specified Power Platform environment [#3650](https://github.com/pnp/cli-microsoft365/issues/3650)
+- `pp card clone` - clones a specific Microsoft Power Platform card in the specified Power Platform environment [#3790](https://github.com/pnp/cli-microsoft365/issues/3790)
+- `pp card remove` - removes the specified Microsoft Power Platform card in the specified Power Platform environment [#3781](https://github.com/pnp/cli-microsoft365/issues/3781)
+- [pp chatbot list](../cmd/pp/copilot/copilot-list.mdx) - lists Microsoft Power Platform chatbot in the specified Power Platform environment [#3650](https://github.com/pnp/cli-microsoft365/issues/3650)
 - [pp dataverse table get](../cmd/pp/dataverse/dataverse-table-get.mdx) - lists a dataverse table in a given environment [#3726](https://github.com/pnp/cli-microsoft365/issues/3726)
 - [pp dataverse table remove](../cmd/pp/dataverse/dataverse-table-remove.mdx) - removes a dataverse table in a given environment [#4031](https://github.com/pnp/cli-microsoft365/issues/4031)
 - [pp solution remove](../cmd/pp/solution/solution-remove.mdx) - removes the specified solution in the specified Power Platform environment [#3723](https://github.com/pnp/cli-microsoft365/issues/3723)
@@ -1459,8 +1884,8 @@ sidebar_position: 3
 
 **Power Platform:**
 
-- [pp card get](../cmd/pp/card/card-get.mdx) - gets a specific Microsoft Power Platform card in the specified Power Platform environment [#3770](https://github.com/pnp/cli-microsoft365/issues/3770)
-- [pp card list](../cmd/pp/card/card-list.mdx) - lists Microsoft Power Platform cards in the specified Power Platform environment [#3767](https://github.com/pnp/cli-microsoft365/issues/3767)
+- `pp card get` - gets a specific Microsoft Power Platform card in the specified Power Platform environment [#3770](https://github.com/pnp/cli-microsoft365/issues/3770)
+- `pp card list` - lists Microsoft Power Platform cards in the specified Power Platform environment [#3767](https://github.com/pnp/cli-microsoft365/issues/3767)
 - [pp dataverse table list](../cmd/pp/dataverse/dataverse-table-list.mdx) - lists dataverse tables in a given environment [#3653](https://github.com/pnp/cli-microsoft365/issues/3653)
 - [pp gateway get](../cmd/pp/gateway/gateway-get.mdx) - gets information about the specified gateway [#3653](https://github.com/pnp/cli-microsoft365/issues/3653)
 - [pp solution get](../cmd/pp/solution/solution-get.mdx) - gets a specific solution in a given environment [#3722](https://github.com/pnp/cli-microsoft365/issues/3722)
@@ -2813,8 +3238,8 @@ sidebar_position: 3
 
 **Yammer:**
 
-- [yammer group user add](../cmd/viva/engage/engage-group-user-add.mdx) - adds a user to a Yammer Group [#1456](https://github.com/pnp/cli-microsoft365/issues/1456)
-- [yammer group user remove](../cmd/viva/engage/engage-group-user-remove.mdx) - removes a user from a Yammer group [#1457](https://github.com/pnp/cli-microsoft365/issues/1457)
+- yammer group user add - adds a user to a Yammer Group [#1456](https://github.com/pnp/cli-microsoft365/issues/1456)
+- yammer group user remove - removes a user from a Yammer group [#1457](https://github.com/pnp/cli-microsoft365/issues/1457)
 - [yammer message like set](../cmd/viva/engage/engage-message-like-set.mdx) - likes or unlikes a Yammer message [#1455](https://github.com/pnp/cli-microsoft365/issues/1455)
 
 ### Changes
@@ -2926,9 +3351,9 @@ sidebar_position: 3
 
 **Skype:**
 
-- [skype report activitycounts](../cmd/skype/report/report-activitycounts.mdx) - gets the trends on how many users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1302](https://github.com/pnp/cli-microsoft365/issues/1302)
-- [skype report activityusercounts](../cmd/skype/report/report-activityusercounts.mdx) - gets the trends on how many unique users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1303](https://github.com/pnp/cli-microsoft365/issues/1303)
-- [skype report activityuserdetail](../cmd/skype/report/report-activityuserdetail.mdx) - gets details about Skype for Business activity by user [#1301](https://github.com/pnp/cli-microsoft365/issues/1301)
+- `skype report activitycounts` - gets the trends on how many users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1302](https://github.com/pnp/cli-microsoft365/issues/1302)
+- `skype report activityusercounts` - gets the trends on how many unique users organized and participated in conference sessions held in your organization through Skype for Business. The report also includes the number of peer-to-peer sessions [#1303](https://github.com/pnp/cli-microsoft365/issues/1303)
+- `skype report activityuserdetail` - gets details about Skype for Business activity by user [#1301](https://github.com/pnp/cli-microsoft365/issues/1301)
 
 **Yammer:**
 
@@ -3006,7 +3431,7 @@ sidebar_position: 3
 
 **Yammer:**
 
-- [yammer group list](../cmd/viva/engage/engage-group-list.mdx) - returns the list of groups in a Yammer network or the groups for a specific user [#1185](https://github.com/pnp/cli-microsoft365/issues/1185)
+- yammer group list - returns the list of groups in a Yammer network or the groups for a specific user [#1185](https://github.com/pnp/cli-microsoft365/issues/1185)
 
 ### Changes
 
@@ -3066,7 +3491,7 @@ sidebar_position: 3
 **SharePoint:**
 
 - [spo feature disable](../cmd/spo/feature/feature-disable.mdx) - disables feature for the specified site or web [#676](https://github.com/pnp/cli-microsoft365/issues/676)
-- [spo site rename](../cmd/spo/tenant/tenant-site-rename.mdx) - renames the URL and title of a site collection [#1197](https://github.com/pnp/cli-microsoft365/issues/1197)
+- [spo site rename](../cmd/spo/site/site-rename.mdx) - renames the URL and title of a site collection [#1197](https://github.com/pnp/cli-microsoft365/issues/1197)
 
 **Yammer:**
 
@@ -3324,7 +3749,7 @@ sidebar_position: 3
 **SharePoint Online:**
 
 - [spo contenttype field remove](../cmd/spo/contenttype/contenttype-field-remove.mdx) - removes a column from a site- or list content type [#673](https://github.com/pnp/cli-microsoft365/issues/673)
-- [spo mail send](../cmd/spo/mail/mail-send.mdx) - sends an e-mail from SharePoint [#753](https://github.com/pnp/cli-microsoft365/issues/753)
+- 'spo mail send' - sends an e-mail from SharePoint [#753](https://github.com/pnp/cli-microsoft365/issues/753)
 
 **Microsoft Graph:**
 
@@ -3855,7 +4280,7 @@ sidebar_position: 3
 - added information about the current user to status commands [#202](https://github.com/pnp/cli-microsoft365/issues/202)
 - fixed issue with completing input that doesn't match commands [#222](https://github.com/pnp/cli-microsoft365/issues/222)
 - fixed issue with escaping numeric input [#226](https://github.com/pnp/cli-microsoft365/issues/226)
-- changed the [entra oauth2grant list](../cmd/entra/oauth2grant/oauth2grant-list.mdx), [spo app list](../cmd/spo/app/app-list.mdx), [spo customaction list](../cmd/spo/customaction/customaction-list.mdx), [spo site list](../cmd/spo/tenant/tenant-site-list.mdx) commands to list all properties for output type JSON [#232](https://github.com/pnp/cli-microsoft365/issues/232), [#233](https://github.com/pnp/cli-microsoft365/issues/233), [#234](https://github.com/pnp/cli-microsoft365/issues/234), [#235](https://github.com/pnp/cli-microsoft365/issues/235)
+- changed the [entra oauth2grant list](../cmd/entra/oauth2grant/oauth2grant-list.mdx), [spo app list](../cmd/spo/app/app-list.mdx), [spo customaction list](../cmd/spo/customaction/customaction-list.mdx), [spo site list](../cmd/spo/site/site-list.mdx) commands to list all properties for output type JSON [#232](https://github.com/pnp/cli-microsoft365/issues/232), [#233](https://github.com/pnp/cli-microsoft365/issues/233), [#234](https://github.com/pnp/cli-microsoft365/issues/234), [#235](https://github.com/pnp/cli-microsoft365/issues/235)
 - fixed issue with generating clink completion file [#252](https://github.com/pnp/cli-microsoft365/issues/252)
 - added [user guide](../user-guide/installing-cli.mdx) [#236](https://github.com/pnp/cli-microsoft365/issues/236), [#237](https://github.com/pnp/cli-microsoft365/issues/237), [#238](https://github.com/pnp/cli-microsoft365/issues/238), [#239](https://github.com/pnp/cli-microsoft365/issues/239)
 
@@ -3871,7 +4296,7 @@ sidebar_position: 3
 
 - [spo customaction list](../cmd/spo/customaction/customaction-list.mdx) - lists user custom actions for site or site collection [#19](https://github.com/pnp/cli-microsoft365/issues/19)
 - [spo site get](../cmd/spo/site/site-get.mdx) - gets information about the specific site collection [#114](https://github.com/pnp/cli-microsoft365/issues/114)
-- [spo site list](../cmd/spo/tenant/tenant-site-list.mdx) - lists modern sites of the given type [#115](https://github.com/pnp/cli-microsoft365/issues/115)
+- [spo site list](../cmd/spo/site/site-list.mdx) - lists modern sites of the given type [#115](https://github.com/pnp/cli-microsoft365/issues/115)
 - [spo site add](../cmd/spo/site/site-add.mdx) - creates new modern site [#116](https://github.com/pnp/cli-microsoft365/issues/116)
 - [spo app remove](../cmd/spo/app/app-remove.mdx) - removes the specified app from the tenant app catalog [#9](https://github.com/pnp/cli-microsoft365/issues/9)
 - [spo site appcatalog add](../cmd/spo/site/site-appcatalog-add.mdx) - creates a site collection app catalog in the specified site [#63](https://github.com/pnp/cli-microsoft365/issues/63)

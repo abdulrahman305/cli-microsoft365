@@ -222,10 +222,10 @@ describe(commands.LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
     commandInfo = cli.getCommandInfo(command);
   });
@@ -418,7 +418,7 @@ describe(commands.LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { environmentName: environmentName, includeSolutions: true } } as any);
+    await command.action(logger, { options: { environmentName: environmentName, withSolutions: true } } as any);
 
     assert(loggerLogSpy.calledOnceWithExactly([
       {

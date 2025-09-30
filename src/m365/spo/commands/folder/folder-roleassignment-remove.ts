@@ -1,6 +1,5 @@
 import { cli } from '../../../../cli/cli.js';
 import { Logger } from '../../../../cli/Logger.js';
-import Command from '../../../../Command.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request, { CliRequestOptions } from '../../../../request.js';
 import { formatting } from '../../../../utils/formatting.js';
@@ -8,8 +7,8 @@ import { urlUtil } from '../../../../utils/urlUtil.js';
 import { validation } from '../../../../utils/validation.js';
 import SpoCommand from '../../../base/SpoCommand.js';
 import commands from '../../commands.js';
-import spoGroupGetCommand, { Options as SpoGroupGetCommandOptions } from '../group/group-get.js';
-import spoUserGetCommand, { Options as SpoUserGetCommandOptions } from '../user/user-get.js';
+import { entraGroup } from '../../../../utils/entraGroup.js';
+import { spo } from '../../../../utils/spo.js';
 
 interface CommandArgs {
   options: Options;
@@ -21,6 +20,8 @@ interface Options extends GlobalOptions {
   principalId?: number;
   upn?: string;
   groupName?: string;
+  entraGroupId?: string;
+  entraGroupName?: string;
   force?: boolean;
 }
 
@@ -48,6 +49,8 @@ class SpoFolderRoleAssignmentRemoveCommand extends SpoCommand {
         principalId: typeof args.options.principalId !== 'undefined',
         upn: typeof args.options.upn !== 'undefined',
         groupName: typeof args.options.groupName !== 'undefined',
+        entraGroupId: typeof args.options.entraGroupId !== 'undefined',
+        entraGroupName: typeof args.options.entraGroupName !== 'undefined',
         force: !!args.options.force
       });
     });
@@ -71,6 +74,12 @@ class SpoFolderRoleAssignmentRemoveCommand extends SpoCommand {
         option: '--groupName [groupName]'
       },
       {
+        option: '--entraGroupId [entraGroupId]'
+      },
+      {
+        option: '--entraGroupName [entraGroupName]'
+      },
+      {
         option: '-f, --force'
       }
     );
@@ -88,13 +97,17 @@ class SpoFolderRoleAssignmentRemoveCommand extends SpoCommand {
           return `Specified principalId ${args.options.principalId} is not a number`;
         }
 
-        const principalOptions: any[] = [args.options.principalId, args.options.upn, args.options.groupName];
+        if (args.options.entraGroupId && !validation.isValidGuid(args.options.entraGroupId)) {
+          return `'${args.options.entraGroupId}' is not a valid GUID for option entraGroupId.`;
+        }
+
+        const principalOptions: any[] = [args.options.principalId, args.options.upn, args.options.groupName, args.options.entraGroupId, args.options.entraGroupName];
         if (principalOptions.some(item => item !== undefined) && principalOptions.filter(item => item !== undefined).length > 1) {
-          return `Specify either principalId id, upn or groupName`;
+          return `Specify either principalId id, upn, groupName, entraGroupId or entraGroupName`;
         }
 
         if (principalOptions.filter(item => item !== undefined).length === 0) {
-          return `Specify at least principalId id, upn or groupName`;
+          return `Specify at least principalId id, upn, groupName, entraGroupId or entraGroupName`;
         }
 
         return true;
@@ -116,17 +129,27 @@ class SpoFolderRoleAssignmentRemoveCommand extends SpoCommand {
       const requestUrl: string = `${args.options.webUrl}/_api/web/GetFolderByServerRelativePath(DecodedUrl='${formatting.encodeQueryParameter(serverRelativeUrl)}')/ListItemAllFields`;
 
       try {
+        let principalId: number | undefined = args.options.principalId;
         if (args.options.upn) {
-          args.options.principalId = await this.getUserPrincipalId(args.options);
-          await this.removeRoleAssignment(requestUrl, logger, args.options);
+          principalId = await this.getUserPrincipalId(args.options, logger);
         }
         else if (args.options.groupName) {
-          args.options.principalId = await this.getGroupPrincipalId(args.options);
-          await this.removeRoleAssignment(requestUrl, logger, args.options);
+          principalId = await this.getGroupPrincipalId(args.options, logger);
         }
-        else {
-          await this.removeRoleAssignment(requestUrl, logger, args.options);
+        else if (args.options.entraGroupId || args.options.entraGroupName) {
+          if (this.verbose) {
+            await logger.logToStderr('Retrieving group information...');
+          }
+
+          const group = args.options.entraGroupId
+            ? await entraGroup.getGroupById(args.options.entraGroupId)
+            : await entraGroup.getGroupByDisplayName(args.options.entraGroupName!);
+
+          const siteUser = await spo.ensureEntraGroup(args.options.webUrl, group);
+          principalId = siteUser.Id;
         }
+        await this.removeRoleAssignment(requestUrl, principalId!);
+
       }
       catch (err: any) {
         this.handleRejectedODataJsonPromise(err);
@@ -145,9 +168,9 @@ class SpoFolderRoleAssignmentRemoveCommand extends SpoCommand {
     }
   }
 
-  private async removeRoleAssignment(requestUrl: string, logger: Logger, options: Options): Promise<void> {
+  private async removeRoleAssignment(requestUrl: string, principalId: number): Promise<void> {
     const requestOptions: CliRequestOptions = {
-      url: `${requestUrl}/roleassignments/removeroleassignment(principalid='${options.principalId}')`,
+      url: `${requestUrl}/roleassignments/removeroleassignment(principalid='${principalId}')`,
       method: 'POST',
       headers: {
         'accept': 'application/json;odata=nometadata',
@@ -159,33 +182,14 @@ class SpoFolderRoleAssignmentRemoveCommand extends SpoCommand {
     return request.post(requestOptions);
   }
 
-  private async getGroupPrincipalId(options: Options): Promise<number> {
-    const groupGetCommandOptions: SpoGroupGetCommandOptions = {
-      webUrl: options.webUrl,
-      name: options.groupName,
-      output: 'json',
-      debug: this.debug,
-      verbose: this.verbose
-    };
-
-    const output = await cli.executeCommandWithOutput(spoGroupGetCommand as Command, { options: { ...groupGetCommandOptions, _: [] } });
-    const getGroupOutput = JSON.parse(output.stdout);
-    return getGroupOutput.Id as number;
+  private async getGroupPrincipalId(options: Options, logger: Logger): Promise<number> {
+    const group = await spo.getGroupByName(options.webUrl, options.groupName!, logger, this.verbose);
+    return group.Id as number;
   }
 
-  private async getUserPrincipalId(options: Options): Promise<number> {
-    const userGetCommandOptions: SpoUserGetCommandOptions = {
-      webUrl: options.webUrl,
-      email: options.upn,
-      id: undefined,
-      output: 'json',
-      debug: this.debug,
-      verbose: this.verbose
-    };
-
-    const output = await cli.executeCommandWithOutput(spoUserGetCommand as Command, { options: { ...userGetCommandOptions, _: [] } });
-    const getUserOutput = JSON.parse(output.stdout);
-    return getUserOutput.Id as number;
+  private async getUserPrincipalId(options: Options, logger: Logger): Promise<number> {
+    const user = await spo.getUserByEmail(options.webUrl, options.upn!, logger, this.verbose);
+    return user.Id as number;
   }
 }
 

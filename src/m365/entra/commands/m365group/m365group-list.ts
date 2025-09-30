@@ -14,7 +14,7 @@ interface CommandArgs {
 interface Options extends GlobalOptions {
   displayName?: string;
   mailNickname?: string;
-  includeSiteUrl: boolean;
+  withSiteUrl?: boolean;
   orphaned?: boolean;
 }
 
@@ -39,7 +39,7 @@ class EntraM365GroupListCommand extends GraphCommand {
       Object.assign(this.telemetryProperties, {
         displayName: typeof args.options.displayName !== 'undefined',
         mailNickname: typeof args.options.mailNickname !== 'undefined',
-        includeSiteUrl: args.options.includeSiteUrl,
+        withSiteUrl: !!args.options.withSiteUrl,
         orphaned: !!args.options.orphaned
       });
     });
@@ -54,7 +54,7 @@ class EntraM365GroupListCommand extends GraphCommand {
         option: '-m, --mailNickname [displayName]'
       },
       {
-        option: '--includeSiteUrl'
+        option: '--withSiteUrl'
       },
       {
         option: '--orphaned'
@@ -89,7 +89,7 @@ class EntraM365GroupListCommand extends GraphCommand {
         groups = orphanedGroups;
       }
 
-      if (args.options.includeSiteUrl) {
+      if (args.options.withSiteUrl) {
         const res = await Promise.all(groups.map(g => this.getGroupSiteUrl(g.id as string)));
         res.forEach(r => {
           for (let i: number = 0; i < groups.length; i++) {
@@ -122,7 +122,7 @@ class EntraM365GroupListCommand extends GraphCommand {
     const res = await request.get<{ webUrl: string }>(requestOptions);
     return {
       id: groupId,
-      url: res.webUrl ? res.webUrl.substr(0, res.webUrl.lastIndexOf('/')) : ''
+      url: res.webUrl ? res.webUrl.substring(0, res.webUrl.lastIndexOf('/')) : ''
     };
   }
 }

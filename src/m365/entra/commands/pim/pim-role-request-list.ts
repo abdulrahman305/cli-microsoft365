@@ -19,7 +19,7 @@ interface Options extends GlobalOptions {
   groupName?: string;
   createdDateTime?: string;
   status?: string;
-  includePrincipalDetails?: boolean;
+  withPrincipalDetails?: boolean;
 }
 
 interface UnifiedRoleAssignmentScheduleRequestEx extends UnifiedRoleAssignmentScheduleRequest {
@@ -58,7 +58,7 @@ class EntraPimRoleRequestListCommand extends GraphCommand {
         groupName: typeof args.options.groupName !== 'undefined',
         createdDateTime: typeof args.options.createdDateTime !== 'undefined',
         status: typeof args.options.status !== 'undefined',
-        includePrincipalDetails: !!args.options.includePrincipalDetails
+        withPrincipalDetails: !!args.options.withPrincipalDetails
       });
     });
   }
@@ -85,7 +85,7 @@ class EntraPimRoleRequestListCommand extends GraphCommand {
         autocomplete: this.allowedStatuses
       },
       {
-        option: '--includePrincipalDetails [includePrincipalDetails]'
+        option: '--withPrincipalDetails'
       }
     );
   }
@@ -154,7 +154,7 @@ class EntraPimRoleRequestListCommand extends GraphCommand {
 
       expands.push('roleDefinition($select=displayName)');
 
-      if (args.options.includePrincipalDetails) {
+      if (args.options.withPrincipalDetails) {
         expands.push('principal');
       }
 

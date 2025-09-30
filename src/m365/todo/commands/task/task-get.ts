@@ -2,7 +2,8 @@ import { cli } from '../../../../cli/cli.js';
 import { Logger } from '../../../../cli/Logger.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request, { CliRequestOptions } from '../../../../request.js';
-import DelegatedGraphCommand from '../../../base/DelegatedGraphCommand.js';
+import { formatting } from '../../../../utils/formatting.js';
+import GraphDelegatedCommand from '../../../base/GraphDelegatedCommand.js';
 import commands from '../../commands.js';
 import { ToDoTask } from '../../ToDoTask.js';
 
@@ -16,17 +17,13 @@ interface Options extends GlobalOptions {
   listId?: string;
 }
 
-class TodoTaskGetCommand extends DelegatedGraphCommand {
+class TodoTaskGetCommand extends GraphDelegatedCommand {
   public get name(): string {
     return commands.TASK_GET;
   }
 
   public get description(): string {
     return 'Get a specific task from a Microsoft To Do task list';
-  }
-
-  public defaultProperties(): string[] | undefined {
-    return ['id', 'title', 'status', 'createdDateTime', 'lastModifiedDateTime'];
   }
 
   constructor() {
@@ -70,7 +67,7 @@ class TodoTaskGetCommand extends DelegatedGraphCommand {
     }
 
     const requestOptions: CliRequestOptions = {
-      url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${escape(args.options.listName as string)}'`,
+      url: `${this.resource}/v1.0/me/todo/lists?$filter=displayName eq '${formatting.encodeQueryParameter(args.options.listName!)}'`,
       headers: {
         accept: 'application/json;odata.metadata=none'
       },

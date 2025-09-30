@@ -1,12 +1,10 @@
 import { AppRole } from '@microsoft/microsoft-graph-types';
 import { Logger } from '../../../../cli/Logger.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
-import request, { CliRequestOptions } from '../../../../request.js';
-import { formatting } from '../../../../utils/formatting.js';
 import { odata } from '../../../../utils/odata.js';
 import GraphCommand from '../../../base/GraphCommand.js';
 import commands from '../../commands.js';
-import { cli } from '../../../../cli/cli.js';
+import { entraApp } from '../../../../utils/entraApp.js';
 
 interface CommandArgs {
   options: Options;
@@ -83,32 +81,14 @@ class EntraAppRoleListCommand extends GraphCommand {
       await logger.logToStderr(`Retrieving information about Microsoft Entra app ${appId ? appId : appName}...`);
     }
 
-    const filter: string = appId ?
-      `appId eq '${formatting.encodeQueryParameter(appId)}'` :
-      `displayName eq '${formatting.encodeQueryParameter(appName as string)}'`;
-
-    const requestOptions: CliRequestOptions = {
-      url: `${this.resource}/v1.0/myorganization/applications?$filter=${filter}&$select=id`,
-      headers: {
-        accept: 'application/json;odata.metadata=none'
-      },
-      responseType: 'json'
-    };
-
-    const res = await request.get<{ value: { id: string }[] }>(requestOptions);
-
-    if (res.value.length === 1) {
-      return res.value[0].id;
+    if (appId) {
+      const app = await entraApp.getAppRegistrationByAppId(appId, ["id"]);
+      return app.id!;
     }
-
-    if (res.value.length === 0) {
-      const applicationIdentifier = appId ? `ID ${appId}` : `name ${appName}`;
-      throw `No Microsoft Entra application registration with ${applicationIdentifier} found`;
+    else {
+      const app = await entraApp.getAppRegistrationByAppName(appName!, ["id"]);
+      return app.id!;
     }
-
-    const resultAsKeyValuePair = formatting.convertArrayToHashTable('id', res.value);
-    const result = await cli.handleMultipleResultsFound<{ id: string }>(`Multiple Microsoft Entra application registrations with name '${appName}' found.`, resultAsKeyValuePair);
-    return result.id;
   }
 }
 

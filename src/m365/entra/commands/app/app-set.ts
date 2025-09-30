@@ -3,10 +3,10 @@ import fs from 'fs';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import { Logger } from '../../../../cli/Logger.js';
 import request, { CliRequestOptions } from '../../../../request.js';
-import { formatting } from '../../../../utils/formatting.js';
 import GraphCommand from '../../../base/GraphCommand.js';
 import commands from '../../commands.js';
-import { cli } from '../../../../cli/cli.js';
+import { optionsUtils } from '../../../../utils/optionsUtils.js';
+import { entraApp } from '../../../../utils/entraApp.js';
 
 interface CommandArgs {
   options: Options;
@@ -37,6 +37,10 @@ class EntraAppSetCommand extends GraphCommand {
     return 'Updates Entra app registration';
   }
 
+  public allowUnknownOptions(): boolean | undefined {
+    return true;
+  }
+
   constructor() {
     super();
 
@@ -62,6 +66,7 @@ class EntraAppSetCommand extends GraphCommand {
         certificateDisplayName: typeof args.options.certificateDisplayName !== 'undefined',
         allowPublicClientFlows: typeof args.options.allowPublicClientFlows !== 'undefined'
       });
+      this.trackUnknownOptions(this.telemetryProperties, args.options);
     });
   }
 
@@ -127,6 +132,7 @@ class EntraAppSetCommand extends GraphCommand {
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
     try {
       let objectId = await this.getAppObjectId(args, logger);
+      objectId = await this.updateUnknownOptions(args, objectId);
       objectId = await this.configureUri(args, objectId, logger);
       objectId = await this.configureRedirectUris(args, objectId, logger);
       objectId = await this.updateAllowPublicClientFlows(args, objectId, logger);
@@ -148,32 +154,34 @@ class EntraAppSetCommand extends GraphCommand {
       await logger.logToStderr(`Retrieving information about Microsoft Entra app ${appId ? appId : name}...`);
     }
 
-    const filter: string = appId ?
-      `appId eq '${formatting.encodeQueryParameter(appId)}'` :
-      `displayName eq '${formatting.encodeQueryParameter(name as string)}'`;
-
-    const requestOptions: CliRequestOptions = {
-      url: `${this.resource}/v1.0/myorganization/applications?$filter=${filter}&$select=id`,
-      headers: {
-        accept: 'application/json;odata.metadata=none'
-      },
-      responseType: 'json'
-    };
-
-    const res = await request.get<{ value: { id: string }[] }>(requestOptions);
-
-    if (res.value.length === 1) {
-      return res.value[0].id;
+    if (appId) {
+      const app = await entraApp.getAppRegistrationByAppId(appId, ['id']);
+      return app.id!;
     }
-
-    if (res.value.length === 0) {
-      const applicationIdentifier = appId ? `ID ${appId}` : `name ${name}`;
-      throw `No Microsoft Entra application registration with ${applicationIdentifier} found`;
+    else {
+      const app = await entraApp.getAppRegistrationByAppName(name!, ["id"]);
+      return app.id!;
     }
+  }
 
-    const resultAsKeyValuePair = formatting.convertArrayToHashTable('id', res.value);
-    const result = await cli.handleMultipleResultsFound<{ id: string }>(`Multiple Microsoft Entra application registration with name '${name}' found.`, resultAsKeyValuePair);
-    return result.id;
+  private async updateUnknownOptions(args: CommandArgs, objectId: string): Promise<string> {
+    const unknownOptions = optionsUtils.getUnknownOptions(args.options, this.options);
+
+    if (Object.keys(unknownOptions).length > 0) {
+      const requestBody = {};
+      optionsUtils.addUnknownOptionsToPayload(requestBody, unknownOptions);
+
+      const requestOptions: CliRequestOptions = {
+        url: `${this.resource}/v1.0/myorganization/applications/${objectId}`,
+        headers: {
+          'content-type': 'application/json;odata.metadata=none'
+        },
+        responseType: 'json',
+        data: requestBody
+      };
+      await request.patch(requestOptions);
+    }
+    return objectId;
   }
 
   private async updateAllowPublicClientFlows(args: CommandArgs, objectId: string, logger: Logger): Promise<string> {

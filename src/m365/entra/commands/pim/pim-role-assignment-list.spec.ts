@@ -122,7 +122,7 @@ describe(commands.PIM_ROLE_ASSIGNMENT_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -336,7 +336,7 @@ describe(commands.PIM_ROLE_ASSIGNMENT_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { includePrincipalDetails: true } });
+    await command.action(logger, { options: { withPrincipalDetails: true } });
 
     assert(loggerLogSpy.calledOnceWithExactly(unifiedRoleAssignmentScheduleInstanceWithPrincipalResponse));
   });
@@ -353,7 +353,7 @@ describe(commands.PIM_ROLE_ASSIGNMENT_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { groupName: groupName, startDateTime: startDateTime, includePrincipalDetails: true } });
+    await command.action(logger, { options: { groupName: groupName, startDateTime: startDateTime, withPrincipalDetails: true } });
 
     assert(loggerLogSpy.calledOnceWithExactly(unifiedRoleAssignmentScheduleInstanceWithPrincipalResponse));
   });

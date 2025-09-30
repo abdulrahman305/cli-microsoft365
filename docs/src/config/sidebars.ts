@@ -3,6 +3,7 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   home: [
     'index',
+    'v11-upgrade-guidance',
     'v10-upgrade-guidance',
     'v9-upgrade-guidance',
     'v8-upgrade-guidance',
@@ -70,6 +71,20 @@ const sidebars: SidebarsConfig = {
           type: 'doc',
           label: 'issue',
           id: 'cmd/cli/cli-issue'
+        },
+        {
+          app: [
+            {
+              type: 'doc',
+              label: 'app add',
+              id: 'cmd/cli/app/app-add'
+            },
+            {
+              type: 'doc',
+              label: 'app reconsent',
+              id: 'cmd/cli/app/app-reconsent'
+            }
+          ]
         },
         {
           completion: [
@@ -375,6 +390,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'group member remove',
+              id: 'cmd/entra/group/group-member-remove'
+            },
+            {
+              type: 'doc',
               label: 'group member set',
               id: 'cmd/entra/group/group-member-set'
             }
@@ -595,6 +615,20 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
+          organization: [
+            {
+              type: 'doc',
+              label: 'organization list',
+              id: 'cmd/entra/organization/organization-list'
+            },
+            {
+              type: 'doc',
+              label: 'organization set',
+              id: 'cmd/entra/organization/organization-set'
+            }
+          ]
+        },
+        {
           pim: [
             {
               type: 'doc',
@@ -605,6 +639,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'pim role assignment list',
               id: 'cmd/entra/pim/pim-role-assignment-list'
+            },
+            {
+              type: 'doc',
+              label: 'pim role assignment remove',
+              id: 'cmd/entra/pim/pim-role-assignment-remove'
             },
             {
               type: 'doc',
@@ -624,6 +663,62 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'policy list',
               id: 'cmd/entra/policy/policy-list'
+            }
+          ]
+        },
+        {
+          resourcenamespace: [
+            {
+              type: 'doc',
+              label: 'resourcenamespace list',
+              id: 'cmd/entra/resourcenamespace/resourcenamespace-list'
+            }
+          ]
+        },
+        {
+          roleassignment: [
+            {
+              type: 'doc',
+              label: 'roleassignment add',
+              id: 'cmd/entra/roleassignment/roleassignment-add'
+            }
+          ]
+        },
+        {
+          roledefinition: [
+            {
+              type: 'doc',
+              label: 'roledefinition add',
+              id: 'cmd/entra/roledefinition/roledefinition-add'
+            },
+            {
+              type: 'doc',
+              label: 'roledefinition get',
+              id: 'cmd/entra/roledefinition/roledefinition-get'
+            },
+            {
+              type: 'doc',
+              label: 'roledefinition list',
+              id: 'cmd/entra/roledefinition/roledefinition-list'
+            },
+            {
+              type: 'doc',
+              label: 'roledefinition remove',
+              id: 'cmd/entra/roledefinition/roledefinition-remove'
+            },
+            {
+              type: 'doc',
+              label: 'roledefinition set',
+              id: 'cmd/entra/roledefinition/roledefinition-set'
+            }
+          ]
+        },
+        {
+          rolepermission: [
+            {
+              type: 'doc',
+              label: 'rolepermission list',
+              id: 'cmd/entra/rolepermission/rolepermission-list'
             }
           ]
         },
@@ -740,8 +835,26 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'user session revoke',
+              id: 'cmd/entra/user/user-session-revoke'
+            },
+            {
+              type: 'doc',
               label: 'user signin list',
               id: 'cmd/entra/user/user-signin-list'
+            }
+          ]
+        }
+      ]
+    },
+    {
+      'Exchange Online (exo)': [
+        {
+          'approleassignment': [
+            {
+              type: 'doc',
+              label: 'approleassignment add',
+              id: 'cmd/exo/approleassignment/approleassignment-add'
             }
           ]
         }
@@ -906,6 +1019,16 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'people profilecardproperty set',
               id: 'cmd/tenant/people/people-profilecardproperty-set'
+            },
+            {
+              type: 'doc',
+              label: 'people pronouns get',
+              id: 'cmd/tenant/people/people-pronouns-get'
+            },
+            {
+              type: 'doc',
+              label: 'people pronouns set',
+              id: 'cmd/tenant/people/people-pronouns-set'
             }
           ]
         },
@@ -940,6 +1063,16 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'report servicesusercounts',
               id: 'cmd/tenant/report/report-servicesusercounts'
+            },
+            {
+              type: 'doc',
+              label: 'report settings get',
+              id: 'cmd/tenant/report/report-settings-get'
+            },
+            {
+              type: 'doc',
+              label: 'report settings set',
+              id: 'cmd/tenant/report/report-settings-set'
             }
           ]
         },
@@ -996,6 +1129,59 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'changelog list',
               id: 'cmd/graph/changelog/changelog-list'
+            }
+          ]
+        },
+        {
+          directoryextension: [
+            {
+              type: 'doc',
+              label: 'directoryextension add',
+              id: 'cmd/graph/directoryextension/directoryextension-add'
+            },
+            {
+              type: 'doc',
+              label: 'directoryextension get',
+              id: 'cmd/graph/directoryextension/directoryextension-get'
+            },
+            {
+              type: 'doc',
+              label: 'directoryextension list',
+              id: 'cmd/graph/directoryextension/directoryextension-list'
+            },
+            {
+              type: 'doc',
+              label: 'directoryextension remove',
+              id: 'cmd/graph/directoryextension/directoryextension-remove'
+            }
+          ]
+        },
+        {
+          openextension: [
+            {
+              type: 'doc',
+              label: 'openextension add',
+              id: 'cmd/graph/openextension/openextension-add'
+            },
+            {
+              type: 'doc',
+              label: 'openextension get',
+              id: 'cmd/graph/openextension/openextension-get'
+            },
+            {
+              type: 'doc',
+              label: 'openextension list',
+              id: 'cmd/graph/openextension/openextension-list'
+            },
+            {
+              type: 'doc',
+              label: 'openextension remove',
+              id: 'cmd/graph/openextension/openextension-remove'
+            },
+            {
+              type: 'doc',
+              label: 'openextension set',
+              id: 'cmd/graph/openextension/openextension-set'
             }
           ]
         },
@@ -1120,8 +1306,27 @@ const sidebars: SidebarsConfig = {
           mail: [
             {
               type: 'doc',
+              label: 'mail searchfolder add',
+              id: 'cmd/outlook/mail/mail-searchfolder-add'
+            },
+            {
+              type: 'doc',
               label: 'mail send',
               id: 'cmd/outlook/mail/mail-send'
+            }
+          ]
+        },
+        {
+          mailbox: [
+            {
+              type: 'doc',
+              label: 'mailbox settings get',
+              id: 'cmd/outlook/mailbox/mailbox-settings-get'
+            },
+            {
+              type: 'doc',
+              label: 'mailbox settings set',
+              id: 'cmd/outlook/mailbox/mailbox-settings-set'
             }
           ]
         },
@@ -1629,45 +1834,21 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
-          card: [
+          copilot: [
             {
               type: 'doc',
-              label: 'card clone',
-              id: 'cmd/pp/card/card-clone'
+              label: 'copilot get',
+              id: 'cmd/pp/copilot/copilot-get'
             },
             {
               type: 'doc',
-              label: 'card get',
-              id: 'cmd/pp/card/card-get'
+              label: 'copliot list',
+              id: 'cmd/pp/copilot/copilot-list'
             },
             {
               type: 'doc',
-              label: 'card list',
-              id: 'cmd/pp/card/card-list'
-            },
-            {
-              type: 'doc',
-              label: 'card remove',
-              id: 'cmd/pp/card/card-remove'
-            }
-          ]
-        },
-        {
-          chatbot: [
-            {
-              type: 'doc',
-              label: 'chatbot get',
-              id: 'cmd/pp/chatbot/chatbot-get'
-            },
-            {
-              type: 'doc',
-              label: 'chatbot list',
-              id: 'cmd/pp/chatbot/chatbot-list'
-            },
-            {
-              type: 'doc',
-              label: 'chatbot remove',
-              id: 'cmd/pp/chatbot/chatbot-remove'
+              label: 'copilot remove',
+              id: 'cmd/pp/copilot/copilot-remove'
             }
           ]
         },
@@ -1797,6 +1978,15 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'tenant settings set',
               id: 'cmd/pp/tenant/tenant-settings-set'
+            }
+          ]
+        },
+        {
+          website: [
+            {
+              type: 'doc',
+              label: 'website get',
+              id: 'cmd/pp/website/website-get'
             }
           ]
         }
@@ -1936,30 +2126,51 @@ const sidebars: SidebarsConfig = {
       ]
     },
     {
-      'Skype (skype)': [
+      'SharePoint Embedded (spe)': [
         {
-          report: [
+          container: [
             {
               type: 'doc',
-              label: 'report activitycounts',
-              id: 'cmd/skype/report/report-activitycounts'
+              label: 'container activate',
+              id: 'cmd/spe/container/container-activate'
             },
             {
               type: 'doc',
-              label: 'report activityusercounts',
-              id: 'cmd/skype/report/report-activityusercounts'
+              label: 'container add',
+              id: 'cmd/spe/container/container-add'
             },
             {
               type: 'doc',
-              label: 'report activityuserdetail',
-              id: 'cmd/skype/report/report-activityuserdetail'
+              label: 'container get',
+              id: 'cmd/spe/container/container-get'
+            },
+            {
+              type: 'doc',
+              label: 'container list',
+              id: 'cmd/spe/container/container-list'
+            },
+            {
+              type: 'doc',
+              label: 'container remove',
+              id: 'cmd/spe/container/container-remove'
+            },
+            {
+              type: 'doc',
+              label: 'container permission list',
+              id: 'cmd/spe/container/container-permission-list'
+            },
+            {
+              type: 'doc',
+              label: 'container recyclebinitem list',
+              id: 'cmd/spe/container/container-recyclebinitem-list'
+            },
+            {
+              type: 'doc',
+              label: 'container recyclebinitem restore',
+              id: 'cmd/spe/container/container-recyclebinitem-restore'
             }
           ]
-        }
-      ]
-    },
-    {
-      'SharePoint Embedded (spe)': [
+        },
         {
           containertype: [
             {
@@ -1969,8 +2180,18 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'containertype get',
+              id: 'cmd/spe/containertype/containertype-get'
+            },
+            {
+              type: 'doc',
               label: 'containertype list',
               id: 'cmd/spe/containertype/containertype-list'
+            },
+            {
+              type: 'doc',
+              label: 'containertype remove',
+              id: 'cmd/spe/containertype/containertype-remove'
             }
           ]
         }
@@ -2517,6 +2738,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'file version keep',
+              id: 'cmd/spo/file/file-version-keep'
+            },
+            {
+              type: 'doc',
               label: 'file version list',
               id: 'cmd/spo/file/file-version-list'
             },
@@ -2693,8 +2919,18 @@ const sidebars: SidebarsConfig = {
           homesite: [
             {
               type: 'doc',
+              label: 'homesite add',
+              id: 'cmd/spo/homesite/homesite-add'
+            },
+            {
+              type: 'doc',
               label: 'homesite get',
               id: 'cmd/spo/homesite/homesite-get'
+            },
+            {
+              type: 'doc',
+              label: 'homesite list',
+              id: 'cmd/spo/homesite/homesite-list'
             },
             {
               type: 'doc',
@@ -2827,6 +3063,26 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'list contenttype default set',
               id: 'cmd/spo/list/list-contenttype-default-set'
+            },
+            {
+              type: 'doc',
+              label: 'list defaultvalue clear',
+              id: 'cmd/spo/list/list-defaultvalue-clear'
+            },
+            {
+              type: 'doc',
+              label: 'list defaultvalue list',
+              id: 'cmd/spo/list/list-defaultvalue-list'
+            },
+            {
+              type: 'doc',
+              label: 'list defaultvalue remove',
+              id: 'cmd/spo/list/list-defaultvalue-remove'
+            },
+            {
+              type: 'doc',
+              label: 'list defaultvalue set',
+              id: 'cmd/spo/list/list-defaultvalue-set'
             },
             {
               type: 'doc',
@@ -3065,15 +3321,6 @@ const sidebars: SidebarsConfig = {
           ]
         },
         {
-          mail: [
-            {
-              type: 'doc',
-              label: 'mail send',
-              id: 'cmd/spo/mail/mail-send'
-            }
-          ]
-        },
-        {
           navigation: [
             {
               type: 'doc',
@@ -3204,6 +3451,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'page control remove',
+              id: 'cmd/spo/page/page-control-remove'
+            },
+            {
+              type: 'doc',
               label: 'page control set',
               id: 'cmd/spo/page/page-control-set'
             },
@@ -3226,6 +3478,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'page section list',
               id: 'cmd/spo/page/page-section-list'
+            },
+            {
+              type: 'doc',
+              label: 'page section remove',
+              id: 'cmd/spo/page/page-section-remove'
             },
             {
               type: 'doc',
@@ -3389,6 +3646,11 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'site archive',
+              id: 'cmd/spo/site/site-archive'
+            },
+            {
+              type: 'doc',
               label: 'site ensure',
               id: 'cmd/spo/site/site-ensure'
             },
@@ -3405,7 +3667,7 @@ const sidebars: SidebarsConfig = {
             {
               type: 'doc',
               label: 'site list',
-              id: 'cmd/spo/tenant/tenant-site-list'
+              id: 'cmd/spo/site/site-list'
             },
             {
               type: 'doc',
@@ -3414,8 +3676,18 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'site rename',
+              id: 'cmd/spo/site/site-rename'
+            },
+            {
+              type: 'doc',
               label: 'site set',
               id: 'cmd/spo/site/site-set'
+            },
+            {
+              type: 'doc',
+              label: 'site unarchive',
+              id: 'cmd/spo/site/site-unarchive'
             },
             {
               type: 'doc',
@@ -3501,6 +3773,11 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'site inplacerecordsmanagement set',
               id: 'cmd/spo/site/site-inplacerecordsmanagement-set'
+            },
+            {
+              type: 'doc',
+              label: 'site membership list',
+              id: 'cmd/spo/site/site-membership-list'
             },
             {
               type: 'doc',
@@ -3747,31 +4024,6 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'tenant settings set',
               id: 'cmd/spo/tenant/tenant-settings-set'
-            },
-            {
-              type: 'doc',
-              label: 'tenant site archive',
-              id: 'cmd/spo/tenant/tenant-site-archive'
-            },
-            {
-              type: 'doc',
-              label: 'tenant site list',
-              id: 'cmd/spo/tenant/tenant-site-list'
-            },
-            {
-              type: 'doc',
-              label: 'tenant site rename',
-              id: 'cmd/spo/tenant/tenant-site-rename'
-            },
-            {
-              type: 'doc',
-              label: 'tenant site unarchive',
-              id: 'cmd/spo/tenant/tenant-site-unarchive'
-            },
-            {
-              type: 'doc',
-              label: 'tenant site membership list',
-              id: 'cmd/spo/tenant/tenant-site-membership-list'
             }
           ]
         },
@@ -3977,8 +4229,23 @@ const sidebars: SidebarsConfig = {
           model: [
             {
               type: 'doc',
+              label: 'model apply',
+              id: 'cmd/spp/model/model-apply'
+            },
+            {
+              type: 'doc',
+              label: 'model get',
+              id: 'cmd/spp/model/model-get'
+            },
+            {
+              type: 'doc',
               label: 'model list',
               id: 'cmd/spp/model/model-list'
+            },
+            {
+              type: 'doc',
+              label: 'model remove',
+              id: 'cmd/spp/model/model-remove'
             }
           ]
         }
@@ -4026,6 +4293,15 @@ const sidebars: SidebarsConfig = {
               type: 'doc',
               label: 'cache remove',
               id: 'cmd/teams/cache/cache-remove'
+            }
+          ]
+        },
+        {
+          callrecord: [
+            {
+              type: 'doc',
+              label: 'callrecord list',
+              id: 'cmd/teams/callrecord/callrecord-list'
             }
           ]
         },
@@ -4506,23 +4782,28 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'engage community remove',
+              id: 'cmd/viva/engage/engage-community-remove'
+            },
+            {
+              type: 'doc',
+              label: 'engage community set',
+              id: 'cmd/viva/engage/engage-community-set'
+            },
+            {
+              type: 'doc',
+              label: 'engage community user add',
+              id: 'cmd/viva/engage/engage-community-user-add'
+            },
+            {
+              type: 'doc',
               label: 'engage community user list',
               id: 'cmd/viva/engage/engage-community-user-list'
             },
             {
               type: 'doc',
-              label: 'engage group list',
-              id: 'cmd/viva/engage/engage-group-list'
-            },
-            {
-              type: 'doc',
-              label: 'engage group user add',
-              id: 'cmd/viva/engage/engage-group-user-add'
-            },
-            {
-              type: 'doc',
-              label: 'engage group user remove',
-              id: 'cmd/viva/engage/engage-group-user-remove'
+              label: 'engage community user remove',
+              id: 'cmd/viva/engage/engage-community-user-remove'
             },
             {
               type: 'doc',
@@ -4601,6 +4882,16 @@ const sidebars: SidebarsConfig = {
             },
             {
               type: 'doc',
+              label: 'engage role list',
+              id: 'cmd/viva/engage/engage-role-list'
+            },
+            {
+              type: 'doc',
+              label: 'engage role member list',
+              id: 'cmd/viva/engage/engage-role-member-list'
+            },
+            {
+              type: 'doc',
               label: 'engage user get',
               id: 'cmd/viva/engage/engage-user-get'
             },
@@ -4674,10 +4965,15 @@ const sidebars: SidebarsConfig = {
         },
         {
           type: 'doc',
-          label: 'Help page',
+          label: 'Docs page',
           id: 'contribute/new-command/writing-the-docs'
         }
       ]
+    },
+    {
+      type: 'doc',
+      label: 'Documenting minimal permissions',
+      id: 'contribute/document-minimal-permissions'
     },
     {
       type: 'doc',

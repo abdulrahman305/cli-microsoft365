@@ -23,7 +23,7 @@ describe(commands.M365GROUP_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -1447,7 +1447,7 @@ describe(commands.M365GROUP_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { includeSiteUrl: true } });
+    await command.action(logger, { options: { withSiteUrl: true } });
     assert(loggerLogSpy.calledWith([
       {
         "id": "010d2f0a-0c17-4ec8-b694-e85bbe607013",
@@ -1576,7 +1576,7 @@ describe(commands.M365GROUP_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { debug: true, includeSiteUrl: true } });
+    await command.action(logger, { options: { debug: true, withSiteUrl: true } });
     assert(loggerLogSpy.calledWith([
       <Group>{
         "id": "010d2f0a-0c17-4ec8-b694-e85bbe607013",
@@ -1703,7 +1703,7 @@ describe(commands.M365GROUP_LIST, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { includeSiteUrl: true } });
+    await command.action(logger, { options: { withSiteUrl: true } });
     assert(loggerLogSpy.calledWith([
       <Group>{
         "id": "010d2f0a-0c17-4ec8-b694-e85bbe607013",
@@ -1830,11 +1830,11 @@ describe(commands.M365GROUP_LIST, () => {
       throw 'Invalid request';
     });
 
-    await assert.rejects(command.action(logger, { options: { includeSiteUrl: true } } as any), new CommandError('An error has occurred'));
+    await assert.rejects(command.action(logger, { options: { withSiteUrl: true } } as any), new CommandError('An error has occurred'));
   });
 
-  it('passes validation if only includeSiteUrl option set', async () => {
-    const actual = await command.validate({ options: { includeSiteUrl: true } }, commandInfo);
+  it('passes validation if only withSiteUrl option set', async () => {
+    const actual = await command.validate({ options: { withSiteUrl: true } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 

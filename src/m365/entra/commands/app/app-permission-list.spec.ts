@@ -14,11 +14,22 @@ import command from './app-permission-list.js';
 import { settingsNames } from '../../../../settingsNames.js';
 import { application, graphApplication, graphOauth2PermissionScope, spOnlineApplication, spOnlineOauth2PermissionScope, allPermissionsResponse, applicationPermissionsResponse, delegatedPermissionsResponse, applicationWithoutPermissions, applicationWithUnknownPermissions, allUnknownPermissionsResponse, allUnkownServicePrincipalPermissionsResponse } from './app-permission-list.mock.js';
 import { CommandError } from '../../../../Command.js';
+import { entraApp } from '../../../../utils/entraApp.js';
 
 describe(commands.APP_PERMISSION_LIST, () => {
   const appId = '2bf26ae1-9be3-425f-a393-5fe8390e3a36';
   const appName = 'My App';
   const appObjectId = '29807f3b-fef6-4985-b987-8c2565d021bc';
+
+  //#region Mocked Responses 
+  const appResponse = {
+    value: [
+      {
+        "id": appObjectId
+      }
+    ]
+  };
+  //#endregion
 
   let log: string[];
   let logger: Logger;
@@ -27,7 +38,7 @@ describe(commands.APP_PERMISSION_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -61,7 +72,9 @@ describe(commands.APP_PERMISSION_LIST, () => {
     sinonUtil.restore([
       request.get,
       cli.getSettingWithDefaultValue,
-      cli.handleMultipleResultsFound
+      cli.handleMultipleResultsFound,
+      entraApp.getAppRegistrationByAppId,
+      entraApp.getAppRegistrationByAppName
     ]);
   });
 
@@ -185,7 +198,7 @@ describe(commands.APP_PERMISSION_LIST, () => {
         return graphApplication;
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
 
@@ -231,7 +244,7 @@ describe(commands.APP_PERMISSION_LIST, () => {
         return graphApplication;
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
     await command.action(logger, { options: { appObjectId: appObjectId, type: 'application' } });
@@ -239,6 +252,8 @@ describe(commands.APP_PERMISSION_LIST, () => {
   });
 
   it('lists the delegated permissions of an app registration when using appId', async () => {
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').resolves(appResponse.value[0]);
+
     sinon.stub(request, 'get').callsFake(async (opts) => {
       if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications?$filter=appId eq '2bf26ae1-9be3-425f-a393-5fe8390e3a36'&$select=id`) {
         return { value: [{ id: '29807f3b-fef6-4985-b987-8c2565d021bc' }] };
@@ -280,19 +295,16 @@ describe(commands.APP_PERMISSION_LIST, () => {
         return graphOauth2PermissionScope;
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
-    await command.action(logger, { options: { appId: appId, type: 'delegated' } });
+    await command.action(logger, { options: { appId: appId, type: 'delegated', debug: true } });
     assert(loggerLogSpy.calledWith(delegatedPermissionsResponse));
   });
 
   it('lists the delegated permissions of an app registration when using appName', async () => {
+    sinon.stub(entraApp, 'getAppRegistrationByAppName').resolves(appResponse.value[0]);
     sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications?$filter=displayName eq 'My%20App'&$select=id`) {
-        return { value: [{ id: '29807f3b-fef6-4985-b987-8c2565d021bc' }] };
-      }
-
       if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications/${appObjectId}`) {
         return application;
       }
@@ -329,130 +341,38 @@ describe(commands.APP_PERMISSION_LIST, () => {
         return graphOauth2PermissionScope;
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
-    await command.action(logger, { options: { appName: appName, type: 'delegated' } });
+    await command.action(logger, { options: { appName: appName, type: 'delegated', verbose: true } });
     assert(loggerLogSpy.calledWith(delegatedPermissionsResponse));
   });
 
   it('handles error when multiple apps with the specified name found', async () => {
-    sinon.stub(cli, 'getSettingWithDefaultValue').callsFake((settingName, defaultValue) => {
-      if (settingName === settingsNames.prompt) {
-        return false;
-      }
-
-      return defaultValue;
-    });
-
-    sinon.stub(request, 'get').callsFake(async opts => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications?$filter=displayName eq 'My%20App'&$select=id`) {
-        return {
-          value: [
-            { id: '9b1b1e42-794b-4c71-93ac-5ed92488b67f' },
-            { id: '9b1b1e42-794b-4c71-93ac-5ed92488b67g' }
-          ]
-        };
-      }
-
-      throw `Invalid request ${JSON.stringify(opts)}`;
-    });
+    const error = `Multiple apps with name 'My app' found in Microsoft Entra ID. Found: 9b1b1e42-794b-4c71-93ac-5ed92488b67f, 9b1b1e42-794b-4c71-93ac-5ed92488b67g.`;
+    sinon.stub(entraApp, 'getAppRegistrationByAppName').rejects(new Error(error));
 
     await assert.rejects(command.action(logger, {
       options: {
         appName: appName
       }
-    }), new CommandError(`Multiple Entra application registrations with name 'My App' found. Found: 9b1b1e42-794b-4c71-93ac-5ed92488b67f, 9b1b1e42-794b-4c71-93ac-5ed92488b67g.`));
-  });
-
-  it('handles selecting single result when multiple apps with the specified name found and cli is set to prompt', async () => {
-    sinon.stub(request, 'get').callsFake(async opts => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications?$filter=displayName eq 'My%20App'&$select=id`) {
-        return {
-          value: [
-            { id: '9b1b1e42-794b-4c71-93ac-5ed92488b67f' },
-            { id: '9b1b1e42-794b-4c71-93ac-5ed92488b67g' }
-          ]
-        };
-      }
-
-      if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications/9b1b1e42-794b-4c71-93ac-5ed92488b67f`) {
-        return application;
-      }
-
-      if (opts.url === `https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '00000003-0000-0ff1-ce00-000000000000'&$select=appId,id,displayName`) {
-        return {
-          "value": [
-            {
-              "appId": "00000003-0000-0ff1-ce00-000000000000",
-              "id": "5d72c3ba-e836-4be3-94fb-fa6057b1611b",
-              "displayName": "Office 365 SharePoint Online"
-            }
-          ]
-        };
-      }
-
-      if (opts.url === `https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '00000003-0000-0000-c000-000000000000'&$select=appId,id,displayName`) {
-        return {
-          "value": [
-            {
-              "appId": "00000003-0000-0000-c000-000000000000",
-              "id": "6aac2819-1b16-4d85-be7b-4bc1d1a456a7",
-              "displayName": "Microsoft Graph"
-            }
-          ]
-        };
-      }
-
-      if (opts.url === `https://graph.microsoft.com/v1.0/servicePrincipals/6aac2819-1b16-4d85-be7b-4bc1d1a456a7/oauth2PermissionScopes`) {
-        return spOnlineOauth2PermissionScope;
-      }
-
-      if (opts.url === `https://graph.microsoft.com/v1.0/servicePrincipals/6aac2819-1b16-4d85-be7b-4bc1d1a456a7/appRoles`) {
-        return spOnlineApplication;
-      }
-
-      if (opts.url === `https://graph.microsoft.com/v1.0/servicePrincipals/5d72c3ba-e836-4be3-94fb-fa6057b1611b/oauth2PermissionScopes`) {
-        return graphOauth2PermissionScope;
-      }
-
-      if (opts.url === `https://graph.microsoft.com/v1.0/servicePrincipals/5d72c3ba-e836-4be3-94fb-fa6057b1611b/appRoles`) {
-        return graphApplication;
-      }
-
-      throw `Invalid request ${JSON.stringify(opts)}`;
-    });
-
-    sinon.stub(cli, 'handleMultipleResultsFound').resolves({ id: '9b1b1e42-794b-4c71-93ac-5ed92488b67f' });
-
-    await command.action(logger, { options: { appName: appName, verbose: true } });
-    assert(loggerLogSpy.calledWith(allPermissionsResponse));
+    }), new CommandError(error));
   });
 
   it('handles a non-existent app by appId', async () => {
-    sinon.stub(request, 'get').callsFake(async opts => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications?$filter=appId eq '${appId}'&$select=id`) {
-        return { value: [] };
-      }
-
-      throw 'Invalid request';
-    });
+    const error = `App with appId '${appId}' not found in Microsoft Entra ID`;
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').rejects(new Error(error));
 
     await assert.rejects(command.action(logger, { options: { appId: appId } }),
-      new CommandError(`No Microsoft Entra application registration with ID ${appId} found`));
+      new CommandError(error));
   });
 
   it('handles a non-existent app by appName', async () => {
-    sinon.stub(request, 'get').callsFake(async opts => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/myorganization/applications?$filter=displayName eq 'My%20App'&$select=id`) {
-        return { value: [] };
-      }
-
-      throw 'Invalid request';
-    });
+    const error = `App with name 'My app' not found in Microsoft Entra ID`;
+    sinon.stub(entraApp, 'getAppRegistrationByAppName').rejects(new Error(error));
 
     await assert.rejects(command.action(logger, { options: { appName: appName } }),
-      new CommandError(`No Microsoft Entra application registration with name ${appName} found`));
+      new CommandError(error));
   });
 
   it('lists no permissions for app registration without permissions', async () => {
@@ -461,7 +381,7 @@ describe(commands.APP_PERMISSION_LIST, () => {
         return applicationWithoutPermissions;
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
     await command.action(logger, { options: { appObjectId: appObjectId } });
@@ -514,7 +434,7 @@ describe(commands.APP_PERMISSION_LIST, () => {
         return graphApplication;
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
     await command.action(logger, { options: { appObjectId: appObjectId } });
@@ -539,7 +459,7 @@ describe(commands.APP_PERMISSION_LIST, () => {
         };
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
     await command.action(logger, { options: { appObjectId: appObjectId } });
@@ -560,7 +480,7 @@ describe(commands.APP_PERMISSION_LIST, () => {
         };
       }
 
-      throw 'Invalid request';
+      throw `Invalid request ${JSON.stringify(opts)}`;
     });
 
     await assert.rejects(command.action(logger, { options: { appObjectId: appObjectId } }), new CommandError(`An error has occurred`));

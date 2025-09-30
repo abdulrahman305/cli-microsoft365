@@ -1,20 +1,15 @@
-import { cli } from '../../../../cli/cli.js';
 import { Logger } from '../../../../cli/Logger.js';
-import Command, {
-  CommandError
-} from '../../../../Command.js';
 import config from '../../../../config.js';
 import GlobalOptions from '../../../../GlobalOptions.js';
 import request, { CliRequestOptions } from '../../../../request.js';
+import { entraGroup } from '../../../../utils/entraGroup.js';
 import { formatting } from '../../../../utils/formatting.js';
 import { ClientSvcResponse, ClientSvcResponseContents, FormDigestInfo, spo, SpoOperation } from '../../../../utils/spo.js';
 import { urlUtil } from '../../../../utils/urlUtil.js';
 import { validation } from '../../../../utils/validation.js';
-import entraM365GroupSetCommand, { Options as EntraM365GroupSetCommandOptions } from '../../../entra/commands/m365group/m365group-set.js';
 import SpoCommand from '../../../base/SpoCommand.js';
 import commands from '../../commands.js';
 import { SharingCapabilities } from '../site/SharingCapabilities.js';
-import spoSiteDesignApplyCommand, { Options as SpoSiteDesignApplyCommandOptions } from '../sitedesign/sitedesign-apply.js';
 import { FlowsPolicy } from './FlowsPolicy.js';
 import { setTimeout } from 'timers/promises';
 
@@ -293,10 +288,6 @@ class SpoSiteSetCommand extends SpoCommand {
       await this.waitForSiteUpdateCompletion(logger, args, lockState);
     }
     catch (err: any) {
-      if (err instanceof CommandError) {
-        err = (err as CommandError).message;
-      }
-
       this.handleRejectedPromise(err);
     }
   }
@@ -310,7 +301,7 @@ class SpoSiteSetCommand extends SpoCommand {
       await logger.logToStderr(`Setting the site its logo...`);
     }
 
-    const logoUrl = args.options.siteLogoUrl ? urlUtil.getServerRelativePath(args.options.url, args.options.siteLogoUrl) : "";
+    const logoUrl = args.options.siteLogoUrl ? urlUtil.getUrlRelativePath(args.options.siteLogoUrl) : "";
 
     const requestOptions: any = {
       url: `${args.options.url}/_api/siteiconmanager/setsitelogo`,
@@ -337,7 +328,7 @@ class SpoSiteSetCommand extends SpoCommand {
       await logger.logToStderr(`Setting the site thumbnail...`);
     }
 
-    const thumbnailUrl = args.options.siteThumbnailUrl ? urlUtil.getServerRelativePath(args.options.url, args.options.siteThumbnailUrl) : "";
+    const thumbnailUrl = args.options.siteThumbnailUrl ? urlUtil.getUrlRelativePath(args.options.siteThumbnailUrl) : "";
 
     const requestOptions: any = {
       url: `${args.options.url}/_api/siteiconmanager/setsitelogo`,
@@ -512,13 +503,7 @@ class SpoSiteSetCommand extends SpoCommand {
     }
 
     if (typeof args.options.isPublic !== 'undefined') {
-      const commandOptions: EntraM365GroupSetCommandOptions = {
-        id: this.groupId as string,
-        isPrivate: (args.options.isPublic === false),
-        debug: this.debug,
-        verbose: this.verbose
-      };
-      promises.push(cli.executeCommand(entraM365GroupSetCommand as Command, { options: { ...commandOptions, _: [] } }));
+      promises.push(entraGroup.setGroup(this.groupId as string, (args.options.isPublic === false), undefined, undefined, logger, this.verbose));
     }
 
     if (args.options.description) {
@@ -678,7 +663,7 @@ class SpoSiteSetCommand extends SpoCommand {
         headers: {
           'X-RequestDigest': this.context.FormDigestValue
         },
-        data: `<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="16.0.0.0" ApplicationName="${config.applicationName}" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009"><Actions>${payload.join('')}<ObjectPath Id="14" ObjectPathId="13" /><ObjectIdentityQuery Id="15" ObjectPathId="5" /><Query Id="16" ObjectPathId="13"><Query SelectAllProperties="false"><Properties><Property Name="IsComplete" ScalarProperty="true" /><Property Name="PollingInterval" ScalarProperty="true" /></Properties></Query></Query></Actions><ObjectPaths><Identity Id="5" Name="53d8499e-d0d2-5000-cb83-9ade5be42ca4|${(this.tenantId as string).substr(pos, (this.tenantId as string).indexOf('&') - pos)}&#xA;SiteProperties&#xA;${formatting.encodeQueryParameter(args.options.url)}" /><Method Id="13" ParentId="5" Name="Update" /></ObjectPaths></Request>`
+        data: `<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="16.0.0.0" ApplicationName="${config.applicationName}" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009"><Actions>${payload.join('')}<ObjectPath Id="14" ObjectPathId="13" /><ObjectIdentityQuery Id="15" ObjectPathId="5" /><Query Id="16" ObjectPathId="13"><Query SelectAllProperties="false"><Properties><Property Name="IsComplete" ScalarProperty="true" /><Property Name="PollingInterval" ScalarProperty="true" /></Properties></Query></Query></Actions><ObjectPaths><Identity Id="5" Name="53d8499e-d0d2-5000-cb83-9ade5be42ca4|${(this.tenantId as string).substring(pos, (this.tenantId as string).indexOf('&'))}&#xA;SiteProperties&#xA;${formatting.encodeQueryParameter(args.options.url)}" /><Method Id="13" ParentId="5" Name="Update" /></ObjectPaths></Request>`
       };
 
       response = await request.post<string>(requestOptions);
@@ -692,15 +677,7 @@ class SpoSiteSetCommand extends SpoCommand {
       return;
     }
 
-    const options: SpoSiteDesignApplyCommandOptions = {
-      webUrl: args.options.url,
-      id: args.options.siteDesignId,
-      asTask: false,
-      debug: this.debug,
-      verbose: this.verbose
-    };
-
-    return cli.executeCommand(spoSiteDesignApplyCommand as Command, { options: { ...options, _: [] } });
+    return spo.applySiteDesign(args.options.url, args.options.siteDesignId, logger, this.verbose);
   }
 
   private async loadSiteIds(siteUrl: string, logger: Logger): Promise<void> {

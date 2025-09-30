@@ -15,6 +15,7 @@ import { sinonUtil } from '../../../../utils/sinonUtil.js';
 import commands from '../../commands.js';
 import command from './app-permission-remove.js';
 import { settingsNames } from '../../../../settingsNames.js';
+import { entraApp } from "../../../../utils/entraApp.js";
 
 describe(commands.APP_PERMISSION_REMOVE, () => {
   const appId = '9c79078b-815e-4a3e-bb80-2aaf2d9e9b3d';
@@ -26,7 +27,6 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
   const applications: Application[] = [{ id: appObjectId, appId: appId, requiredResourceAccess: [{ resourceAppId: "00000003-0000-0000-c000-000000000000", resourceAccess: [{ id: "e4aa47b9-9a69-4109-82ed-36ec70d85ff1", type: "Scope" }, { id: "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", type: "Scope" }, { id: "332a536c-c7ef-4017-ab91-336970924f0d", type: "Role" }] }] }];
   const applicationPermissions = 'https://graph.microsoft.com/User.ReadWrite.All https://graph.microsoft.com/User.Read.All';
   const delegatedPermissions = 'https://graph.microsoft.com/offline_access';
-  const selectProperties = '$select=id,appId,requiredResourceAccess';
 
   let log: string[];
   let logger: Logger;
@@ -36,7 +36,7 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -83,7 +83,10 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
       odata.getAllItems,
       cli.getSettingWithDefaultValue,
       cli.promptForConfirmation,
-      cli.handleMultipleResultsFound
+      cli.handleMultipleResultsFound,
+      entraApp.getAppRegistrationByAppId,
+      entraApp.getAppRegistrationByAppName,
+      entraApp.getAppRegistrationByObjectId
     ]);
   });
 
@@ -113,7 +116,8 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
     assert(loggerLogSpy.notCalled);
   });
 
-  it('deletes application permissions and prompt for specifying application when multiple applications found by name and revokes admin consent', async () => {
+  it('deletes application permissions from app specified by name and revokes admin consent', async () => {
+    sinon.stub(entraApp, 'getAppRegistrationByAppName').resolves(applications[0]);
     const appRoleAssignmentsResponse = [
       {
         id: 'P-xE0cQGikiP9FoIACRlwUa883F-Po5OvrTyGaYOliU',
@@ -137,12 +141,9 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
 
     sinonUtil.restore(cli.promptForConfirmation);
     sinon.stub(cli, 'promptForConfirmation').resolves(true);
-    sinon.stub(cli, 'handleMultipleResultsFound').resolves(applicationsCopy[0]);
 
     sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
       switch (url) {
-        case `https://graph.microsoft.com/v1.0/applications?$filter=displayName eq '${appName}'&${selectProperties}`:
-          return applicationsCopy;
         case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
           return servicePrincipals;
         case `https://graph.microsoft.com/v1.0/servicePrincipals/${servicePrincipalId}/appRoleAssignments?$select=id,appRoleId,resourceId`:
@@ -203,14 +204,7 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
       }
     ];
 
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/applications/${appObjectId}?${selectProperties}`) {
-        return applications[0];
-      }
-
-      throw 'Invalid request';
-    });
-
+    sinon.stub(entraApp, 'getAppRegistrationByObjectId').resolves(applications[0]);
     sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
       switch (url) {
         case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
@@ -261,19 +255,58 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
     assert(patchStub.lastCall.args[0].data.scope === 'AgreementAcceptance.Read');
   });
 
-  it('deletes delegated permissions from app specified by appId', async () => {
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/applications/${appObjectId}?${selectProperties}`) {
-        return applications[0];
-      }
-
-      throw 'Invalid request';
-    });
+  it('Deletes delegated permissions from app specified by appObjectId and skips revoking admin consent when service principal is not found', async () => {
+    sinon.stub(entraApp, 'getAppRegistrationByObjectId').resolves(applications[0]);
 
     sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
       switch (url) {
-        case `https://graph.microsoft.com/v1.0/applications?$filter=appId eq '${appId}'&${selectProperties}`:
-          return applications;
+        case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
+          return [{ "appId": "00000003-0000-0000-c000-000000000000", "id": "fb4be1df-eaa6-4bd0-a068-71f9b2cbe2be", "servicePrincipalNames": ["https://canary.graph.microsoft.com/", "https://graph.microsoft.us/", "https://dod-graph.microsoft.us/", "00000003-0000-0000-c000-000000000000/ags.windows.net", "00000003-0000-0000-c000-000000000000", "https://canary.graph.microsoft.com", "https://graph.microsoft.com", "https://ags.windows.net", "https://graph.microsoft.us", "https://graph.microsoft.com/", "https://dod-graph.microsoft.us"], "appRoles": [{ "allowedMemberTypes": ["Application"], "description": "Allows the app to read and update user profiles without a signed in user.", "displayName": "Read and write all users' full profiles", "id": "741f803b-c850-494e-b5df-cde7c675a1ca", "isEnabled": true, "origin": "Application", "value": "User.ReadWrite.All" }, { "allowedMemberTypes": ["Application"], "description": "Allows the app to read user profiles without a signed in user.", "displayName": "Read all users' full profiles", "id": "df021288-bdef-4463-88db-98f22de89214", "isEnabled": true, "origin": "Application", "value": "User.Read.All" }, { "allowedMemberTypes": ["Application"], "description": "Allows the app to read and query your audit log activities, without a signed-in user.", "displayName": "Read all audit log data", "id": "b0afded3-3588-46d8-8b3d-9842eff778da", "isEnabled": true, "origin": "Application", "value": "AuditLog.Read.All" }], "oauth2PermissionScopes": [{ "adminConsentDescription": "Allows the app to see and update the data you gave it access to, even when users are not currently using the app. This does not give the app any additional permissions.", "adminConsentDisplayName": "Maintain access to data you have given it access to", "id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", "isEnabled": true, "type": "User", "userConsentDescription": "Allows the app to see and update the data you gave it access to, even when you are not currently using the app. This does not give the app any additional permissions.", "userConsentDisplayName": "Maintain access to data you have given it access to", "value": "offline_access" }, { "adminConsentDescription": "Allows the app to read the available Teams templates, on behalf of the signed-in user.", "adminConsentDisplayName": "Read available Teams templates", "id": "cd87405c-5792-4f15-92f7-debc0db6d1d6", "isEnabled": true, "type": "User", "userConsentDescription": "Read available Teams templates, on your behalf.", "userConsentDisplayName": "Read available Teams templates", "value": "TeamTemplates.Read" }] }];
+        default:
+          throw 'Invalid request';
+      }
+    });
+
+    const patchStub = sinon.stub(request, 'patch').callsFake(async (opts) => {
+      switch (opts.url) {
+        case `https://graph.microsoft.com/v1.0/applications/${appObjectId}`:
+          if (JSON.stringify(opts.data) === JSON.stringify({
+            "requiredResourceAccess": [
+              {
+                "resourceAppId": "00000003-0000-0000-c000-000000000000",
+                "resourceAccess": [
+                  {
+                    "id": "e4aa47b9-9a69-4109-82ed-36ec70d85ff1",
+                    "type": "Scope"
+                  },
+                  {
+                    "id": "332a536c-c7ef-4017-ab91-336970924f0d",
+                    "type": "Role"
+                  }
+                ]
+              }
+            ]
+          })) {
+            return;
+          }
+          else {
+            throw 'Invalid request';
+          }
+        default:
+          throw 'Invalid request';
+      }
+    });
+
+    await command.action(logger, { options: { appObjectId: appObjectId, delegatedPermissions: delegatedPermissions, revokeAdminConsent: true, debug: true, force: true } });
+    assert(patchStub.calledOnce);
+    assert(!patchStub.lastCall.args[0].url!.includes('oauth2PermissionGrants'));
+  });
+
+  it('deletes delegated permissions from app specified by appId', async () => {
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').resolves(applications[0]);
+
+    sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
+      switch (url) {
         case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
           return servicePrincipals;
         case `https://graph.microsoft.com/v1.0/servicePrincipals/${servicePrincipalId}/appRoleAssignments?$select=id,appRoleId,resourceId`:
@@ -314,18 +347,9 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
   });
 
   it('submits empty array when removing last delegated permission', async () => {
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/applications/${appObjectId}?${selectProperties}`) {
-        return applications[0];
-      }
-
-      throw 'Invalid request';
-    });
-
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').resolves({ id: appObjectId, appId: appId, requiredResourceAccess: [{ resourceAppId: "00000003-0000-0000-c000-000000000000", resourceAccess: [{ id: "cd87405c-5792-4f15-92f7-debc0db6d1d6", type: "Scope" }, { id: "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", type: "Scope" }] }] });
     sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
       switch (url) {
-        case `https://graph.microsoft.com/v1.0/applications?$filter=appId eq '${appId}'&${selectProperties}`:
-          return [{ id: appObjectId, appId: appId, requiredResourceAccess: [{ resourceAppId: "00000003-0000-0000-c000-000000000000", resourceAccess: [{ id: "cd87405c-5792-4f15-92f7-debc0db6d1d6", type: "Scope" }, { id: "7427e0e9-2fba-42fe-b0c0-848c9e6a8182", type: "Scope" }] }] }];
         case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
           return servicePrincipals;
         case `https://graph.microsoft.com/v1.0/servicePrincipals/${servicePrincipalId}/appRoleAssignments?$select=id,appRoleId,resourceId`:
@@ -354,18 +378,9 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
   });
 
   it('submits empty array when removing last application permission', async () => {
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://graph.microsoft.com/v1.0/applications/${appObjectId}?${selectProperties}`) {
-        return applications[0];
-      }
-
-      throw 'Invalid request';
-    });
-
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').resolves({ id: appObjectId, appId: appId, requiredResourceAccess: [{ resourceAppId: "00000003-0000-0000-c000-000000000000", resourceAccess: [{ id: "741f803b-c850-494e-b5df-cde7c675a1ca", type: "Role" }] }] });
     sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
       switch (url) {
-        case `https://graph.microsoft.com/v1.0/applications?$filter=appId eq '${appId}'&${selectProperties}`:
-          return [{ id: appObjectId, appId: appId, requiredResourceAccess: [{ resourceAppId: "00000003-0000-0000-c000-000000000000", resourceAccess: [{ id: "741f803b-c850-494e-b5df-cde7c675a1ca", type: "Role" }] }] }];
         case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
           return servicePrincipals;
         case `https://graph.microsoft.com/v1.0/servicePrincipals/${servicePrincipalId}/appRoleAssignments?$select=id,appRoleId,resourceId`:
@@ -393,31 +408,8 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
     assert(patchStub.calledOnce);
   });
 
-  it('throws error if application specified by name cannot be found', async () => {
-    sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
-      if (url === `https://graph.microsoft.com/v1.0/applications?$filter=displayName eq '${appName}'&${selectProperties}`) {
-        return [];
-      }
-
-      throw 'Invalid request';
-    });
-    await assert.rejects(command.action(logger, { options: { verbose: true, appName: appName, delegatedPermissions: delegatedPermissions, force: true } }),
-      new CommandError(`App with name ${appName} not found in Microsoft Entra ID`));
-  });
-
-  it('throws error if application specified by appId cannot be found', async () => {
-    sinon.stub(odata, 'getAllItems').callsFake(async (url) => {
-      if (url === `https://graph.microsoft.com/v1.0/applications?$filter=appId eq '${appId}'&${selectProperties}`) {
-        return [];
-      }
-
-      throw 'Invalid request';
-    });
-    await assert.rejects(command.action(logger, { options: { verbose: true, appId: appId, delegatedPermissions: delegatedPermissions, force: true } }),
-      new CommandError(`App with id ${appId} not found in Microsoft Entra ID`));
-  });
-
   it('throws an error when service principal is not found', async () => {
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').resolves(applications[0]);
     const applicationPermission = 'https://grax.microsoft.com/User.ReadWrite.All';
     const pos: number = applicationPermission.lastIndexOf('/');
     const servicePrincipalName: string = applicationPermission.substring(0, pos);
@@ -425,8 +417,6 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
       switch (url) {
         case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
           return servicePrincipals;
-        case `https://graph.microsoft.com/v1.0/applications?$filter=appId eq '${appId}'&$select=id,appId,requiredResourceAccess`:
-          return applications;
         default:
           throw 'Invalid request';
       }
@@ -437,6 +427,7 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
   });
 
   it('throws an error when permission is not found', async () => {
+    sinon.stub(entraApp, 'getAppRegistrationByAppId').resolves(applications[0]);
     const applicationPermission = 'https://graph.microsoft.com/NotFound.All';
     const pos: number = applicationPermission.lastIndexOf('/');
     const servicePrincipalName: string = applicationPermission.substring(0, pos);
@@ -445,8 +436,6 @@ describe(commands.APP_PERMISSION_REMOVE, () => {
       switch (url) {
         case 'https://graph.microsoft.com/v1.0/servicePrincipals?$select=appId,appRoles,id,oauth2PermissionScopes,servicePrincipalNames':
           return servicePrincipals;
-        case `https://graph.microsoft.com/v1.0/applications?$filter=appId eq '${appId}'&$select=id,appId,requiredResourceAccess`:
-          return applications;
         default:
           throw 'Invalid request';
       }

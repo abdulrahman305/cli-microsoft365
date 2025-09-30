@@ -22,7 +22,7 @@ describe(commands.ENTERPRISEAPP_ADD, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -66,6 +66,11 @@ describe(commands.ENTERPRISEAPP_ADD, () => {
 
   it('has a description', () => {
     assert.notStrictEqual(command.description, null);
+  });
+
+  it('defines correct alias', () => {
+    const alias = command.alias();
+    assert.deepStrictEqual(alias, [commands.SP_ADD]);
   });
 
   it('fails validation if neither the id, displayName, nor objectId option specified', async () => {

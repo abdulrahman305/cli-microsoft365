@@ -219,7 +219,7 @@ describe(commands.RUN_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -285,23 +285,6 @@ describe(commands.RUN_GET, () => {
 
     await command.action(logger, { options: { flowName: flowName, environmentName: environmentName, name: runName } });
     assert(loggerLogSpy.calledWith(flowResponseFormattedNoEndTime));
-  });
-
-  it('retrieves information about the specified run including trigger information using includeTriggerInformation parameter', async () => {
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === `https://api.flow.microsoft.com/providers/Microsoft.ProcessSimple/environments/${environmentName}/flows/${flowName}/runs/${runName}?api-version=2016-11-01`) {
-        return flowResponse;
-      }
-
-      if (opts.url === flowResponse.properties.trigger.outputsLink.uri) {
-        return triggerInformationResponse;
-      }
-
-      throw 'Invalid request';
-    });
-
-    await command.action(logger, { options: { flowName: flowName, environmentName: environmentName, name: runName, includeTriggerInformation: true, verbose: true } });
-    assert(loggerLogSpy.calledWith(flowResponseFormattedIncludingInformation));
   });
 
   it('retrieves information about the specified run including trigger information using withTrigger parameter', async () => {
@@ -430,9 +413,5 @@ describe(commands.RUN_GET, () => {
   it('passes validation if the flowName is not valid GUID', async () => {
     const actual = await command.validate({ options: { environmentName: environmentName, flowName: flowName, name: runName } }, commandInfo);
     assert.strictEqual(actual, true);
-  });
-
-  it('defines correct properties for the default output', () => {
-    assert.deepStrictEqual(command.defaultProperties(), ['name', 'startTime', 'endTime', 'status', 'triggerName']);
   });
 });

@@ -13,8 +13,8 @@ interface CommandArgs {
 
 interface Options extends GlobalOptions {
   groupId?: string;
-  groupDisplayName?: string;
-  ids?: string;
+  groupName?: string;
+  userIds?: string;
   userNames?: string;
   role: string;
 }
@@ -44,8 +44,8 @@ class EntraGroupMemberSetCommand extends GraphCommand {
     this.telemetry.push((args: CommandArgs) => {
       Object.assign(this.telemetryProperties, {
         groupId: typeof args.options.groupId !== 'undefined',
-        groupDisplayName: typeof args.options.groupDisplayName !== 'undefined',
-        ids: typeof args.options.ids !== 'undefined',
+        groupName: typeof args.options.groupName !== 'undefined',
+        userIds: typeof args.options.userIds !== 'undefined',
         userNames: typeof args.options.userNames !== 'undefined'
       });
     });
@@ -57,10 +57,10 @@ class EntraGroupMemberSetCommand extends GraphCommand {
         option: '-i, --groupId [groupId]'
       },
       {
-        option: '-n, --groupDisplayName [groupDisplayName]'
+        option: '-n, --groupName [groupName]'
       },
       {
-        option: '--ids [ids]'
+        option: '--userIds [userIds]'
       },
       {
         option: '--userNames [userNames]'
@@ -79,10 +79,10 @@ class EntraGroupMemberSetCommand extends GraphCommand {
           return `${args.options.groupId} is not a valid GUID for option groupId.`;
         }
 
-        if (args.options.ids) {
-          const isValidGUIDArrayResult = validation.isValidGuidArray(args.options.ids);
+        if (args.options.userIds) {
+          const isValidGUIDArrayResult = validation.isValidGuidArray(args.options.userIds);
           if (isValidGUIDArrayResult !== true) {
-            return `'${isValidGUIDArrayResult}' is not a valid GUID for option 'ids'.`;
+            return `The following GUIDs are invalid for the option 'userIds': ${isValidGUIDArrayResult}.`;
           }
         }
 
@@ -104,19 +104,19 @@ class EntraGroupMemberSetCommand extends GraphCommand {
 
   #initOptionSets(): void {
     this.optionSets.push(
-      { options: ['groupId', 'groupDisplayName'] },
-      { options: ['ids', 'userNames'] }
+      { options: ['groupId', 'groupName'] },
+      { options: ['userIds', 'userNames'] }
     );
   }
 
   #initTypes(): void {
-    this.types.string.push('groupId', 'groupDisplayName', 'ids', 'userNames', 'role');
+    this.types.string.push('groupId', 'groupName', 'userIds', 'userNames', 'role');
   }
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
     try {
       if (this.verbose) {
-        await logger.logToStderr(`Adding member(s) ${args.options.ids || args.options.userNames} to role ${args.options.role} of group ${args.options.groupId || args.options.groupDisplayName}...`);
+        await logger.logToStderr(`Adding member(s) ${args.options.userIds || args.options.userNames} to role ${args.options.role} of group ${args.options.groupId || args.options.groupName}...`);
       }
 
       const groupId = await this.getGroupId(logger, args.options);
@@ -140,15 +140,15 @@ class EntraGroupMemberSetCommand extends GraphCommand {
     }
 
     if (this.verbose) {
-      await logger.logToStderr(`Retrieving ID of group ${options.groupDisplayName}...`);
+      await logger.logToStderr(`Retrieving ID of group ${options.groupName}...`);
     }
 
-    return entraGroup.getGroupIdByDisplayName(options.groupDisplayName!);
+    return entraGroup.getGroupIdByDisplayName(options.groupName!);
   }
 
   private async getUserIds(logger: Logger, options: Options): Promise<string[]> {
-    if (options.ids) {
-      return options.ids.split(',').map(i => i.trim());
+    if (options.userIds) {
+      return options.userIds.split(',').map(i => i.trim());
     }
 
     if (this.verbose) {

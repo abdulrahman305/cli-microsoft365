@@ -22,10 +22,10 @@ describe(commands.ENGAGE_NETWORK_LIST, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
     commandInfo = cli.getCommandInfo(command);
   });
@@ -164,7 +164,7 @@ describe(commands.ENGAGE_NETWORK_LIST, () => {
 
       throw 'Invalid request';
     });
-    await command.action(logger, { options: { debug: true, includeSuspended: true } } as any);
+    await command.action(logger, { options: { debug: true, withSuspended: true } } as any);
     assert.strictEqual(loggerLogSpy.lastCall.args[0][0].id, 123);
   });
 
@@ -174,7 +174,7 @@ describe(commands.ENGAGE_NETWORK_LIST, () => {
   });
 
   it('passes validation with parameters', async () => {
-    const actual = await command.validate({ options: { includeSuspended: true } }, commandInfo);
+    const actual = await command.validate({ options: { withSuspended: true } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 });

@@ -4,13 +4,9 @@ export default {
   AIBUILDERMODEL_GET: `${prefix} aibuildermodel get`,
   AIBUILDERMODEL_LIST: `${prefix} aibuildermodel list`,
   AIBUILDERMODEL_REMOVE: `${prefix} aibuildermodel remove`,
-  CARD_CLONE: `${prefix} card clone`,
-  CARD_GET: `${prefix} card get`,
-  CARD_LIST: `${prefix} card list`,
-  CARD_REMOVE: `${prefix} card remove`,
-  CHATBOT_GET: `${prefix} chatbot get`,
-  CHATBOT_LIST: `${prefix} chatbot list`,
-  CHATBOT_REMOVE: `${prefix} chatbot remove`,
+  COPILOT_GET: `${prefix} copilot get`,
+  COPILOT_LIST: `${prefix} copilot list`,
+  COPILOT_REMOVE: `${prefix} copilot remove`,
   DATAVERSE_TABLE_LIST: `${prefix} dataverse table list`,
   DATAVERSE_TABLE_GET: `${prefix} dataverse table get`,
   DATAVERSE_TABLE_REMOVE: `${prefix} dataverse table remove`,
@@ -31,5 +27,6 @@ export default {
   SOLUTION_PUBLISHER_LIST: `${prefix} solution publisher list`,
   SOLUTION_PUBLISHER_REMOVE: `${prefix} solution publisher remove`,
   TENANT_SETTINGS_LIST: `${prefix} tenant settings list`,
-  TENANT_SETTINGS_SET: `${prefix} tenant settings set`
+  TENANT_SETTINGS_SET: `${prefix} tenant settings set`,
+  WEBSITE_GET: `${prefix} website get`
 };

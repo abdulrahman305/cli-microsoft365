@@ -11,20 +11,158 @@ import { pid } from '../../../../utils/pid.js';
 import { session } from '../../../../utils/session.js';
 import { sinonUtil } from '../../../../utils/sinonUtil.js';
 import commands from '../../commands.js';
-import spoGroupGetCommand from '../group/group-get.js';
-import spoRoleDefinitionListCommand from '../roledefinition/roledefinition-list.js';
-import spoUserGetCommand from '../user/user-get.js';
 import command from './listitem-roleassignment-add.js';
 import { settingsNames } from '../../../../settingsNames.js';
+import { entraGroup } from '../../../../utils/entraGroup.js';
+import { spo } from '../../../../utils/spo.js';
+
+const graphGroup = {
+  id: '27ae47f1-48f1-46f3-980b-d3c1470e398d',
+  deletedDateTime: null,
+  classification: null,
+  createdDateTime: '2024-03-22T20:18:37Z',
+  creationOptions: [],
+  description: null,
+  displayName: 'Marketing',
+  expirationDateTime: null,
+  groupTypes: [
+    'Unified'
+  ],
+  isAssignableToRole: null,
+  mail: 'Marketing@contoso.onmicrosoft.com',
+  mailEnabled: true,
+  mailNickname: 'Marketing',
+  membershipRule: null,
+  membershipRuleProcessingState: null,
+  onPremisesDomainName: null,
+  onPremisesLastSyncDateTime: null,
+  onPremisesNetBiosName: null,
+  onPremisesSamAccountName: null,
+  onPremisesSecurityIdentifier: null,
+  onPremisesSyncEnabled: null,
+  preferredDataLocation: null,
+  preferredLanguage: null,
+  proxyAddresses: [
+    'SPO:SPO_de7704ba-415d-4dd0-9bbd-fa565007a87e@SPO_18c58817-3bc9-489d-ac63-f7264fb357e5',
+    'SMTP:Marketing@contoso.onmicrosoft.com'
+  ],
+  renewedDateTime: '2024-03-22T20:18:37Z',
+  resourceBehaviorOptions: [],
+  resourceProvisioningOptions: [],
+  securityEnabled: true,
+  securityIdentifier: 'S-1-12-1-665733105-1190349041-3268610968-2369326662',
+  theme: null,
+  uniqueName: null,
+  visibility: 'Private',
+  onPremisesProvisioningErrors: [],
+  serviceProvisioningErrors: []
+};
+
+const entraGroupResponse = {
+  Id: 15,
+  IsHiddenInUI: false,
+  LoginName: 'c:0o.c|federateddirectoryclaimprovider|27ae47f1-48f1-46f3-980b-d3c1470e398d',
+  Title: 'Marketing members',
+  PrincipalType: 1,
+  Email: '',
+  Expiration: '',
+  IsEmailAuthenticationGuestUser: false,
+  IsShareByEmailGuestUser: false,
+  IsSiteAdmin: false,
+  UserId: null,
+  UserPrincipalName: null
+};
 
 describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
   let log: any[];
   let logger: Logger;
   let commandInfo: CommandInfo;
+  const userResponse = {
+    Id: 11,
+    IsHiddenInUI: false,
+    LoginName: 'i:0#.f|membership|someaccount@tenant.onmicrosoft.com',
+    Title: 'Some Account',
+    PrincipalType: 1,
+    Email: 'someaccount@tenant.onmicrosoft.com',
+    Expiration: '',
+    IsEmailAuthenticationGuestUser: false,
+    IsShareByEmailGuestUser: false,
+    IsSiteAdmin: true,
+    UserId: {
+      NameId: '1003200097d06dd6',
+      NameIdIssuer: 'urn:federation:microsoftonline'
+    },
+    UserPrincipalName: 'someaccount@tenant.onmicrosoft.com'
+  };
+  const groupResponse = {
+    Id: 11,
+    IsHiddenInUI: false,
+    LoginName: 'otherGroup',
+    Title: 'otherGroup',
+    PrincipalType: 8,
+    AllowMembersEditMembership: false,
+    AllowRequestToJoinLeave: false,
+    AutoAcceptRequestToJoinLeave: false,
+    Description: '',
+    OnlyAllowMembersViewMembership: true,
+    OwnerTitle: 'Some Account',
+    RequestToJoinLeaveEmailSetting: null
+  };
+  const roleDefinitionResponse = {
+    BasePermissions:
+    {
+      High: 2147483647,
+      Low: 4294967295
+    },
+    Description: 'Has full control.',
+    Hidden: false,
+    Id: 1073741827,
+    Name: 'Full Control',
+    Order: 1,
+    RoleTypeKind: 5,
+    BasePermissionsValue: [
+      'ViewListItems',
+      'AddListItems',
+      'EditListItems',
+      'DeleteListItems',
+      'ApproveItems',
+      'OpenItems',
+      'ViewVersions',
+      'DeleteVersions',
+      'CancelCheckout',
+      'ManagePersonalViews',
+      'ManageLists',
+      'ViewFormPages',
+      'AnonymousSearchAccessList',
+      'Open',
+      'ViewPages',
+      'AddAndCustomizePages',
+      'ApplyThemeAndBorder',
+      'ApplyStyleSheets',
+      'ViewUsageData',
+      'CreateSSCSite',
+      'ManageSubwebs',
+      'CreateGroups',
+      'ManagePermissions',
+      'BrowseDirectories',
+      'BrowseUserInfo',
+      'AddDelPrivateWebParts',
+      'UpdatePersonalWebParts',
+      'ManageWeb',
+      'AnonymousSearchAccessWebLists',
+      'UseClientIntegration',
+      'UseRemoteAPIs',
+      'ManageAlerts',
+      'CreateAlerts',
+      'EditMyUserInfo',
+      'EnumeratePermissions'
+    ],
+    RoleTypeKindValue: 'Administrator'
+  };
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -49,8 +187,13 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
   afterEach(() => {
     sinonUtil.restore([
       request.post,
-      cli.executeCommandWithOutput,
-      cli.getSettingWithDefaultValue
+      cli.getSettingWithDefaultValue,
+      spo.getUserByEmail,
+      spo.getGroupByName,
+      spo.getRoleDefinitionByName,
+      entraGroup.getGroupById,
+      entraGroup.getGroupByDisplayName,
+      spo.ensureEntraGroup
     ]);
   });
 
@@ -175,6 +318,16 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
     assert.strictEqual(actual, true);
   });
 
+  it('fails validation if the entraGroupId option is not a valid GUID', async () => {
+    const actual = await command.validate({ options: { webUrl: 'https://contoso.sharepoint.com', listId: '0CD891EF-AFCE-4E55-B836-FCE03286CCCF', listItemId: 1, entraGroupId: 'invalid', roleDefinitionId: 1073741827 } }, commandInfo);
+    assert.notStrictEqual(actual, true);
+  });
+
+  it('passes validation if the entraGroupId option is a valid GUID', async () => {
+    const actual = await command.validate({ options: { webUrl: 'https://contoso.sharepoint.com', listId: '0CD891EF-AFCE-4E55-B836-FCE03286CCCF', listItemId: 1, entraGroupId: '37455d5c-e466-4e49-8eba-808b5acec21b', roleDefinitionId: 1073741827 } }, commandInfo);
+    assert.strictEqual(actual, true);
+  });
+
   it('add role assignment to listitem in list by title and role definition id', async () => {
     sinon.stub(request, 'post').callsFake(async (opts) => {
       if (opts.url as string === 'https://contoso.sharepoint.com/_api/web/lists/getByTitle(\'test\')/items(1)/roleassignments/addroleassignment(principalid=\'11\',roledefid=\'1073741827\')') {
@@ -247,15 +400,7 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
       throw 'Invalid request';
     });
 
-    sinon.stub(cli, 'executeCommandWithOutput').callsFake(async (command): Promise<any> => {
-      if (command === spoUserGetCommand) {
-        return {
-          stdout: '{"Id": 11,"IsHiddenInUI": false,"LoginName": "i:0#.f|membership|someaccount@tenant.onmicrosoft.com","Title": "Some Account","PrincipalType": 1,"Email": "someaccount@tenant.onmicrosoft.com","Expiration": "","IsEmailAuthenticationGuestUser": false,"IsShareByEmailGuestUser": false,"IsSiteAdmin": true,"UserId": {"NameId": "1003200097d06dd6","NameIdIssuer": "urn:federation:microsoftonline"},"UserPrincipalName": "someaccount@tenant.onmicrosoft.com"}'
-        };
-      }
-
-      throw new CommandError('Unknown case');
-    });
+    sinon.stub(spo, 'getUserByEmail').resolves(userResponse);
 
     await command.action(logger, {
       options: {
@@ -279,13 +424,7 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
     });
 
     const error = 'no user found';
-    sinon.stub(cli, 'executeCommandWithOutput').callsFake(async (command): Promise<any> => {
-      if (command === spoUserGetCommand) {
-        throw new Error(error);
-      }
-
-      throw new CommandError('Unknown case');
-    });
+    sinon.stub(spo, 'getUserByEmail').rejects(new Error(error));
 
     await assert.rejects(command.action(logger, {
       options: {
@@ -308,15 +447,7 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
       throw 'Invalid request';
     });
 
-    sinon.stub(cli, 'executeCommandWithOutput').callsFake(async (command): Promise<any> => {
-      if (command === spoGroupGetCommand) {
-        return {
-          stdout: '{"Id": 11,"IsHiddenInUI": false,"LoginName": "otherGroup","Title": "otherGroup","PrincipalType": 8,"AllowMembersEditMembership": false,"AllowRequestToJoinLeave": false,"AutoAcceptRequestToJoinLeave": false,"Description": "","OnlyAllowMembersViewMembership": true,"OwnerTitle": "Some Account","RequestToJoinLeaveEmailSetting": null}'
-        };
-      }
-
-      throw new CommandError('Unknown case');
-    });
+    sinon.stub(spo, 'getGroupByName').resolves(groupResponse);
 
     await command.action(logger, {
       options: {
@@ -340,13 +471,7 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
     });
 
     const error = 'no group found';
-    sinon.stub(cli, 'executeCommandWithOutput').callsFake(async (command): Promise<any> => {
-      if (command === spoGroupGetCommand) {
-        throw new Error(error);
-      }
-
-      throw new CommandError('Unknown case');
-    });
+    sinon.stub(spo, 'getGroupByName').rejects(new Error(error));
 
     await assert.rejects(command.action(logger, {
       options: {
@@ -369,15 +494,7 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
       throw 'Invalid request';
     });
 
-    sinon.stub(cli, 'executeCommandWithOutput').callsFake(async (command): Promise<any> => {
-      if (command === spoRoleDefinitionListCommand) {
-        return {
-          stdout: '[{"BasePermissions": {"High": "2147483647","Low": "4294967295"},"Description": "Has full control.","Hidden": false,"Id": 1073741827,"Name": "Full Control","Order": 1,"RoleTypeKind": 5}]'
-        };
-      }
-
-      throw new CommandError('Unknown case');
-    });
+    sinon.stub(spo, 'getRoleDefinitionByName').resolves(roleDefinitionResponse);
 
     await command.action(logger, {
       options: {
@@ -387,6 +504,54 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
         listItemId: 1,
         principalId: 11,
         roleDefinitionName: 'Full Control'
+      }
+    });
+  });
+
+  it('adds role assignment to listitem in list by id and role definition id with Entra group ID', async () => {
+    sinon.stub(entraGroup, 'getGroupById').withArgs(graphGroup.id).resolves(graphGroup);
+    sinon.stub(spo, 'ensureEntraGroup').withArgs('https://contoso.sharepoint.com', graphGroup).resolves(entraGroupResponse);
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url as string === 'https://contoso.sharepoint.com/_api/web/lists(guid\'0CD891EF-AFCE-4E55-B836-FCE03286CCCF\')/items(1)/roleassignments/addroleassignment(principalid=\'15\',roledefid=\'1073741827\')') {
+        return '';
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, {
+      options: {
+        debug: true,
+        webUrl: 'https://contoso.sharepoint.com',
+        listItemId: 1,
+        listId: '0CD891EF-AFCE-4E55-B836-FCE03286CCCF',
+        entraGroupId: '27ae47f1-48f1-46f3-980b-d3c1470e398d',
+        roleDefinitionId: 1073741827
+      }
+    });
+  });
+
+  it('adds role assignment to listitem in list by id and role definition id with Entra group name', async () => {
+    sinon.stub(entraGroup, 'getGroupByDisplayName').withArgs(graphGroup.displayName).resolves(graphGroup);
+    sinon.stub(spo, 'ensureEntraGroup').withArgs('https://contoso.sharepoint.com', graphGroup).resolves(entraGroupResponse);
+
+    sinon.stub(request, 'post').callsFake(async (opts) => {
+      if (opts.url as string === 'https://contoso.sharepoint.com/_api/web/lists(guid\'0CD891EF-AFCE-4E55-B836-FCE03286CCCF\')/items(1)/roleassignments/addroleassignment(principalid=\'15\',roledefid=\'1073741827\')') {
+        return '';
+      }
+
+      throw 'Invalid request';
+    });
+
+    await command.action(logger, {
+      options: {
+        debug: true,
+        webUrl: 'https://contoso.sharepoint.com',
+        listItemId: 1,
+        listId: '0CD891EF-AFCE-4E55-B836-FCE03286CCCF',
+        entraGroupName: 'Marketing',
+        roleDefinitionId: 1073741827
       }
     });
   });
@@ -401,13 +566,7 @@ describe(commands.LISTITEM_ROLEASSIGNMENT_ADD, () => {
     });
 
     const error = 'no role definition found';
-    sinon.stub(cli, 'executeCommandWithOutput').callsFake(async (command): Promise<any> => {
-      if (command === spoRoleDefinitionListCommand) {
-        throw new Error(error);
-      }
-
-      throw new CommandError('Unknown case');
-    });
+    sinon.stub(spo, 'getRoleDefinitionByName').rejects(new Error(error));
 
     await assert.rejects(command.action(logger, {
       options: {

@@ -9,6 +9,7 @@ import { AppCreationOptions, AppInfo, entraApp } from '../../../../utils/entraAp
 import GraphCommand from '../../../base/GraphCommand.js';
 import { M365RcJson } from '../../../base/M365RcJson.js';
 import commands from '../../commands.js';
+import { optionsUtils } from '../../../../utils/optionsUtils.js';
 
 interface CommandArgs {
   options: Options;
@@ -27,7 +28,7 @@ interface Options extends GlobalOptions, AppCreationOptions {
 }
 
 class EntraAppAddCommand extends GraphCommand {
-  private static entraApplicationPlatform: string[] = ['spa', 'web', 'publicClient'];
+  private static entraApplicationPlatform: string[] = ['spa', 'web', 'publicClient', 'apple', 'android'];
   private static entraAppScopeConsentBy: string[] = ['admins', 'adminsAndUsers'];
   private manifest: any;
   private appName: string = '';
@@ -38,6 +39,10 @@ class EntraAppAddCommand extends GraphCommand {
 
   public get description(): string {
     return 'Creates new Entra app registration';
+  }
+
+  public allowUnknownOptions(): boolean | undefined {
+    return true;
   }
 
   constructor() {
@@ -67,7 +72,9 @@ class EntraAppAddCommand extends GraphCommand {
         certificateBase64Encoded: typeof args.options.certificateBase64Encoded !== 'undefined',
         certificateDisplayName: typeof args.options.certificateDisplayName !== 'undefined',
         grantAdminConsent: typeof args.options.grantAdminConsent !== 'undefined',
-        allowPublicClientFlows: typeof args.options.allowPublicClientFlows !== 'undefined'
+        allowPublicClientFlows: typeof args.options.allowPublicClientFlows !== 'undefined',
+        bundleId: typeof args.options.bundleId !== 'undefined',
+        signatureHash: typeof args.options.signatureHash !== 'undefined'
       });
     });
   }
@@ -128,6 +135,12 @@ class EntraAppAddCommand extends GraphCommand {
         option: '--manifest [manifest]'
       },
       {
+        option: '--bundleId [bundleId]'
+      },
+      {
+        option: '--signatureHash [signatureHash]'
+      },
+      {
         option: '--save'
       },
       {
@@ -149,6 +162,10 @@ class EntraAppAddCommand extends GraphCommand {
 
         if (args.options.redirectUris && !args.options.platform) {
           return `When you specify redirectUris you also need to specify platform`;
+        }
+
+        if (args.options.platform && ['spa', 'web', 'publicClient'].indexOf(args.options.platform) > -1 && !args.options.redirectUris) {
+          return `When you use platform spa, web or publicClient, you'll need to specify redirectUris`;
         }
 
         if (args.options.certificateFile && args.options.certificateBase64Encoded) {
@@ -194,6 +211,14 @@ class EntraAppAddCommand extends GraphCommand {
           }
         }
 
+        if (args.options.platform === 'apple' && !args.options.bundleId) {
+          return `When you use platform apple, you'll need to specify bundleId`;
+        }
+
+        if (args.options.platform === 'android' && (!args.options.bundleId || !args.options.signatureHash)) {
+          return `When you use platform android, you'll need to specify bundleId and signatureHash`;
+        }
+
         return true;
       },
     );
@@ -221,6 +246,7 @@ class EntraAppAddCommand extends GraphCommand {
       });
       let appInfo: any = await entraApp.createAppRegistration({
         options: args.options,
+        unknownOptions: optionsUtils.getUnknownOptions(args.options, this.options),
         apis,
         logger,
         verbose: this.verbose,

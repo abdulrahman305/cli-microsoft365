@@ -34,7 +34,7 @@ describe(commands.HUBSITE_GET, () => {
 
   before(() => {
     sinon.stub(auth, 'restoreAuth').resolves();
-    sinon.stub(telemetry, 'trackEvent').returns();
+    sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
     auth.connection.active = true;
@@ -223,7 +223,7 @@ describe(commands.HUBSITE_GET, () => {
       new CommandError(`The specified hub site ${validUrl} does not exist`));
   });
 
-  it('display error message when includeAssociatedSites option is used with other than json output.', async () => {
+  it('display error message when withAssociatedSites option is used with other than json output.', async () => {
     sinon.stub(request, 'get').callsFake(async (opts) => {
       if ((opts.url as string).indexOf(`/_api/hubsites/getbyid('ee8b42c3-3e6f-4822-87c1-c21ad666046b')`) > -1) {
         return {
@@ -241,8 +241,8 @@ describe(commands.HUBSITE_GET, () => {
       throw 'Invalid request';
     });
 
-    await assert.rejects(command.action(logger, { options: { id: 'ee8b42c3-3e6f-4822-87c1-c21ad666046b', includeAssociatedSites: true, output: 'text' } }),
-      new CommandError(`includeAssociatedSites option is only allowed with json output mode`));
+    await assert.rejects(command.action(logger, { options: { id: 'ee8b42c3-3e6f-4822-87c1-c21ad666046b', withAssociatedSites: true, output: 'text' } }),
+      new CommandError(`withAssociatedSites option is only allowed with json output mode`));
   });
 
   it('retrieves the associated sites of the specified hub site', async () => {
@@ -294,7 +294,7 @@ describe(commands.HUBSITE_GET, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { id: 'ee8b42c3-3e6f-4822-87c1-c21ad666046b', includeAssociatedSites: true, output: 'json' } });
+    await command.action(logger, { options: { id: 'ee8b42c3-3e6f-4822-87c1-c21ad666046b', withAssociatedSites: true, output: 'json' } });
     assert(loggerLogSpy.calledWith({
       "Description": null,
       "ID": "ee8b42c3-3e6f-4822-87c1-c21ad666046b",
