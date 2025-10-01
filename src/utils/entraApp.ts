@@ -39,6 +39,8 @@ export interface AppCreationOptions {
   certificateBase64Encoded?: string;
   certificateDisplayName?: string;
   allowPublicClientFlows?: boolean;
+  bundleId?: string;
+  signatureHash?: string;
 }
 
 export interface AppPermissions {
@@ -237,6 +239,23 @@ export const entraApp = {
     if (options.redirectUris) {
       applicationInfo[options.platform!] = {
         redirectUris: options.redirectUris.split(',').map(u => u.trim())
+      };
+    }
+
+    if (options.platform === 'android') {
+      applicationInfo['publicClient'] = {
+        redirectUris: [
+          `msauth://${options.bundleId}/${formatting.encodeQueryParameter(options.signatureHash!)}`
+        ]
+      };
+    }
+
+    if (options.platform === 'apple') {
+      applicationInfo['publicClient'] = {
+        redirectUris: [
+          `msauth://code/msauth.${options.bundleId}%3A%2F%2Fauth`,
+          `msauth.${options.bundleId}://auth`
+        ]
       };
     }
 
@@ -450,5 +469,24 @@ export const entraApp = {
     }
 
     return apps[0];
+  },
+  async getAppRegistrationByObjectId(objectId: string, properties?: string[]): Promise<Application> {
+    let url = `https://graph.microsoft.com/v1.0/applications/${objectId}`;
+
+    if (properties) {
+      url += `?$select=${properties.join(',')}`;
+    }
+
+    const requestOptions: CliRequestOptions = {
+      url: url,
+      headers: {
+        accept: 'application/json;odata.metadata=none'
+      },
+      responseType: 'json'
+    };
+
+    const app = await request.get<Application>(requestOptions);
+
+    return app;
   }
 };

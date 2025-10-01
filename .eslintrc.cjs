@@ -18,6 +18,7 @@ const dictionary = [
   'azure',
   'bin',
   'builder',
+  'call',
   'card',
   'catalog',
   'checklist',
@@ -43,6 +44,7 @@ const dictionary = [
   'eventreceiver',
   'external',
   'externalize',
+  'folder',
   'fun',
   'group',
   'groupify',
@@ -92,6 +94,7 @@ const dictionary = [
   'profile',
   'pronouns',
   'property',
+  'record',
   'records',
   'recycle',
   'registration',
@@ -102,6 +105,7 @@ const dictionary = [
   'role',
   'room',
   'schema',
+  'search',
   'sensitivity',
   'service',
   'session',
@@ -271,6 +275,14 @@ module.exports = {
       ],
       "rules": {
         "camelcase": "off"
+      }
+    },
+    {
+      "files": [
+        "*.mjs"
+      ],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off"
       }
     }
   ]

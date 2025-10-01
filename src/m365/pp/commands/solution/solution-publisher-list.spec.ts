@@ -49,7 +49,7 @@ describe(commands.SOLUTION_PUBLISHER_LIST, () => {
     sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
   });
 
@@ -108,28 +108,6 @@ describe(commands.SOLUTION_PUBLISHER_LIST, () => {
 
     await command.action(logger, { options: { debug: true, environmentName: validEnvironment } });
     assert(loggerLogSpy.calledWith(publisherResponse.value));
-  });
-
-  it(`correctly shows deprecation warning for option 'includeMicrosoftPublishers'`, async () => {
-    const chalk = (await import('chalk')).default;
-    const loggerErrSpy = sinon.spy(logger, 'logToStderr');
-
-    sinon.stub(powerPlatform, 'getDynamicsInstanceApiUrl').callsFake(async () => envUrl);
-
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if ((opts.url === `https://contoso-dev.api.crm4.dynamics.com/api/data/v9.0/publishers?$select=publisherid,uniquename,friendlyname,versionnumber,isreadonly,description,customizationprefix,customizationoptionvalueprefix&api-version=9.1`)) {
-        if ((opts.headers?.accept as string).indexOf('application/json') === 0) {
-          return publisherResponse;
-        }
-      }
-
-      throw 'Invalid request';
-    });
-
-    await command.action(logger, { options: { debug: true, environmentName: validEnvironment, includeMicrosoftPublishers: true } });
-    assert(loggerErrSpy.calledWith(chalk.yellow(`Parameter 'includeMicrosoftPublishers' is deprecated. Please use 'withMicrosoftPublishers' instead`)));
-
-    sinonUtil.restore(loggerErrSpy);
   });
 
   it('retrieves publishers from power platform environment including the Microsoft Publishers', async () => {

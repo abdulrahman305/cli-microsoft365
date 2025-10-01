@@ -96,7 +96,7 @@ describe(commands.COPILOT_LIST, () => {
     sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
   });
 
@@ -182,10 +182,4 @@ describe(commands.COPILOT_LIST, () => {
     await assert.rejects(command.action(logger, { options: { environmentName: validEnvironment } } as any),
       new CommandError(`Resource '' does not exist or one of its queried reference-property objects are not present`));
   });
-
-  it('defines correct alias', () => {
-    const alias = command.alias();
-    assert.deepStrictEqual(alias, [commands.CHATBOT_LIST]);
-  });
-
 });

@@ -33,14 +33,10 @@ const config: Config = {
     }
   },
 
-  customFields: {
-    mendableAnonKey: 'd3313d54-6f8e-40e0-90d3-4095019d4be7'
-  },
-
   future: {
     v4: {
       removeLegacyPostBuildHeadAttribute: true,
-      useCssCascadeLayers: true,
+      useCssCascadeLayers: true
     },
     experimental_faster: true
   },
@@ -51,9 +47,6 @@ const config: Config = {
       'client-redirects',
       {
         createRedirects(routePath) {
-          if (routePath.includes('/copilot/copilot-')) {
-            return [routePath.replace('/copilot/copilot-', '/chatbot/chatbot-')];
-          }
           if (routePath.includes('/entra')) {
             return [routePath.replace('/entra', '/aad')];
           }

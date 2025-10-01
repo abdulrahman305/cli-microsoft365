@@ -70,12 +70,12 @@ describe(commands.GROUP_MEMBER_SET, () => {
   });
 
   it('fails validation if groupId is not a valid GUID', async () => {
-    const actual = await command.validate({ options: { groupId: 'foo', ids: userIds[0], role: 'Member' } }, commandInfo);
+    const actual = await command.validate({ options: { groupId: 'foo', userIds: userIds[0], role: 'Member' } }, commandInfo);
     assert.notStrictEqual(actual, true);
   });
 
-  it('fails validation if ids contains an invalid GUID', async () => {
-    const actual = await command.validate({ options: { groupId: groupId, ids: `${userIds[0]},foo`, role: 'Member' } }, commandInfo);
+  it('fails validation if userIds contains an invalid GUID', async () => {
+    const actual = await command.validate({ options: { groupId: groupId, userIds: `${userIds[0]},foo`, role: 'Member' } }, commandInfo);
     assert.notStrictEqual(actual, true);
   });
 
@@ -85,86 +85,31 @@ describe(commands.GROUP_MEMBER_SET, () => {
   });
 
   it('fails validation if role is not a valid role', async () => {
-    const actual = await command.validate({ options: { groupId: groupId, ids: userIds.join(','), role: 'foo' } }, commandInfo);
+    const actual = await command.validate({ options: { groupId: groupId, userIds: userIds.join(','), role: 'foo' } }, commandInfo);
     assert.notStrictEqual(actual, true);
   });
 
-  it('passes validation when all required parameters are valid with ids', async () => {
-    const actual = await command.validate({ options: { groupId: groupId, ids: userIds.join(','), role: 'Member' } }, commandInfo);
+  it('passes validation when all required parameters are valid with userIds', async () => {
+    const actual = await command.validate({ options: { groupId: groupId, userIds: userIds.join(','), role: 'Member' } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 
-  it('passes validation when all required parameters are valid with ids with leading spaces', async () => {
-    const actual = await command.validate({ options: { groupId: groupId, ids: userIds.map(i => ' ' + i).join(','), role: 'Member' } }, commandInfo);
+  it('passes validation when all required parameters are valid with userIds with leading spaces', async () => {
+    const actual = await command.validate({ options: { groupId: groupId, userIds: userIds.map(i => ' ' + i).join(','), role: 'Member' } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 
   it('passes validation when all required parameters are valid with names', async () => {
-    const actual = await command.validate({ options: { groupDisplayName: 'IT department', userNames: userUpns.join(','), role: 'Owner' } }, commandInfo);
+    const actual = await command.validate({ options: { groupName: 'IT department', userNames: userUpns.join(','), role: 'Owner' } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 
   it('passes validation when all required parameters are valid with names with trailing spaces', async () => {
-    const actual = await command.validate({ options: { groupDisplayName: 'IT department', userNames: userUpns.map(u => u + ' ').join(','), role: 'Owner' } }, commandInfo);
+    const actual = await command.validate({ options: { groupName: 'IT department', userNames: userUpns.map(u => u + ' ').join(','), role: 'Owner' } }, commandInfo);
     assert.strictEqual(actual, true);
   });
 
-  it(`correctly shows deprecation warning for option 'groupDisplayName'`, async () => {
-    const chalk = (await import('chalk')).default;
-    const loggerErrSpy = sinon.spy(logger, 'logToStderr');
-
-    sinon.stub(entraGroup, 'getGroupIdByDisplayName').resolves(groupId);
-    sinon.stub(entraUser, 'getUserIdsByUpns').resolves(userIds);
-
-    sinon.stub(request, 'post').callsFake(async opts => {
-      if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
-        opts.data.requests[0].method === 'PATCH') {
-        return {
-          responses: Array(2).fill({
-            status: 204,
-            body: {}
-          })
-        };
-      }
-
-      if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
-        opts.data.requests[0].method === 'GET') {
-        return {
-          responses: [
-            {
-              id: userIds[0],
-              status: 200,
-              body: 1
-            },
-            {
-              id: userIds[2],
-              status: 200,
-              body: 1
-            }
-          ]
-        };
-      }
-
-      if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
-        opts.data.requests[0].method === 'DELETE') {
-        return {
-          responses: Array(2).fill({
-            status: 204,
-            body: {}
-          })
-        };
-      }
-
-      throw 'Invalid request';
-    });
-
-    await command.action(logger, { options: { groupDisplayName: 'Contoso', ids: userIds.join(','), role: 'Member', verbose: true } });
-    assert(loggerErrSpy.calledWith(chalk.yellow(`Option 'groupDisplayName' is deprecated and will be removed in the next major release.`)));
-
-    sinonUtil.restore(loggerErrSpy);
-  });
-
-  it('successfully updates roles for users with ids in the group', async () => {
+  it('successfully updates roles for users with userIds in the group', async () => {
     const postStub = sinon.stub(request, 'post').callsFake(async opts => {
       if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
         opts.data.requests[0].method === 'PATCH') {
@@ -207,7 +152,7 @@ describe(commands.GROUP_MEMBER_SET, () => {
       throw 'Invalid request';
     });
 
-    await command.action(logger, { options: { groupId: groupId, ids: userIds.join(','), role: 'Member', verbose: true } });
+    await command.action(logger, { options: { groupId: groupId, userIds: userIds.join(','), role: 'Member', verbose: true } });
     assert.deepStrictEqual(postStub.firstCall.args[0].data.requests, [
       {
         id: 1,
@@ -230,7 +175,7 @@ describe(commands.GROUP_MEMBER_SET, () => {
     ]);
   });
 
-  it('successfully updates roles for users with ids with trailing spaces in the group', async () => {
+  it('successfully updates roles for users with userIds with trailing spaces in the group', async () => {
     const postStub = sinon.stub(request, 'post').callsFake(async opts => {
       if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
         opts.data.requests[0].method === 'PATCH') {
@@ -274,7 +219,7 @@ describe(commands.GROUP_MEMBER_SET, () => {
     });
 
     const ids = userIds.map(id => id + ' ').join(',');
-    await command.action(logger, { options: { groupId: groupId, ids: ids, role: 'Member', verbose: true } });
+    await command.action(logger, { options: { groupId: groupId, userIds: ids, role: 'Member', verbose: true } });
     assert.deepStrictEqual(postStub.firstCall.args[0].data.requests, [
       {
         id: 1,
@@ -297,74 +242,6 @@ describe(commands.GROUP_MEMBER_SET, () => {
     ]);
   });
 
-  it('successfully updates roles for users with names in the group', async () => {
-    sinon.stub(entraGroup, 'getGroupIdByDisplayName').resolves(groupId);
-    sinon.stub(entraUser, 'getUserIdsByUpns').resolves(userIds);
-
-    const postStub = sinon.stub(request, 'post').callsFake(async opts => {
-      if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
-        opts.data.requests[0].method === 'PATCH') {
-        return {
-          responses: Array(2).fill({
-            status: 204,
-            body: {}
-          })
-        };
-      }
-
-      if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
-        opts.data.requests[0].method === 'GET') {
-        return {
-          responses: [
-            {
-              id: userIds[0],
-              status: 200,
-              body: 1
-            },
-            {
-              id: userIds[2],
-              status: 200,
-              body: 1
-            }
-          ]
-        };
-      }
-
-      if (opts.url === 'https://graph.microsoft.com/v1.0/$batch' &&
-        opts.data.requests[0].method === 'DELETE') {
-        return {
-          responses: Array(2).fill({
-            status: 204,
-            body: {}
-          })
-        };
-      }
-
-      throw 'Invalid request';
-    });
-
-    await command.action(logger, { options: { groupDisplayName: 'Contoso', userNames: userUpns.join(','), role: 'Owner', verbose: true } });
-    assert.deepStrictEqual(postStub.firstCall.args[0].data.requests, [
-      {
-        id: 1,
-        method: 'PATCH',
-        url: `/groups/${groupId}`,
-        headers: { 'content-type': 'application/json;odata.metadata=none' },
-        body: {
-          'owners@odata.bind': userIds.slice(0, 20).map(u => `https://graph.microsoft.com/v1.0/directoryObjects/${u}`)
-        }
-      },
-      {
-        id: 21,
-        method: 'PATCH',
-        url: `/groups/${groupId}`,
-        headers: { 'content-type': 'application/json;odata.metadata=none' },
-        body: {
-          'owners@odata.bind': userIds.slice(20, 40).map(u => `https://graph.microsoft.com/v1.0/directoryObjects/${u}`)
-        }
-      }
-    ]);
-  });
 
   it('successfully updates roles for users using groupName and userNames', async () => {
     sinon.stub(entraGroup, 'getGroupIdByDisplayName').resolves(groupId);
@@ -482,7 +359,7 @@ describe(commands.GROUP_MEMBER_SET, () => {
     });
 
     const userNames = userUpns.map(u => ' ' + u).join(',');
-    await command.action(logger, { options: { groupDisplayName: 'Contoso', userNames: userNames, role: 'Owner', verbose: true } });
+    await command.action(logger, { options: { groupName: 'Contoso', userNames: userNames, role: 'Owner', verbose: true } });
     assert.deepStrictEqual(postStub.firstCall.args[0].data.requests, [
       {
         id: 1,
@@ -532,7 +409,7 @@ describe(commands.GROUP_MEMBER_SET, () => {
       throw 'Invalid request';
     });
 
-    await assert.rejects(command.action(logger, { options: { groupId: groupId, ids: userIds.join(','), role: 'Member' } }),
+    await assert.rejects(command.action(logger, { options: { groupId: groupId, userIds: userIds.join(','), role: 'Member' } }),
       new CommandError(`One or more added object references already exist for the following modified properties: 'members'.`));
   });
 
@@ -573,7 +450,7 @@ describe(commands.GROUP_MEMBER_SET, () => {
       throw 'Invalid request';
     });
 
-    await assert.rejects(command.action(logger, { options: { groupId: groupId, ids: userIds.join(','), role: 'Member' } }),
+    await assert.rejects(command.action(logger, { options: { groupId: groupId, userIds: userIds.join(','), role: 'Member' } }),
       new CommandError('Service unavailable.'));
   });
 
@@ -632,7 +509,7 @@ describe(commands.GROUP_MEMBER_SET, () => {
       throw 'Invalid request';
     });
 
-    await assert.rejects(command.action(logger, { options: { groupId: groupId, ids: userIds.join(','), role: 'Member' } }),
+    await assert.rejects(command.action(logger, { options: { groupId: groupId, userIds: userIds.join(','), role: 'Member' } }),
       new CommandError('Service unavailable.'));
   });
 });

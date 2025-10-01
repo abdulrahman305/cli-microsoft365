@@ -25,7 +25,7 @@ describe(commands.ENGAGE_NETWORK_LIST, () => {
     sinon.stub(telemetry, 'trackEvent').resolves();
     sinon.stub(pid, 'getProcessName').returns('');
     sinon.stub(session, 'getId').returns('');
-    sinon.stub(accessToken, 'assertDelegatedAccessToken').returns();
+    sinon.stub(accessToken, 'assertAccessTokenType').returns();
     auth.connection.active = true;
     commandInfo = cli.getCommandInfo(command);
   });
@@ -137,41 +137,6 @@ describe(commands.ENGAGE_NETWORK_LIST, () => {
     });
     await command.action(logger, { options: { debug: true, output: "json" } } as any);
     assert.strictEqual(loggerLogSpy.lastCall.args[0][0].id, 123);
-  });
-
-  it(`correctly shows deprecation warning for option 'includeSuspended'`, async () => {
-    const chalk = (await import('chalk')).default;
-    const loggerErrSpy = sinon.spy(logger, 'logToStderr');
-
-    sinon.stub(request, 'get').callsFake(async (opts) => {
-      if (opts.url === 'https://www.yammer.com/api/v1/networks/current.json') {
-        return [
-          {
-            "id": 123,
-            "name": "Network1",
-            "email": "email@mail.com",
-            "community": true,
-            "permalink": "network1-link",
-            "web_url": "https://www.yammer.com/network1-link"
-          },
-          {
-            "id": 456,
-            "name": "Network2",
-            "email": "email2@mail.com",
-            "community": false,
-            "permalink": "network2-link",
-            "web_url": "https://www.yammer.com/network2-link"
-          }
-        ];
-      }
-
-      throw 'Invalid request';
-    });
-
-    await command.action(logger, { options: { debug: true, includeSuspended: true } } as any);
-    assert(loggerErrSpy.calledWith(chalk.yellow(`Parameter 'includeSuspended' is deprecated. Please use 'withSuspended' instead`)));
-
-    sinonUtil.restore(loggerErrSpy);
   });
 
   it('calls the networking endpoint with parameter', async () => {

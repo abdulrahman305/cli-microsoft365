@@ -10,9 +10,6 @@ export default {
   ENGAGE_COMMUNITY_USER_ADD: `${prefix} engage community user add`,
   ENGAGE_COMMUNITY_USER_LIST: `${prefix} engage community user list`,
   ENGAGE_COMMUNITY_USER_REMOVE: `${prefix} engage community user remove`,
-  ENGAGE_GROUP_LIST: `${prefix} engage group list`,
-  ENGAGE_GROUP_USER_ADD: `${prefix} engage group user add`,
-  ENGAGE_GROUP_USER_REMOVE: `${prefix} engage group user remove`,
   ENGAGE_MESSAGE_ADD: `${prefix} engage message add`,
   ENGAGE_MESSAGE_GET: `${prefix} engage message get`,
   ENGAGE_MESSAGE_LIKE_SET: `${prefix} engage message like set`,
@@ -28,6 +25,8 @@ export default {
   ENGAGE_REPORT_GROUPSACTIVITYCOUNTS: `${prefix} engage report groupsactivitycounts`,
   ENGAGE_REPORT_GROUPSACTIVITYDETAIL: `${prefix} engage report groupsactivitydetail`,
   ENGAGE_REPORT_GROUPSACTIVITYGROUPCOUNTS: `${prefix} engage report groupsactivitygroupcounts`,
+  ENGAGE_ROLE_LIST: `${prefix} engage role list`,
+  ENGAGE_ROLE_MEMBER_LIST: `${prefix} engage role member list`,
   ENGAGE_SEARCH: `${prefix} engage search`,
   ENGAGE_USER_GET: `${prefix} engage user get`,
   ENGAGE_USER_LIST: `${prefix} engage user list`

@@ -2,12 +2,13 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 // uncomment to support upgrading to preview releases
-// import { prerelease } from 'semver';
+import { prerelease } from 'semver';
+import { z } from 'zod';
 import { Logger } from '../../../../cli/Logger.js';
-import Command, { CommandError } from '../../../../Command.js';
-import GlobalOptions from '../../../../GlobalOptions.js';
+import Command, { CommandError, globalOptionsZod } from '../../../../Command.js';
 import { fsUtil } from '../../../../utils/fsUtil.js';
 import { packageManager } from '../../../../utils/packageManager.js';
+import { zod } from '../../../../utils/zod.js';
 import { Dictionary, Hash } from '../../../../utils/types.js';
 import commands from '../../commands.js';
 import { BaseProjectCommand } from './base-project-command.js';
@@ -17,25 +18,28 @@ import { Finding, FindingToReport, FindingTour, FindingTourStep } from './report
 import { ReportData, ReportDataModification } from './report-model/ReportData.js';
 import { Rule } from './Rule.js';
 
+const options = globalOptionsZod
+  .extend({
+    packageManager: z.enum(['npm', 'pnpm', 'yarn']).default('npm'),
+    preview: z.boolean().optional(),
+    toVersion: zod.alias('v', z.string().optional()),
+    shell: z.enum(['bash', 'powershell', 'cmd']).default('powershell'),
+    output: z.enum(['json', 'text', 'md', 'tour', 'csv', 'none']).optional()
+  })
+  .strict();
+
+declare type Options = z.infer<typeof options>;
+
 interface CommandArgs {
   options: Options;
 }
 
-interface Options extends GlobalOptions {
-  packageManager?: string;
-  preview?: boolean;
-  toVersion?: string;
-  shell?: string;
-}
-
 class SpfxProjectUpgradeCommand extends BaseProjectCommand {
-  private static packageManagers: string[] = ['npm', 'pnpm', 'yarn'];
-  private static shells: string[] = ['bash', 'powershell', 'cmd'];
 
   private projectVersion: string | undefined;
   private toVersion: string = '';
-  private packageManager: string = 'npm';
-  private shell: string = 'bash';
+  private packageManager: string = '';
+  private shell: string = '';
   private allFindings: Finding[] = [];
   private supportedVersions: string[] = [
     '1.0.0',
@@ -82,7 +86,8 @@ class SpfxProjectUpgradeCommand extends BaseProjectCommand {
     '1.19.0',
     '1.20.0',
     '1.21.0',
-    '1.21.1'
+    '1.21.1',
+    '1.22.0-beta.1'
   ];
 
   public static ERROR_NO_PROJECT_ROOT_FOLDER: number = 1;
@@ -103,72 +108,12 @@ class SpfxProjectUpgradeCommand extends BaseProjectCommand {
     return ['json', 'text', 'md', 'tour'];
   }
 
+  public get schema(): z.ZodTypeAny {
+    return options;
+  }
+
   constructor() {
     super();
-
-    this.#initTelemetry();
-    this.#initOptions();
-    this.#initValidators();
-  }
-
-  #initTelemetry(): void {
-    this.telemetry.push((args: CommandArgs) => {
-      Object.assign(this.telemetryProperties, {
-        toVersion: args.options.toVersion || this.supportedVersions[this.supportedVersions.length - 1],
-        packageManager: args.options.packageManager || 'npm',
-        shell: args.options.shell || 'bash',
-        preview: args.options.preview
-      });
-      // uncomment to support upgrading to preview releases
-      // if (prerelease(this.telemetryProperties.toVersion) && !args.options.preview) {
-      //   this.telemetryProperties.toVersion = this.supportedVersions[this.supportedVersions.length - 2];
-      // }
-    });
-  }
-
-  #initOptions(): void {
-    this.options.unshift(
-      {
-        option: '-v, --toVersion [toVersion]'
-      },
-      {
-        option: '--packageManager [packageManager]',
-        autocomplete: SpfxProjectUpgradeCommand.packageManagers
-      },
-      {
-        option: '--shell [shell]',
-        autocomplete: SpfxProjectUpgradeCommand.shells
-      },
-      {
-        option: '--preview'
-      }
-    );
-
-    this.options.forEach(o => {
-      if (o.option.indexOf('--output') > -1) {
-        o.autocomplete = this.allowedOutputs;
-      }
-    });
-  }
-
-  #initValidators(): void {
-    this.validators.push(
-      async (args: CommandArgs) => {
-        if (args.options.packageManager) {
-          if (SpfxProjectUpgradeCommand.packageManagers.indexOf(args.options.packageManager) < 0) {
-            return `${args.options.packageManager} is not a supported package manager. Supported package managers are ${SpfxProjectUpgradeCommand.packageManagers.join(', ')}`;
-          }
-        }
-
-        if (args.options.shell) {
-          if (SpfxProjectUpgradeCommand.shells.indexOf(args.options.shell) < 0) {
-            return `${args.options.shell} is not a supported shell. Supported shells are ${SpfxProjectUpgradeCommand.shells.join(', ')}`;
-          }
-        }
-
-        return true;
-      }
-    );
   }
 
   public async commandAction(logger: Logger, args: CommandArgs): Promise<void> {
@@ -179,17 +124,17 @@ class SpfxProjectUpgradeCommand extends BaseProjectCommand {
 
     this.toVersion = args.options.toVersion ? args.options.toVersion : this.supportedVersions[this.supportedVersions.length - 1];
     // uncomment to support upgrading to preview releases
-    // if (!args.options.toVersion &&
-    //   !args.options.preview &&
-    //   prerelease(this.toVersion)) {
-    //   // no version and no preview specified while the current version to
-    //   // upgrade to is a prerelease so let's grab the first non-preview version
-    //   // since we're supporting only one preview version, it's sufficient for
-    //   // us to take second to last version
-    //   this.toVersion = this.supportedVersions[this.supportedVersions.length - 2];
-    // }
+    if (!args.options.toVersion &&
+      !args.options.preview &&
+      prerelease(this.toVersion)) {
+      // no version and no preview specified while the current version to
+      // upgrade to is a prerelease so let's grab the first non-preview version
+      // since we're supporting only one preview version, it's sufficient for
+      // us to take second to last version
+      this.toVersion = this.supportedVersions[this.supportedVersions.length - 2];
+    }
     this.packageManager = args.options.packageManager || 'npm';
-    this.shell = args.options.shell || 'bash';
+    this.shell = args.options.shell || 'powershell';
 
     if (this.supportedVersions.indexOf(this.toVersion) < 0) {
       throw new CommandError(`CLI for Microsoft 365 doesn't support upgrading SharePoint Framework projects to version ${this.toVersion}. Supported versions are ${this.supportedVersions.join(', ')}`, SpfxProjectUpgradeCommand.ERROR_UNSUPPORTED_TO_VERSION);
@@ -374,7 +319,7 @@ class SpfxProjectUpgradeCommand extends BaseProjectCommand {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public getMdOutput(logStatement: any[], command: Command, options: GlobalOptions): string {
+  public getMdOutput(logStatement: any[], command: Command, options: Options): string {
     // overwrite markdown output to return the output as-is
     // because the command already implements its own logic to format the output
     return logStatement as any;
