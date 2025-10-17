@@ -18,7 +18,7 @@
     "@fluentui/react": "^8.106.4",
     "@microsoft/sp-core-library": "1.18.0",
     "@microsoft/decorators": "1.18.0",
-    "@microsoft/sp-listview-extensibility": "1.18.0"
+    "@microsoft/sp-listview-extensibility": "1.20.0"
   },
   "devDependencies": {
     "@microsoft/rush-stack-compiler-4.7": "0.1.0",
