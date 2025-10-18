@@ -11,8 +11,8 @@
   "dependencies": {
     "@microsoft/sp-core-library": "1.12.1",
     "@microsoft/decorators": "1.12.1",
-    "@microsoft/sp-listview-extensibility": "1.12.1",
-    "@microsoft/sp-dialog": "1.12.1"
+    "@microsoft/sp-listview-extensibility": "1.13.0",
+    "@microsoft/sp-dialog": "1.13.0"
   },
   "devDependencies": {
     "@microsoft/sp-build-web": "1.12.1",
