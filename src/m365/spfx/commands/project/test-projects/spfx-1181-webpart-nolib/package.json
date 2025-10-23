@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "tslib": "2.3.1",
-    "@microsoft/sp-core-library": "1.18.1",
+    "@microsoft/sp-core-library": "1.20.0",
     "@microsoft/sp-component-base": "1.20.0",
     "@microsoft/sp-property-pane": "1.20.0",
     "@microsoft/sp-webpart-base": "1.20.0",
