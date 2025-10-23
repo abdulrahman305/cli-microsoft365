@@ -15,7 +15,7 @@
     "office-ui-fabric-react": "7.185.7",
     "@microsoft/sp-core-library": "1.15.2",
     "@microsoft/sp-property-pane": "1.15.2",
-    "@microsoft/sp-webpart-base": "1.15.2",
+    "@microsoft/sp-webpart-base": "1.16.0",
     "@microsoft/sp-lodash-subset": "1.15.2",
     "@microsoft/sp-office-ui-fabric-core": "1.15.2"
   },
