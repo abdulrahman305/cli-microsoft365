@@ -17,7 +17,7 @@
     "office-ui-fabric-react": "6.214.0",
     "@microsoft/sp-core-library": "1.11.0",
     "@microsoft/decorators": "1.11.0",
-    "@microsoft/sp-listview-extensibility": "1.11.0"
+    "@microsoft/sp-listview-extensibility": "1.13.0"
   },
   "devDependencies": {
     "@types/react": "16.8.8",
