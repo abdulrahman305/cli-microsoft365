@@ -11,16 +11,16 @@
   "dependencies": {
     "@microsoft/sp-core-library": "1.13.0",
     "@microsoft/decorators": "1.13.0",
-    "@microsoft/sp-dialog": "1.13.0",
-    "@microsoft/sp-application-base": "1.13.0"
+    "@microsoft/sp-dialog": "1.20.0",
+    "@microsoft/sp-application-base": "1.20.0"
   },
   "devDependencies": {
-    "@microsoft/sp-build-web": "1.13.0",
+    "@microsoft/sp-build-web": "1.21.0",
     "@microsoft/sp-tslint-rules": "1.13.0",
     "@microsoft/sp-module-interfaces": "1.13.0",
     "@microsoft/rush-stack-compiler-3.9": "0.4.47",
-    "gulp": "~4.0.2",
-    "ajv": "~5.2.2",
+    "gulp": "~5.0.0",
+    "ajv": "~6.12.3",
     "@types/webpack-env": "1.13.1"
   }
 }
