@@ -23,3 +23,29 @@ patch:
         path: >-
           @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
           gulp-connect > tiny-lr > body-parser > debug > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > ms':
+        patched: '2025-11-27T08:06:14.026Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > ms
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > debug > ms':
+        patched: '2025-11-27T08:06:14.026Z'
+        id: 'npm:ms:20170412'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > debug > ms
+  'npm:debug:20170905':
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > debug':
+        patched: '2025-11-27T08:06:14.026Z'
+        id: 'npm:debug:20170905'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > debug
+  'npm:mime:20170907':
+    - '@microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve > gulp-connect > send > mime':
+        patched: '2025-11-27T08:06:14.026Z'
+        id: 'npm:mime:20170907'
+        path: >-
+          @microsoft/sp-webpart-workbench > @microsoft/gulp-core-build-serve >
+          gulp-connect > send > mime
