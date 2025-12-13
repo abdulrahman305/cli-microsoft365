@@ -27,14 +27,14 @@
     "@microsoft/sp-loader": "1.16.1",
     "@microsoft/sp-module-interfaces": "1.16.1",
     "@microsoft/sp-odata-types": "1.16.1",
-    "@microsoft/sp-page-context": "1.16.1"
+    "@microsoft/sp-page-context": "1.18.0"
   },
   "devDependencies": {
     "@microsoft/rush-stack-compiler-4.5": "0.2.2",
     "@rushstack/eslint-config": "2.5.1",
     "@microsoft/eslint-plugin-spfx": "1.16.1",
     "@microsoft/eslint-config-spfx": "1.16.1",
-    "@microsoft/sp-build-web": "1.16.1",
+    "@microsoft/sp-build-web": "1.17.0",
     "@types/webpack-env": "~1.15.2",
     "ajv": "^6.12.5",
     "gulp": "4.0.2",
