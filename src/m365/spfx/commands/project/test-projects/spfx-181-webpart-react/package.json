@@ -8,7 +8,9 @@
   "scripts": {
     "build": "gulp bundle",
     "clean": "gulp clean",
-    "test": "gulp test"
+    "test": "gulp test",
+    "prepublish": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "dependencies": {
     "react": "16.7.0",
@@ -17,24 +19,26 @@
     "@types/react-dom": "16.0.5",
     "@microsoft/sp-core-library": "1.8.1",
     "@microsoft/sp-property-pane": "1.8.1",
-    "@microsoft/sp-webpart-base": "1.8.1",
+    "@microsoft/sp-webpart-base": "1.16.0",
     "@microsoft/sp-lodash-subset": "1.8.1",
     "@microsoft/sp-office-ui-fabric-core": "1.8.1",
     "@types/webpack-env": "1.13.1",
-    "@types/es6-promise": "0.0.33"
+    "@types/es6-promise": "0.0.33",
+    "@snyk/protect": "latest"
   },
   "resolutions": {
     "@types/react": "16.4.2"
   },
   "devDependencies": {
-    "@microsoft/sp-build-web": "1.8.1",
-    "@microsoft/sp-tslint-rules": "1.8.1",
-    "@microsoft/sp-module-interfaces": "1.8.1",
-    "@microsoft/sp-webpart-workbench": "1.8.1",
+    "@microsoft/sp-build-web": "1.21.0",
+    "@microsoft/sp-tslint-rules": "1.8.2",
+    "@microsoft/sp-module-interfaces": "1.13.0",
+    "@microsoft/sp-webpart-workbench": "1.12.1",
     "@microsoft/rush-stack-compiler-2.7": "0.4.0",
-    "gulp": "~3.9.1",
+    "gulp": "~5.0.0",
     "@types/chai": "3.4.34",
     "@types/mocha": "2.2.38",
-    "ajv": "~5.2.2"
-  }
+    "ajv": "~6.12.3"
+  },
+  "snyk": true
 }
