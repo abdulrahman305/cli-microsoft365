@@ -11,7 +11,7 @@
   "dependencies": {
     "@microsoft/sp-core-library": "1.12.1",
     "@microsoft/sp-property-pane": "1.12.1",
-    "@microsoft/sp-webpart-base": "1.12.1",
+    "@microsoft/sp-webpart-base": "1.13.0",
     "@microsoft/sp-lodash-subset": "1.12.1",
     "@microsoft/sp-office-ui-fabric-core": "1.12.1",
     "@microsoft/sp-component-base": "1.12.1",
@@ -21,14 +21,14 @@
     "@microsoft/sp-http": "1.12.1",
     "@microsoft/sp-list-subscription": "1.12.1",
     "@microsoft/sp-loader": "1.12.1",
-    "@microsoft/sp-module-interfaces": "1.12.1",
+    "@microsoft/sp-module-interfaces": "1.13.0",
     "@microsoft/sp-odata-types": "1.12.1",
     "@microsoft/sp-page-context": "1.12.1"
   },
   "devDependencies": {
     "@microsoft/sp-build-web": "1.12.1",
     "@microsoft/sp-tslint-rules": "1.12.1",
-    "@microsoft/sp-module-interfaces": "1.12.1",
+    "@microsoft/sp-module-interfaces": "1.13.0",
     "@microsoft/sp-webpart-workbench": "1.12.1",
     "@microsoft/rush-stack-compiler-3.7": "0.2.3",
     "gulp": "~4.0.2",
