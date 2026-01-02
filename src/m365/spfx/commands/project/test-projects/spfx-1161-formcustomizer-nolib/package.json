@@ -15,19 +15,19 @@
     "tslib": "2.3.1",
     "@microsoft/sp-core-library": "1.16.1",
     "@microsoft/decorators": "1.16.1",
-    "@microsoft/sp-listview-extensibility": "1.16.1",
+    "@microsoft/sp-listview-extensibility": "1.20.0",
     "@microsoft/sp-lodash-subset": "1.16.1",
     "@microsoft/sp-office-ui-fabric-core": "1.16.1"
   },
   "devDependencies": {
-    "@microsoft/rush-stack-compiler-4.5": "0.2.2",
+    "@microsoft/rush-stack-compiler-4.5": "0.4.0",
     "@rushstack/eslint-config": "2.5.1",
     "@microsoft/eslint-plugin-spfx": "1.16.1",
     "@microsoft/eslint-config-spfx": "1.16.1",
-    "@microsoft/sp-build-web": "1.16.1",
+    "@microsoft/sp-build-web": "1.22.0",
     "@types/webpack-env": "~1.15.2",
     "ajv": "^6.12.5",
-    "gulp": "4.0.2",
+    "gulp": "5.0.0",
     "typescript": "4.5.5",
     "@microsoft/sp-module-interfaces": "1.16.1"
   }
